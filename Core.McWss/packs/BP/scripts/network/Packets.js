@@ -6,19 +6,17 @@ class McApiPacket
     }
 
     /**
-     * @param { DataView } buffer 
-     * @param { Number } index 
+     * @param { NetDataWriter } writer 
      */
-    serialize(buffer, index)
+    serialize(writer)
     {
 
     }
 
     /**
-     * @param { DataView } buffer 
-     * @param { Number } index 
+     * @param { NetDataReader } reader 
      */
-    deserialize(buffer, index)
+    deserialize(reader)
     {
         
     }
@@ -35,10 +33,9 @@ class LoginPacket extends McApiPacket
     }
 
     /**
-     * @param { NetDataWriter } buffer 
-     * @param { Number } index 
+     * @param { NetDataWriter } writer 
      */
-    serialize(buffer, index)
+    serialize(writer)
     {
 
     }

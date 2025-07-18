@@ -4,16 +4,16 @@ class NetDataWriter {
   /** @type { TextDecoder } */
   static _textDecoder = new TextDecoder();
 
-  /** @type { Array<ArrayBuffer> } */
+  /** @type { ArrayBuffer } */
   data = () => this._data;
   /** @type { Number } */
-  capacity = () => this.data.length;
+  capacity = () => this.data.byteLength;
   /** @type { Number } */
   length = () => this._offset;
   /** @type { Boolean } */
   autoResize = false;
 
-  /** @type { Array<ArrayBuffer> } */
+  /** @type { ArrayBuffer } */
   _data;
   /** @type { DataView } */
   _dataView;
@@ -21,7 +21,7 @@ class NetDataWriter {
   _offset = 0;
 
   /**
-   * @param { Array<ArrayBuffer> } buffer
+   * @param { ArrayBuffer } buffer
    */
   constructor(buffer = undefined) {
     if (buffer !== undefined) this._data = buffer;
@@ -33,11 +33,13 @@ class NetDataWriter {
    * @param { Number } newSize
    */
   resizeIfNeed(newSize) {
-    if (!autoResize || this._data.Length >= newSize) return;
+    if (!autoResize || this._data.byteLength >= newSize) return;
 
-    newSize = Math.max(newSize, this._data.length * 2);
-    while (newSize > this._data.length) this._data.push(0);
-    this.data.length = newSize;
+    newSize = Math.max(newSize, this._data.byteLength * 2);
+    const newBuffer = new ArrayBuffer(newSize);
+    new Uint8Array(newBuffer).set(this._data);
+    this._data = newBuffer;
+    this._dataView = new DataView(this._data); //new data view.
   }
 
   reset() {
@@ -144,20 +146,21 @@ class NetDataWriter {
       return;
     }
 
-    const charCount =
-      maxLength <= 0 || value.length <= maxLength ? value.length : maxLength;
+    const charCount = maxLength <= 0 || value.length <= maxLength ? value.length : maxLength;
     const encodedData = NetDataWriter._textEncoder.encode(
       value.slice(0, charCount)
     );
-    this.resizeIfNeed(this._offset + encodedData.length + 2);
+    this.resizeIfNeed(this._offset + encodedData.byteLength + 2);
 
-    if(encodedData === 0)
+    if(encodedData.byteLength === 0)
     {
         this.putUshort(0);
         return;
     }
 
-    this.putUshort(encodedData.length + 1);
-    this._offset += encodedData.length;
+    this.putUshort(encodedData.byteLength + 1);
+    this._offset += encodedData.byteLength;
   }
 }
+
+export { NetDataWriter }
