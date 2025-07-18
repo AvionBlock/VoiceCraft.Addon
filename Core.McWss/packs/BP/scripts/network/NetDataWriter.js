@@ -1,145 +1,141 @@
 class NetDataWriter {
-  /** @type { TextEncoder } */
-  static _textEncoder = new TextEncoder();
-  /** @type { TextDecoder } */
-  static _textDecoder = new TextDecoder();
-
   /** @type { ArrayBuffer } */
-  data = () => this._data;
+  get data() { return this.#_data };
   /** @type { Number } */
-  capacity = () => this.data.byteLength;
+  get capacity() { return this.#_data.byteLength };
   /** @type { Number } */
-  length = () => this._offset;
+  get length() { return this.#_offset };
   /** @type { Boolean } */
-  autoResize = false;
+  autoResize = true;
 
   /** @type { ArrayBuffer } */
-  _data;
-  /** @type { DataView } */
-  _dataView;
+  #_data;
   /** @type { Number } */
-  _offset = 0;
+  #_offset = 0;
+  /** @type { DataView } */
+  #_dataView;
 
   /**
    * @param { ArrayBuffer } buffer
    */
   constructor(buffer = undefined) {
-    if (buffer !== undefined) this._data = buffer;
-    else this._data = new ArrayBuffer();
-    this._dataView = new DataView(this._data);
+    if (buffer !== undefined) this.#_data = buffer;
+    else this.#_data = new ArrayBuffer();
+    this.#_dataView = new DataView(this.#_data);
   }
 
   /**
    * @param { Number } newSize
    */
   resizeIfNeed(newSize) {
-    if (!autoResize || this._data.byteLength >= newSize) return;
+    if (!this.autoResize || this.#_data.byteLength >= newSize) return;
 
-    newSize = Math.max(newSize, this._data.byteLength * 2);
+    newSize = Math.max(newSize, this.#_data.byteLength * 2);
     const newBuffer = new ArrayBuffer(newSize);
-    new Uint8Array(newBuffer).set(this._data);
-    this._data = newBuffer;
-    this._dataView = new DataView(this._data); //new data view.
+    new Uint8Array(newBuffer).set(new Uint8Array(this.#_data));
+    this.#_data = newBuffer;
+    this.#_dataView = new DataView(this.#_data); //new data view.
   }
 
   reset() {
-    this._offset = 0;
+    this.#_offset = 0;
   }
 
   /**
    * @param { Number } value
    */
   putFloat(value) {
-    this.resizeIfNeed(this._offset + 4);
-    this._dataView.setFloat32(this._offset, value);
-    this._offset += 4;
+    this.resizeIfNeed(this.#_offset + 4);
+    this.#_dataView.setFloat32(this.#_offset, value);
+    this.#_offset += 4;
   }
 
   /**
    * @param { Number } value
    */
   putDouble(value) {
-    this.resizeIfNeed(this._offset + 8);
-    this._dataView.setFloat64(this._offset, value);
-    this._offset += 8;
+    this.resizeIfNeed(this.#_offset + 8);
+    this.#_dataView.setFloat64(this.#_offset, value);
+    this.#_offset += 8;
   }
 
   /**
    * @param { Number } value
    */
   putSbyte(value) {
-    this.resizeIfNeed(this._offset + 1);
-    this._dataView.setInt8(this._offset, value);
-    this._offset += 1;
+    this.resizeIfNeed(this.#_offset + 1);
+    this.#_dataView.setInt8(this.#_offset, value);
+    this.#_offset += 1;
   }
 
   /**
    * @param { Number } value
    */
   putShort(value) {
-    this.resizeIfNeed(this._offset + 2);
-    this._dataView.setInt16(this._offset, value);
-    this._offset += 2;
+    this.resizeIfNeed(this.#_offset + 2);
+    this.#_dataView.setInt16(this.#_offset, value);
+    this.#_offset += 2;
   }
 
   /**
    * @param { Number } value
    */
   putInt(value) {
-    this.resizeIfNeed(this._offset + 4);
-    this._dataView.setInt32(this._offset, value);
-    this._offset += 4;
+    this.resizeIfNeed(this.#_offset + 4);
+    this.#_dataView.setInt32(this.#_offset, value);
+    this.#_offset += 4;
   }
 
   /**
    * @param { Number } value
    */
   putLong(value) {
-    this.resizeIfNeed(this._offset + 8);
-    this._dataView.setBigInt64(this._offset, value);
-    this._offset += 8;
+    this.resizeIfNeed(this.#_offset + 8);
+    this.#_dataView.setBigInt64(this.#_offset, value);
+    this.#_offset += 8;
   }
 
   /**
    * @param { Number } value
    */
   putByte(value) {
-    this.resizeIfNeed(this._offset + 1);
-    this._dataView.setUint8(this._offset, value);
-    this._offset += 1;
+    this.resizeIfNeed(this.#_offset + 1);
+    this.#_dataView.setUint8(this.#_offset, value);
+    this.#_offset += 1;
   }
 
   /**
    * @param { Number } value
    */
   putUshort(value) {
-    this.resizeIfNeed(this._offset + 2);
-    this._dataView.setUint16(this._offset, value);
-    this._offset += 2;
+    this.resizeIfNeed(this.#_offset + 2);
+    this.#_dataView.setUint16(this.#_offset, value);
+    this.#_offset += 2;
   }
 
   /**
    * @param { Number } value
    */
   putUint(value) {
-    this.resizeIfNeed(this._offset + 4);
-    this._dataView.setUint32(this._offset, value);
-    this._offset += 4;
+    this.resizeIfNeed(this.#_offset + 4);
+    this.#_dataView.setUint32(this.#_offset, value);
+    this.#_offset += 4;
   }
 
   /**
    * @param { Number } value
    */
   putUlong(value) {
-    this.resizeIfNeed(this._offset + 8);
-    this._dataView.setBigUint64(this._offset, value);
-    this._offset += 8;
+    this.resizeIfNeed(this.#_offset + 8);
+    this.#_dataView.setBigUint64(this.#_offset, value);
+    this.#_offset += 8;
   }
 
   /**
    * @param { String } value
    * @param { Number } maxLength
    */
+  /*
   putString(value, maxLength) {
     if (value.length <= 0) {
       this.putUshort(0);
@@ -161,6 +157,7 @@ class NetDataWriter {
     this.putUshort(encodedData.byteLength + 1);
     this._offset += encodedData.byteLength;
   }
+  */
 }
 
 export { NetDataWriter }
