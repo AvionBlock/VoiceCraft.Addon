@@ -1,14 +1,23 @@
 import { NetDataWriter } from "./NetDataWriter";
+import * as utf8 from "../utf8";
 
 class NetDataReader {
   /** @type { ArrayBuffer } */
-  get data() { return this.#_data; }
+  get data() {
+    return this.#_data;
+  }
   /** @type { Number } */
-  get length() { return this.#_dataSize };
+  get length() {
+    return this.#_dataSize;
+  }
   /** @type { Number } */
-  get offset() { return this.#_offset; }
+  get offset() {
+    return this.#_offset;
+  }
   /** @type { Boolean } */
-  get isNull() { return this.#_data === undefined }
+  get isNull() {
+    return this.#_data === undefined;
+  }
 
   /** @type { ArrayBuffer } */
   #_data;
@@ -23,17 +32,14 @@ class NetDataReader {
    * @param { NetDataWriter } writer
    */
   constructor(writer = undefined, buffer = undefined) {
-    if (writer !== undefined)
-      this.setWriterSource(writer);
-    else if (buffer !== undefined)
-      this.setBufferSource(buffer);
+    if (writer !== undefined) this.setWriterSource(writer);
+    else if (buffer !== undefined) this.setBufferSource(buffer);
   }
 
   /**
-   * @param { NetDataWriter } writer 
+   * @param { NetDataWriter } writer
    */
-  setWriterSource(writer)
-  {
+  setWriterSource(writer) {
     this.#_data = writer.data;
     this.#_offset = 0;
     this.#_dataSize = writer.length;
@@ -43,8 +49,7 @@ class NetDataReader {
   /**
    * @param { ArrayBuffer } buffer
    */
-  setBufferSource(buffer)
-  {
+  setBufferSource(buffer) {
     this.#_data = buffer;
     this.#_offset = 0;
     this.#_dataSize = buffer.byteLength;
@@ -97,7 +102,7 @@ class NetDataReader {
     return value;
   }
 
-  /**
+  /**Output 3: ${reader.getString()
    * @returns { Number }
    */
   getInt() {
@@ -154,40 +159,15 @@ class NetDataReader {
   /**
    * @returns { String }
    */
-  /*
   getString() {
     const num = this.getUshort();
-    if(num === 0)
-      return "";
+    if (num === 0) return "";
 
     const count = num - 1;
-    const stringSection = this._data.slice(this._offset, count);
-    let str = NetDataReader._textDecoder.decode(stringSection);
-    this._offset += count;
+    const str = utf8.getString(this.#_data, this.#_offset, count);
+    this.#_offset += count;
     return str;
   }
-  */
-
-  /**
-   * @param { Number } maxLength
-   * @returns { String }
-   */
-  /*
-  getString(maxLength) {
-    const num = this.getUshort();
-    if(num === 0)
-      return "";
-
-    const count = num - 1;
-    const stringSection = this._data.slice(this._offset, count);
-    let str = NetDataReader._textDecoder.decode(stringSection);
-    if(maxLength > 0 && str.length > maxLength)
-      str = ""; //Return empty string.
-
-    this._offset += count;
-    return str;
-  }
-  */
 }
 
-export { NetDataReader }
+export { NetDataReader };
