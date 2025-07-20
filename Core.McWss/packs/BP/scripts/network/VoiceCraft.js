@@ -2,12 +2,6 @@ import { system, Player } from "@minecraft/server";
 import { McApiPacket, LoginPacket } from "./Packets";
 
 class VoiceCraft {
-    //Generic objects.
-    /** @type { TextEncoder } */
-    _textEncoder = new TextEncoder();
-    /** @type { TextDecoder } */
-    _textDecoder = new TextDecoder();
-
     //Connection state objects.
     /** @type { Player | undefined } */
     _source = undefined;
@@ -61,7 +55,7 @@ class VoiceCraft {
   {
     const serializeBuffer = new Uint8Array();
     packet.serialize(serializeBuffer); //Serialize
-    const packetData = this._textDecoder.decode(serializeBuffer); //Convert to string.
+    const packetData = #.decode(serializeBuffer); //Convert to string.
     this._source.runCommand(`tellraw @s {"rawtext":[{"text":"${packetData}"}]}`);
   }
 
@@ -72,7 +66,7 @@ class VoiceCraft {
   handleMcApiEvent(source, message) {
     if (source?.typeId !== "minecraft:player" || message === undefined) return;
     let packetIndex = 0;
-    const packetData = this._textEncoder.encode(message);
+    const packetData = #.encode(message);
     const packetId = packetData[packetIndex++]; //Read first byte which is the packet id.
     this.handlePacket(packetId, packetData, packetIndex);
   }
