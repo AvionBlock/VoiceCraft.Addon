@@ -2,19 +2,31 @@ import { NetDataWriter } from "./NetDataWriter";
 import * as utf8 from "../utf8";
 
 class NetDataReader {
-  /** @type { ArrayBuffer } */
+  /**
+   * @description Contains the raw buffer data the the reader is set to.
+   * @type { ArrayBuffer | undefined }
+   */
   get data() {
     return this.#_data;
   }
-  /** @type { Number } */
+  /**
+   * @description Contains the length of the buffer when set, not the raw data length.
+   * @type { Number }
+   */
   get length() {
     return this.#_dataSize;
   }
-  /** @type { Number } */
+  /**
+   * @description Contains the offset in the raw data it is reading from.
+   * @type { Number }
+   */
   get offset() {
     return this.#_offset;
   }
-  /** @type { Boolean } */
+  /**
+   * @description Determines whether the buffer source has not been set.
+   * @type { Boolean }
+   */
   get isNull() {
     return this.#_data === undefined;
   }
@@ -29,6 +41,7 @@ class NetDataReader {
   #_dataView;
 
   /**
+   * @description Creates a new reader.
    * @param { NetDataWriter } writer
    */
   constructor(writer = undefined, buffer = undefined) {
@@ -37,6 +50,7 @@ class NetDataReader {
   }
 
   /**
+   * @description Sets the reader's source.
    * @param { NetDataWriter } writer
    */
   setWriterSource(writer) {
@@ -47,6 +61,7 @@ class NetDataReader {
   }
 
   /**
+   * @description Sets the reader's source.
    * @param { ArrayBuffer } buffer
    */
   setBufferSource(buffer) {
@@ -57,6 +72,7 @@ class NetDataReader {
   }
 
   /**
+   * @description Clear's the reader's source. Does not overwrite or reset the original source.
    * @param { ArrayBuffer }
    */
 
@@ -67,6 +83,7 @@ class NetDataReader {
   }
 
   /**
+   * @description Get's a float value from the buffer.
    * @returns { Number }
    */
   getFloat() {
@@ -76,6 +93,7 @@ class NetDataReader {
   }
 
   /**
+   * @description Get's a double value from the buffer.
    * @returns { Number }
    */
   getDouble() {
@@ -85,6 +103,7 @@ class NetDataReader {
   }
 
   /**
+   * @description Get's a signed byte value from the buffer.
    * @returns { Number }
    */
   getSbyte() {
@@ -94,6 +113,7 @@ class NetDataReader {
   }
 
   /**
+   * @description Get's a short value from the buffer.
    * @returns { Number }
    */
   getShort() {
@@ -102,7 +122,8 @@ class NetDataReader {
     return value;
   }
 
-  /**Output 3: ${reader.getString()
+  /**
+   * @description Get's an int value from the buffer.
    * @returns { Number }
    */
   getInt() {
@@ -112,6 +133,7 @@ class NetDataReader {
   }
 
   /**
+   * @description Get's a long value from the buffer.
    * @returns { Number }
    */
   getLong() {
@@ -121,6 +143,7 @@ class NetDataReader {
   }
 
   /**
+   * @description Get's a byte value from the buffer.
    * @returns { Number }
    */
   getByte() {
@@ -130,6 +153,7 @@ class NetDataReader {
   }
 
   /**
+   * @description Get's an unsigned short value from the buffer.
    * @returns { Number }
    */
   getUshort() {
@@ -139,6 +163,7 @@ class NetDataReader {
   }
 
   /**
+   * @description Get's an unsigned int value from the buffer.
    * @returns { Number }
    */
   getUint() {
@@ -148,6 +173,7 @@ class NetDataReader {
   }
 
   /**
+   * @description Get's an unsigned long value from the buffer.
    * @returns { Number }
    */
   getUlong() {
@@ -157,6 +183,7 @@ class NetDataReader {
   }
 
   /**
+   * @description Get's a string value from the buffer.
    * @returns { String }
    */
   getString() {
