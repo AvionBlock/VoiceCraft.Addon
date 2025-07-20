@@ -1,19 +1,24 @@
 import * as utf8 from "../utf8";
 
 class NetDataWriter {
-  /** @type { ArrayBuffer } */
+  /**
+   * @description Contains the raw buffer data the writer holds.
+   * @type { ArrayBuffer }
+   */
   get data() {
     return this.#_data;
   }
-  /** @type { Number } */
-  get capacity() {
-    return this.#_data.byteLength;
-  }
-  /** @type { Number } */
+  /**
+   * @description Contains the total length of the data that was written.
+   * @type { Number }
+   */
   get length() {
     return this.#_offset;
   }
-  /** @type { Boolean } */
+  /**
+   * @description Determines whether the internal buffer should automatically resize when inputting new data.
+   * @type { Boolean }
+   */
   autoResize = true;
 
   /** @type { ArrayBuffer } */
@@ -26,6 +31,7 @@ class NetDataWriter {
   #_dataView;
 
   /**
+   * @description Creates a new writer.
    * @param { ArrayBuffer } buffer
    */
   constructor(buffer = undefined) {
@@ -36,9 +42,10 @@ class NetDataWriter {
   }
 
   /**
+   * @description Resizes the internal buffer to the new size if required.
    * @param { Number } newSize
    */
-  resizeIfNeed(newSize) {
+  resizeIfNeeded(newSize) {
     if (!this.autoResize || this.#_data.byteLength >= newSize) return;
 
     newSize = Math.max(newSize, this.#_data.byteLength * 2);
@@ -51,101 +58,115 @@ class NetDataWriter {
     this.#_dataView = new DataView(this.#_data); //new data view.
   }
 
+  /**
+   * @description Resets the writer.
+   */
   reset() {
     this.#_offset = 0;
   }
 
   /**
+   * @description Writes a float value into the buffer.
    * @param { Number } value
    */
   putFloat(value) {
-    this.resizeIfNeed(this.#_offset + 4);
+    this.resizeIfNeeded(this.#_offset + 4);
     this.#_dataView.setFloat32(this.#_offset, value);
     this.#_offset += 4;
   }
 
   /**
+   * @description Writes a double value into the buffer.
    * @param { Number } value
    */
   putDouble(value) {
-    this.resizeIfNeed(this.#_offset + 8);
+    this.resizeIfNeeded(this.#_offset + 8);
     this.#_dataView.setFloat64(this.#_offset, value);
     this.#_offset += 8;
   }
 
   /**
+   * @description Writes a signed byte value into the buffer.
    * @param { Number } value
    */
   putSbyte(value) {
-    this.resizeIfNeed(this.#_offset + 1);
+    this.resizeIfNeeded(this.#_offset + 1);
     this.#_dataView.setInt8(this.#_offset, value);
     this.#_offset += 1;
   }
 
   /**
+   * @description Writes a short value into the buffer.
    * @param { Number } value
    */
   putShort(value) {
-    this.resizeIfNeed(this.#_offset + 2);
+    this.resizeIfNeeded(this.#_offset + 2);
     this.#_dataView.setInt16(this.#_offset, value);
     this.#_offset += 2;
   }
 
   /**
+   * @description Writes an int value into the buffer.
    * @param { Number } value
    */
   putInt(value) {
-    this.resizeIfNeed(this.#_offset + 4);
+    this.resizeIfNeeded(this.#_offset + 4);
     this.#_dataView.setInt32(this.#_offset, value);
     this.#_offset += 4;
   }
 
   /**
+   * @description Writes a long value into the buffer.
    * @param { Number } value
    */
   putLong(value) {
-    this.resizeIfNeed(this.#_offset + 8);
+    this.resizeIfNeeded(this.#_offset + 8);
     this.#_dataView.setBigInt64(this.#_offset, value);
     this.#_offset += 8;
   }
 
   /**
+   * @description Writes a byte value into the buffer.
    * @param { Number } value
    */
   putByte(value) {
-    this.resizeIfNeed(this.#_offset + 1);
+    this.resizeIfNeeded(this.#_offset + 1);
     this.#_dataView.setUint8(this.#_offset, value);
     this.#_offset += 1;
   }
 
   /**
+   * @description Writes an unsigned short value into the buffer.
    * @param { Number } value
    */
   putUshort(value) {
-    this.resizeIfNeed(this.#_offset + 2);
+    this.resizeIfNeeded(this.#_offset + 2);
     this.#_dataView.setUint16(this.#_offset, value);
     this.#_offset += 2;
   }
 
   /**
+   * @description Writes an unsigned int value into the buffer.
    * @param { Number } value
    */
   putUint(value) {
-    this.resizeIfNeed(this.#_offset + 4);
+    this.resizeIfNeeded(this.#_offset + 4);
     this.#_dataView.setUint32(this.#_offset, value);
     this.#_offset += 4;
   }
 
   /**
+   * @description Writes an unsigned long value into the buffer.
    * @param { Number } value
    */
   putUlong(value) {
-    this.resizeIfNeed(this.#_offset + 8);
+    this.resizeIfNeeded(this.#_offset + 8);
     this.#_dataView.setBigUint64(this.#_offset, value);
     this.#_offset += 8;
   }
 
   /**
+   * @description Writes string value into the buffer.
    * @param { String } value
    * @param { Number } maxLength
    */
@@ -159,7 +180,7 @@ class NetDataWriter {
     const charCount =
       maxLength <= 0 || value.length <= maxLength ? value.length : maxLength;
     const maxByteCount = utf8.getMaxByteCount(charCount);
-    this.resizeIfNeed(this.#_offset + maxByteCount + 2);
+    this.resizeIfNeeded(this.#_offset + maxByteCount + 2);
 
     const encodedBytes = utf8.getBytes(
       value,
