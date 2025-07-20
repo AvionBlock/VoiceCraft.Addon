@@ -1,15 +1,25 @@
+import * as utf8 from "../utf8";
+
 class NetDataWriter {
   /** @type { ArrayBuffer } */
-  get data() { return this.#_data };
+  get data() {
+    return this.#_data;
+  }
   /** @type { Number } */
-  get capacity() { return this.#_data.byteLength };
+  get capacity() {
+    return this.#_data.byteLength;
+  }
   /** @type { Number } */
-  get length() { return this.#_offset };
+  get length() {
+    return this.#_offset;
+  }
   /** @type { Boolean } */
   autoResize = true;
 
   /** @type { ArrayBuffer } */
   #_data;
+  /** @type { Uint8Array } */
+  #_uint8Data;
   /** @type { Number } */
   #_offset = 0;
   /** @type { DataView } */
@@ -21,6 +31,7 @@ class NetDataWriter {
   constructor(buffer = undefined) {
     if (buffer !== undefined) this.#_data = buffer;
     else this.#_data = new ArrayBuffer();
+    this.#_uint8Data = new Uint8Array(this.#_data);
     this.#_dataView = new DataView(this.#_data);
   }
 
@@ -32,8 +43,11 @@ class NetDataWriter {
 
     newSize = Math.max(newSize, this.#_data.byteLength * 2);
     const newBuffer = new ArrayBuffer(newSize);
-    new Uint8Array(newBuffer).set(new Uint8Array(this.#_data));
+    const newUint8Buffer = new Uint8Array(newBuffer);
+    newUint8Buffer.set(this.#_uint8Data);
+
     this.#_data = newBuffer;
+    this.#_uint8Data = newUint8Buffer;
     this.#_dataView = new DataView(this.#_data); //new data view.
   }
 
@@ -135,29 +149,36 @@ class NetDataWriter {
    * @param { String } value
    * @param { Number } maxLength
    */
-  /*
   putString(value, maxLength) {
     if (value.length <= 0) {
       this.putUshort(0);
       return;
     }
+    if (maxLength === undefined) maxLength = 0;
 
-    const charCount = maxLength <= 0 || value.length <= maxLength ? value.length : maxLength;
-    const encodedData = NetDataWriter._textEncoder.encode(
-      value.slice(0, charCount)
+    const charCount =
+      maxLength <= 0 || value.length <= maxLength ? value.length : maxLength;
+    const maxByteCount = utf8.getMaxByteCount(charCount);
+    this.resizeIfNeed(this.#_offset + maxByteCount + 2);
+
+    const encodedBytes = utf8.getBytes(
+      value,
+      0,
+      charCount,
+      this.#_data,
+      this.#_offset + 2
     );
-    this.resizeIfNeed(this._offset + encodedData.byteLength + 2);
-
-    if(encodedData.byteLength === 0)
-    {
-        this.putUshort(0);
-        return;
+    if (encodedBytes === 0) {
+      this.putUshort(0);
+      return;
     }
 
-    this.putUshort(encodedData.byteLength + 1);
-    this._offset += encodedData.byteLength;
+    const encodedCount = encodedBytes + 1;
+    if (encodedCount > 65535 || encodedBytes < 0)
+      throw new RangeError("Exceeded allowed number of encoded bytes!");
+    this.putUshort(encodedCount);
+    this.#_offset += encodedBytes;
   }
-  */
 }
 
-export { NetDataWriter }
+export { NetDataWriter };
