@@ -1,5 +1,5 @@
 import { NetDataWriter } from "./NetDataWriter";
-import * as utf8 from "../utf8";
+import UTF8 from "../utf8";
 
 class NetDataReader {
   /**
@@ -191,7 +191,7 @@ class NetDataReader {
     if (num === 0) return "";
 
     const count = num - 1;
-    const str = utf8.getString(this.#_data, this.#_offset, count);
+    const str = UTF8.getString(this.#_data, this.#_offset, count);
     this.#_offset += count;
     return str;
   }

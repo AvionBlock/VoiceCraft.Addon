@@ -1,4 +1,4 @@
-import * as utf8 from "../utf8";
+import UTF8 from "../utf8";
 
 class NetDataWriter {
   /**
@@ -179,10 +179,10 @@ class NetDataWriter {
 
     const charCount =
       maxLength <= 0 || value.length <= maxLength ? value.length : maxLength;
-    const maxByteCount = utf8.getMaxByteCount(charCount);
+    const maxByteCount = UTF8.getMaxByteCount(charCount);
     this.resizeIfNeeded(this.#_offset + maxByteCount + 2);
 
-    const encodedBytes = utf8.getBytes(
+    const encodedBytes = UTF8.setBytes(
       value,
       0,
       charCount,
