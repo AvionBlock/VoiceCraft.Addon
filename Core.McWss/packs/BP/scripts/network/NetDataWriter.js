@@ -78,7 +78,7 @@ export default class NetDataWriter {
    */
   putFloat(value) {
     this.resizeIfNeeded(this.#_offset + 4);
-    this.#_dataView.setFloat32(this.#_offset, value);
+    this.#_dataView.setFloat32(this.#_offset, value, true);
     this.#_offset += 4;
   }
 
@@ -88,7 +88,7 @@ export default class NetDataWriter {
    */
   putDouble(value) {
     this.resizeIfNeeded(this.#_offset + 8);
-    this.#_dataView.setFloat64(this.#_offset, value);
+    this.#_dataView.setFloat64(this.#_offset, value, true);
     this.#_offset += 8;
   }
 
@@ -108,7 +108,7 @@ export default class NetDataWriter {
    */
   putShort(value) {
     this.resizeIfNeeded(this.#_offset + 2);
-    this.#_dataView.setInt16(this.#_offset, value);
+    this.#_dataView.setInt16(this.#_offset, value, true);
     this.#_offset += 2;
   }
 
@@ -118,7 +118,7 @@ export default class NetDataWriter {
    */
   putInt(value) {
     this.resizeIfNeeded(this.#_offset + 4);
-    this.#_dataView.setInt32(this.#_offset, value);
+    this.#_dataView.setInt32(this.#_offset, value, true);
     this.#_offset += 4;
   }
 
@@ -128,7 +128,7 @@ export default class NetDataWriter {
    */
   putLong(value) {
     this.resizeIfNeeded(this.#_offset + 8);
-    this.#_dataView.setBigInt64(this.#_offset, value);
+    this.#_dataView.setBigInt64(this.#_offset, value, true);
     this.#_offset += 8;
   }
 
@@ -148,7 +148,7 @@ export default class NetDataWriter {
    */
   putUshort(value) {
     this.resizeIfNeeded(this.#_offset + 2);
-    this.#_dataView.setUint16(this.#_offset, value);
+    this.#_dataView.setUint16(this.#_offset, value, true);
     this.#_offset += 2;
   }
 
@@ -158,7 +158,7 @@ export default class NetDataWriter {
    */
   putUint(value) {
     this.resizeIfNeeded(this.#_offset + 4);
-    this.#_dataView.setUint32(this.#_offset, value);
+    this.#_dataView.setUint32(this.#_offset, value, true);
     this.#_offset += 4;
   }
 
@@ -168,7 +168,7 @@ export default class NetDataWriter {
    */
   putUlong(value) {
     this.resizeIfNeeded(this.#_offset + 8);
-    this.#_dataView.setBigUint64(this.#_offset, value);
+    this.#_dataView.setBigUint64(this.#_offset, value, true);
     this.#_offset += 8;
   }
 
@@ -194,7 +194,7 @@ export default class NetDataWriter {
       value,
       0,
       charCount,
-      this.#_data,
+      this.#_uint8Data,
       this.#_offset + 2
     );
     if (encodedBytes === 0) {
