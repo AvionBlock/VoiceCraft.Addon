@@ -1,12 +1,19 @@
 import UTF8 from "../utf8";
 
-class NetDataWriter {
+export default class NetDataWriter {
   /**
    * @description Contains the raw buffer data the writer holds.
    * @type { ArrayBuffer }
    */
   get data() {
     return this.#_data;
+  }
+  /**
+   * @description Contains the raw buffer data the writer holds in byte array data format.
+   * @type { Uint8Array }
+   */
+  get uint8Data() {
+    return this.#_uint8Data;
   }
   /**
    * @description Contains the total length of the data that was written.
@@ -175,7 +182,8 @@ class NetDataWriter {
       this.putUshort(0);
       return;
     }
-    if (maxLength === undefined) maxLength = 0;
+    if (maxLength === undefined)
+      maxLength = 0;
 
     const charCount =
       maxLength <= 0 || value.length <= maxLength ? value.length : maxLength;
@@ -201,5 +209,3 @@ class NetDataWriter {
     this.#_offset += encodedBytes;
   }
 }
-
-export { NetDataWriter };

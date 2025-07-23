@@ -1,7 +1,7 @@
-import { NetDataWriter } from "./NetDataWriter";
+import NetDataWriter from "./NetDataWriter";
 import UTF8 from "../utf8";
 
-class NetDataReader {
+export default class NetDataReader {
   /**
    * @description Contains the raw buffer data the the reader is set to.
    * @type { ArrayBuffer | undefined }
@@ -66,6 +66,17 @@ class NetDataReader {
    */
   setBufferSource(buffer) {
     this.#_data = buffer;
+    this.#_offset = 0;
+    this.#_dataSize = buffer.byteLength;
+    this.#_dataView = new DataView(this.#_data);
+  }
+
+  /**
+   * @description Sets the reader's source.
+   * @param { Uint8Array } buffer
+   */
+  setUint8BufferSource(buffer) {
+    this.#_data = buffer.buffer;
     this.#_offset = 0;
     this.#_dataSize = buffer.byteLength;
     this.#_dataView = new DataView(this.#_data);

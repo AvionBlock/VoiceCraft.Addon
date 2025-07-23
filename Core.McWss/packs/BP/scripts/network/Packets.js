@@ -1,3 +1,5 @@
+import NetDataWriter from "./NetDataWriter";
+
 class McApiPacket
 {
     constructor()
@@ -24,8 +26,14 @@ class McApiPacket
 
 class LoginPacket extends McApiPacket
 {
+    LoginToken;
+    Major;
+    Minor;
+    Build;
+
     constructor(loginToken, major, minor, build)
     {
+        super();
         this.LoginToken = loginToken;
         this.Major = major;
         this.Minor = minor;
@@ -37,7 +45,10 @@ class LoginPacket extends McApiPacket
      */
     serialize(writer)
     {
-
+        writer.putString(this.LoginToken);
+        writer.putInt(this.Major);
+        writer.putInt(this.Minor);
+        writer.putInt(this.Build);
     }
 }
 

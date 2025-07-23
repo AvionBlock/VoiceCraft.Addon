@@ -1,24 +1,37 @@
 import { system, Player } from "@minecraft/server";
 import { McApiPacket, LoginPacket } from "./Packets";
+import NetDataWriter from "./NetDataWriter";
+import NetDataReader from "./NetDataReader";
+import { Base64 } from '../base64';
 
-class VoiceCraft {
-    //Connection state objects.
-    /** @type { Player | undefined } */
-    _source = undefined;
-    /** @type { String | undefined } */
-    _sessionToken = undefined;
-    /** @type { Boolean } */
-    isConnected = () => this._source !== undefined && this._sessionToken !== undefined;
+export default class VoiceCraft {
+  /** @type { Boolean } */
+  isConnected = () =>
+    this.#_source !== undefined && this.#_sessionToken !== undefined;
 
-    constructor() {
-      system.afterEvents.scriptEventReceive.subscribe((e) => {
-        switch (e.id) {
-          case "vc:mcapi":
-            this.handleMcApiEvent(e.sourceEntity, e.message);
-            break;
-        }
-      });
-    }
+  //Connection state objects.
+  /** @type { Player | undefined } */
+  #_source = undefined;
+  /** @type { String | undefined } */
+  #_sessionToken = undefined;
+  /** @type { ArrayBuffer[] } */
+  #_incomingPackets = [];
+  /** @type { ArrayBuffer[] } */
+  #_outgoingPackets = [];
+  /** @type { NetDataWriter } */
+  #_writer = new NetDataWriter();
+  /** @type { NetDataReader } */
+  #_reader = new NetDataReader();
+
+  constructor() {
+    system.afterEvents.scriptEventReceive.subscribe((e) => {
+      switch (e.id) {
+        case "vc:mcapi":
+          this.handleMcApiEvent(e.sourceEntity, e.message);
+          break;
+      }
+    });
+  }
 
   /**
    * @description Attempts to connect to a VoiceCraft server through MCWSS
@@ -28,7 +41,7 @@ class VoiceCraft {
    */
   connect(source, loginToken) {
     this.disconnect();
-    this._source = source;
+    this.#_source = source;
     const loginPacket = new LoginPacket(loginToken, 1, 1, 0);
     this.sendPacket(loginPacket);
   }
@@ -38,12 +51,11 @@ class VoiceCraft {
    * @returns { Boolean }
    */
   disconnect() {
-    if(!this.isConnected) return false;
-
-    this._source = undefined;
-    this._sessionToken = undefined;
-    this._incomingPackets = new Array<Uint8Array>(0);
-    this._outgoingPackets = new Array<Uint8Array>(0);
+    if (!this.isConnected) return false;
+    this.#_source = undefined;
+    this.#_sessionToken = undefined;
+    this.#_incomingPackets = [];
+    this.#_outgoingPackets = [];
     return true;
   }
 
@@ -51,12 +63,15 @@ class VoiceCraft {
    * @param { McApiPacket } packet
    * @returns { Boolean }
    */
-  sendPacket(packet)
-  {
-    const serializeBuffer = new Uint8Array();
-    packet.serialize(serializeBuffer); //Serialize
-    const packetData = #.decode(serializeBuffer); //Convert to string.
-    this._source.runCommand(`tellraw @s {"rawtext":[{"text":"${packetData}"}]}`);
+  sendPacket(packet) {
+    this.#_writer.reset();
+    this.#_writer.putByte(1);
+    packet.serialize(this.#_writer); //Serialize
+    const packetData = Base64.fromUint8Array(this.#_writer.uint8Data.slice(0, this.#_writer.length));
+    if (packetData.length === 0) return;
+    this.#_source?.runCommand(
+      `tellraw @s {"rawtext":[{"text":"${packetData}"}]}`
+    );
   }
 
   /**
@@ -65,24 +80,17 @@ class VoiceCraft {
    */
   handleMcApiEvent(source, message) {
     if (source?.typeId !== "minecraft:player" || message === undefined) return;
-    let packetIndex = 0;
-    const packetData = #.encode(message);
-    const packetId = packetData[packetIndex++]; //Read first byte which is the packet id.
-    this.handlePacket(packetId, packetData, packetIndex);
+    const packetData = Base64.toUint8Array(message);
+    this.#_reader.setUint8BufferSource(packetData);
+    this.handlePacket(this.#_reader);
   }
 
   /**
-   * @param { Number } packetId
-   * @param { Uint8Array } packetData
-   * @param { Number } packetIndex
+   * @param { NetDataReader } reader
    */
-  handlePacket(packetId, packetData, packetIndex)
-  {
-    switch(packetId)
-    {
-        
+  handlePacket(reader) {
+    const packetId = reader.getByte();
+    switch (packetId) {
     }
   }
 }
-
-export { VoiceCraft }
