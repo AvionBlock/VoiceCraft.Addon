@@ -10,6 +10,13 @@ export default class NetDataReader {
     return this.#_data;
   }
   /**
+   * @description Contains the raw buffer data the the reader is set to.
+   * @type { Uint8Array | undefined }
+   */
+  get uint8Data() {
+    return this.#_uint8Data;
+  }
+  /**
    * @description Contains the length of the buffer when set, not the raw data length.
    * @type { Number }
    */
@@ -33,6 +40,8 @@ export default class NetDataReader {
 
   /** @type { ArrayBuffer } */
   #_data;
+  /** @type { Uint8Array } */
+  #_uint8Data;
   /** @type { Number } */
   #_dataSize;
   /** @type { Number } */
@@ -55,6 +64,7 @@ export default class NetDataReader {
    */
   setWriterSource(writer) {
     this.#_data = writer.data;
+    this.#_uint8Data = writer.uint8Data;
     this.#_offset = 0;
     this.#_dataSize = writer.length;
     this.#_dataView = new DataView(this.#_data);
@@ -66,6 +76,7 @@ export default class NetDataReader {
    */
   setBufferSource(buffer) {
     this.#_data = buffer;
+    this.#_uint8Data = new Uint8Array(this.#_data);
     this.#_offset = 0;
     this.#_dataSize = buffer.byteLength;
     this.#_dataView = new DataView(this.#_data);
@@ -77,6 +88,7 @@ export default class NetDataReader {
    */
   setUint8BufferSource(buffer) {
     this.#_data = buffer.buffer;
+    this.#_uint8Data = buffer;
     this.#_offset = 0;
     this.#_dataSize = buffer.byteLength;
     this.#_dataView = new DataView(this.#_data);
@@ -98,7 +110,7 @@ export default class NetDataReader {
    * @returns { Number }
    */
   getFloat() {
-    const value = this.#_dataView.getFloat32(this.#_offset);
+    const value = this.#_dataView.getFloat32(this.#_offset, true);
     this.#_offset += 4;
     return value;
   }
@@ -108,7 +120,7 @@ export default class NetDataReader {
    * @returns { Number }
    */
   getDouble() {
-    const value = this.#_dataView.getFloat64(this.#_offset);
+    const value = this.#_dataView.getFloat64(this.#_offset, true);
     this.#_offset += 8;
     return value;
   }
@@ -128,7 +140,7 @@ export default class NetDataReader {
    * @returns { Number }
    */
   getShort() {
-    const value = this.#_dataView.getInt16(this.#_offset);
+    const value = this.#_dataView.getInt16(this.#_offset, true);
     this.#_offset += 2;
     return value;
   }
@@ -138,7 +150,7 @@ export default class NetDataReader {
    * @returns { Number }
    */
   getInt() {
-    const value = this.#_dataView.getInt32(this.#_offset);
+    const value = this.#_dataView.getInt32(this.#_offset, true);
     this.#_offset += 4;
     return value;
   }
@@ -148,7 +160,7 @@ export default class NetDataReader {
    * @returns { Number }
    */
   getLong() {
-    const value = this.#_dataView.getBigInt64(this.#_offset);
+    const value = this.#_dataView.getBigInt64(this.#_offset, true);
     this.#_offset += 8;
     return value;
   }
@@ -168,7 +180,7 @@ export default class NetDataReader {
    * @returns { Number }
    */
   getUshort() {
-    const value = this.#_dataView.getUint16(this.#_offset);
+    const value = this.#_dataView.getUint16(this.#_offset, true);
     this.#_offset += 2;
     return value;
   }
@@ -178,7 +190,7 @@ export default class NetDataReader {
    * @returns { Number }
    */
   getUint() {
-    const value = this.#_dataView.getUint32(this.#_offset);
+    const value = this.#_dataView.getUint32(this.#_offset, true);
     this.#_offset += 4;
     return value;
   }
@@ -188,7 +200,7 @@ export default class NetDataReader {
    * @returns { Number }
    */
   getUlong() {
-    const value = this.#_dataView.getBigUint64(this.#_offset);
+    const value = this.#_dataView.getBigUint64(this.#_offset, true);
     this.#_offset += 8;
     return value;
   }
@@ -202,7 +214,7 @@ export default class NetDataReader {
     if (num === 0) return "";
 
     const count = num - 1;
-    const str = UTF8.getString(this.#_data, this.#_offset, count);
+    const str = UTF8.getString(this.#_uint8Data, this.#_offset, count);
     this.#_offset += count;
     return str;
   }

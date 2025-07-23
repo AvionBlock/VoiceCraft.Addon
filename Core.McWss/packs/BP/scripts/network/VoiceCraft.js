@@ -1,5 +1,5 @@
 import { system, Player } from "@minecraft/server";
-import { McApiPacket, LoginPacket } from "./Packets";
+import { McApiPacket, LoginPacket, McApiPacketType, AcceptPacket } from "./Packets";
 import NetDataWriter from "./NetDataWriter";
 import NetDataReader from "./NetDataReader";
 import { Base64 } from '../base64';
@@ -14,10 +14,6 @@ export default class VoiceCraft {
   #_source = undefined;
   /** @type { String | undefined } */
   #_sessionToken = undefined;
-  /** @type { ArrayBuffer[] } */
-  #_incomingPackets = [];
-  /** @type { ArrayBuffer[] } */
-  #_outgoingPackets = [];
   /** @type { NetDataWriter } */
   #_writer = new NetDataWriter();
   /** @type { NetDataReader } */
@@ -54,8 +50,6 @@ export default class VoiceCraft {
     if (!this.isConnected) return false;
     this.#_source = undefined;
     this.#_sessionToken = undefined;
-    this.#_incomingPackets = [];
-    this.#_outgoingPackets = [];
     return true;
   }
 
@@ -65,12 +59,12 @@ export default class VoiceCraft {
    */
   sendPacket(packet) {
     this.#_writer.reset();
-    this.#_writer.putByte(1);
+    this.#_writer.putByte(packet.PacketId);
     packet.serialize(this.#_writer); //Serialize
     const packetData = Base64.fromUint8Array(this.#_writer.uint8Data.slice(0, this.#_writer.length));
     if (packetData.length === 0) return;
     this.#_source?.runCommand(
-      `tellraw @s {"rawtext":[{"text":"${packetData}"}]}`
+      `tellraw @s {"rawtext":[{"text":"§p§k${packetData}"}]}`
     );
   }
 
@@ -91,6 +85,11 @@ export default class VoiceCraft {
   handlePacket(reader) {
     const packetId = reader.getByte();
     switch (packetId) {
+      case McApiPacketType.Accept:
+        const acceptPacket = new AcceptPacket("");
+        acceptPacket.deserialize(reader);
+        console.warn(`Login Accepted: Session Token - ${acceptPacket.SessionToken}`);
+        break;
     }
   }
 }

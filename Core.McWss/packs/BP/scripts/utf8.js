@@ -1,8 +1,8 @@
 export default class UTF8 {
   /**
-   * @description Encodes a string into an ArrayBuffer.
+   * @description Encodes a string into a Uint8Array.
    * @param { String } s
-   * @returns { ArrayBuffer | undefined }
+   * @returns { Uint8Array | undefined }
    */
   static getBytes(s) {
     if (typeof s !== "string")
@@ -11,17 +11,17 @@ export default class UTF8 {
     const byteCount = this.getByteCount(s);
     if(byteCount === 0) return undefined;
 
-    const bytes = new ArrayBuffer(byteCount);
+    const bytes = new Uint8Array(byteCount);
     this.setBytes(s, 0, s.length, bytes, 0);
     return bytes;
   }
 
   /**
-   * @description Encodes a range of characters from a string into an ArrayBuffer.
+   * @description Encodes a range of characters from a string into a Uint8Array.
    * @param { String } s
    * @param { Number } charIndex
    * @param { Number } charCount
-   * @param { ArrayBuffer } bytes
+   * @param { Uint8Array } bytes
    * @param { Number } byteIndex
    * @returns { Number } The number of bytes that were successfully encoded.
    */
@@ -32,8 +32,8 @@ export default class UTF8 {
       throw new TypeError("Parameter charIndex is not a number!");
     if (typeof charCount !== "number")
       throw new TypeError("Parameter charCount is not a number!");
-    if (!(bytes instanceof ArrayBuffer))
-      throw new TypeError("Parameter bytes is not an instance of ArrayBuffer!");
+    if (!(bytes instanceof Uint8Array))
+      throw new TypeError("Parameter bytes is not an instance of Uint8Array!");
     if (typeof byteIndex !== "number")
       throw new TypeError("Parameter byteIndex is not a number!");
     if (s.length - charIndex < charCount)
@@ -58,15 +58,15 @@ export default class UTF8 {
   }
 
   /**
-   * @description Decodes a range of bytes from an ArrayBuffer into a string.
-   * @param { ArrayBuffer } bytes
+   * @description Decodes a range of bytes from a Uint8Array into a string.
+   * @param { Uint8Array } bytes
    * @param { Number } byteIndex
    * @param { Number } count
    * @returns { String } The decoded string.
    */
   static getString(bytes, index, count) {
-    if (!(bytes instanceof ArrayBuffer))
-      throw new TypeError("Parameter bytes is not an instance of ArrayBuffer!");
+    if (!(bytes instanceof Uint8Array))
+      throw new TypeError("Parameter bytes is not an instance of Uint8Array!");
     if (typeof index !== "number")
       throw new TypeError("Parameter index is not a number!");
     if (typeof count !== "number")
@@ -145,9 +145,9 @@ export default class UTF8 {
   }
 
   /**
-   * @description Get's an ArrayBuffer with the encoded bytes for the specified charcode.
+   * @description Get's a Uint8Array with the encoded bytes for the specified charcode.
    * @param { Number } charCode
-   * @returns { ArrayBuffer | undefined }
+   * @returns { Uint8Array | undefined }
    */
   static getBytesFromCharCode(charCode) {
     if (typeof charCode !== "number")
@@ -156,23 +156,23 @@ export default class UTF8 {
     const byteCount = this.getByteCountFromCharCode(charCode);
     if (byteCount === undefined) return undefined;
 
-    const bytes = new ArrayBuffer(byteCount);
+    const bytes = new Uint8Array(byteCount);
     this.setBytesFromCharCode(charCode, bytes, 0);
     return bytes;
   }
 
   /**
-   * @description Sets an ArrayBuffer with the encoded bytes for the specified charcode.
+   * @description Sets a Uint8Array with the encoded bytes for the specified charcode.
    * @param { Number } charCode
-   * @param { ArrayBuffer } bytes
+   * @param { Uint8Array } bytes
    * @param { Number } index
    * @returns { Number | undefined } The number of bytes encoded.
    */
   static setBytesFromCharCode(charCode, bytes, index) {
     if (typeof charCode !== "number")
       throw new TypeError("Parameter charCode is not a number!");
-    if (!(bytes instanceof ArrayBuffer))
-      throw new TypeError("Parameter bytes is not an instance of ArrayBuffer!");
+    if (!(bytes instanceof Uint8Array))
+      throw new TypeError("Parameter bytes is not an instance of Uint8Array!");
     if (typeof index !== "number")
       throw new TypeError("Parameter index is not a number!");
 
@@ -211,14 +211,14 @@ export default class UTF8 {
   }
 
   /**
-   * @description Get's a charcode from the specified ArrayBuffer at index.
-   * @param { ArrayBuffer } bytes
+   * @description Get's a charcode from the specified Uint8Array at index.
+   * @param { Uint8Array } bytes
    * @param { Number } index
    * @returns { Number | undefined }
    */
   static getCharCodeFromBytes(bytes, index) {
-    if (!(bytes instanceof ArrayBuffer))
-      throw new TypeError("Parameter bytes is not an instance of ArrayBuffer!");
+    if (!(bytes instanceof Uint8Array))
+      throw new TypeError("Parameter bytes is not an instance of Uint8Array!");
     if (typeof index !== "number")
       throw new TypeError("Parameter index is not a number!");
     if (bytes.byteLength < index)
