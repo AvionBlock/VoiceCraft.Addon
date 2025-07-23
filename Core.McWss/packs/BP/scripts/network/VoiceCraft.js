@@ -1,13 +1,20 @@
 import { system, Player } from "@minecraft/server";
-import { McApiPacket, LoginPacket, McApiPacketType, AcceptPacket } from "./Packets";
+import {
+  McApiPacket,
+  LoginPacket,
+  McApiPacketType,
+  AcceptPacket,
+  PingPacket,
+} from "./Packets";
 import NetDataWriter from "./NetDataWriter";
 import NetDataReader from "./NetDataReader";
-import { Base64 } from '../base64';
+import { Base64 } from "../base64";
 
 export default class VoiceCraft {
   /** @type { Boolean } */
-  isConnected = () =>
-    this.#_source !== undefined && this.#_sessionToken !== undefined;
+  get isConnected() {
+    return this.#_source !== undefined && this.#_sessionToken !== undefined;
+  }
 
   //Connection state objects.
   /** @type { Player | undefined } */
@@ -18,12 +25,15 @@ export default class VoiceCraft {
   #_writer = new NetDataWriter();
   /** @type { NetDataReader } */
   #_reader = new NetDataReader();
+  /** @type { Number } */
+  #_lastPing = 0;
 
   constructor() {
+    system.runInterval(() => this.#handleUpdate(), 20);
     system.afterEvents.scriptEventReceive.subscribe((e) => {
       switch (e.id) {
         case "vc:mcapi":
-          this.handleMcApiEvent(e.sourceEntity, e.message);
+          this.#handleMcApiEvent(e.sourceEntity, e.message);
           break;
       }
     });
@@ -39,6 +49,7 @@ export default class VoiceCraft {
     this.disconnect();
     this.#_source = source;
     const loginPacket = new LoginPacket(loginToken, 1, 1, 0);
+    this.#_lastPing = Date.now();
     this.sendPacket(loginPacket);
   }
 
@@ -61,7 +72,9 @@ export default class VoiceCraft {
     this.#_writer.reset();
     this.#_writer.putByte(packet.PacketId);
     packet.serialize(this.#_writer); //Serialize
-    const packetData = Base64.fromUint8Array(this.#_writer.uint8Data.slice(0, this.#_writer.length));
+    const packetData = Base64.fromUint8Array(
+      this.#_writer.uint8Data.slice(0, this.#_writer.length)
+    );
     if (packetData.length === 0) return;
     this.#_source?.runCommand(
       `tellraw @s {"rawtext":[{"text":"§p§k${packetData}"}]}`
@@ -72,24 +85,57 @@ export default class VoiceCraft {
    * @param { Entity } source
    * @param { String } message
    */
-  handleMcApiEvent(source, message) {
+  #handleMcApiEvent(source, message) {
     if (source?.typeId !== "minecraft:player" || message === undefined) return;
     const packetData = Base64.toUint8Array(message);
     this.#_reader.setUint8BufferSource(packetData);
-    this.handlePacket(this.#_reader);
+    this.#handlePacket(this.#_reader);
+  }
+
+  #handleUpdate() {
+    if (!this.isConnected) return;
+    if (Date.now() - this.#_lastPing > 5000) {
+      this.disconnect();
+      return;
+    }
+    const pingPacket = new PingPacket(this.#_sessionToken);
+    this.sendPacket(pingPacket);
   }
 
   /**
    * @param { NetDataReader } reader
    */
-  handlePacket(reader) {
+  #handlePacket(reader) {
     const packetId = reader.getByte();
+    console.warn(packetId);
     switch (packetId) {
       case McApiPacketType.Accept:
         const acceptPacket = new AcceptPacket("");
         acceptPacket.deserialize(reader);
-        console.warn(`Login Accepted: Session Token - ${acceptPacket.SessionToken}`);
+        this.#handleAcceptPacket(acceptPacket);
+        break;
+      case McApiPacketType.Ping:
+        const pingPacket = new PingPacket("");
+        pingPacket.deserialize(reader);
+        this.#handlePingPacket(pingPacket);
         break;
     }
+  }
+
+  /**
+   * @param { AcceptPacket } packet
+   */
+  #handleAcceptPacket(packet) {
+    console.warn(`Login Accepted: Session Token - ${packet.SessionToken}`);
+    this.#_sessionToken = packet.SessionToken;
+  }
+
+  /**
+   * @param { PingPacket } packet
+   */
+  #handlePingPacket(packet) {
+    console.warn(`Ping Received: Session Token - ${packet.SessionToken}`);
+    if (packet.SessionToken !== this.#_sessionToken) return;
+    this.#_lastPing = Date.now();
   }
 }
