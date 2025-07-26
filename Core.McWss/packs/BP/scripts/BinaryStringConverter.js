@@ -1,6 +1,7 @@
 export default class BinaryStringConverter
 {
     /** 
+     * @description Converts a Uint8Array to a string.
      * @param { Uint8Array } bytes
      * @param { Number } offset
      * @param { Number } length
@@ -12,6 +13,7 @@ export default class BinaryStringConverter
     }
 
     /**
+     * @description Converts a string to a Uint8Array.
      * @param { String } chars
      * @param { Number } offset
      * @param { Number } length
@@ -19,8 +21,8 @@ export default class BinaryStringConverter
      */
     static decode(chars, offset, length)
     {
-        const bytes = new Uint8Array(length - offset);
-        for(let i = offset; i < length; i++)
+        const bytes = new Uint8Array(length);
+        for(let i = offset; i < offset + length; i++)
         {
             bytes[i] = chars.charCodeAt(i);
         }
