@@ -1,19 +1,27 @@
 import { system, Player } from "@minecraft/server";
 import {
+  McApiPacketType,
   McApiPacket,
   LoginPacket,
-  McApiPacketType,
+  LogoutPacket,
   AcceptPacket,
   PingPacket,
+  DenyPacket,
 } from "./Packets";
 import NetDataWriter from "./NetDataWriter";
 import NetDataReader from "./NetDataReader";
-import BinaryStringConverter from "../BinaryStringConverter";
+import * as Base64 from "../Base64";
 
 export default class VoiceCraft {
+  /** @type { String } */
+  static #_rawtextPacketId = "§p§k";
+
   /** @type { Boolean } */
   get isConnected() {
-    return this.#_source !== undefined && this.#_sessionToken !== undefined;
+    return (
+      this.#_connecting ||
+      (this.#_source !== undefined && this.#_sessionToken !== undefined)
+    );
   }
 
   //Connection state objects.
@@ -27,6 +35,8 @@ export default class VoiceCraft {
   #_reader = new NetDataReader();
   /** @type { Number } */
   #_lastPing = 0;
+  /** @type { Boolean } */
+  #_connecting = false;
 
   constructor() {
     system.runInterval(() => this.#handleUpdate(), 20);
@@ -50,15 +60,22 @@ export default class VoiceCraft {
     this.#_source = source;
     const loginPacket = new LoginPacket(loginToken, 1, 1, 0);
     this.#_lastPing = Date.now();
+    this.#_connecting = true;
     this.sendPacket(loginPacket);
   }
 
   /**
    * @description Disconnects from the VoiceCraft server.
+   * @param { String } reasonKey 
    * @returns { Boolean }
    */
-  disconnect() {
+  disconnect(reasonKey = undefined) {
     if (!this.isConnected) return false;
+    if (!this.#_connecting)
+      this.sendPacket(new LogoutPacket(this.#_sessionToken));
+    if(reasonKey !== undefined)
+      this.#_source.sendMessage({ translate: reasonKey });
+    this.#_connecting = false;
     this.#_source = undefined;
     this.#_sessionToken = undefined;
     return true;
@@ -70,13 +87,17 @@ export default class VoiceCraft {
    */
   sendPacket(packet) {
     this.#_writer.reset();
-    this.#_writer.putByte(packet.PacketId);
+    this.#_writer.putByte(packet.packetId);
     packet.serialize(this.#_writer); //Serialize
-    const packetData = BinaryStringConverter.encode(this.#_writer.data, 0, this.#_writer.length);
+    const packetData = Base64.fromUint8Array(
+      this.#_writer.data.slice(0, this.#_writer.length)
+    );
     if (packetData.length === 0) return;
     this.#_source?.runCommand(
-      `tellraw @s {"rawtext":[{"text":"§p§k${packetData}"}]}`
-    );
+      `tellraw @s {"rawtext":[{"text":"${
+        VoiceCraft.#_rawtextPacketId
+      }${packetData}"}]}`
+    ); //We have to do it this way because of how the mc client handles chats from different sources.
   }
 
   /**
@@ -85,7 +106,7 @@ export default class VoiceCraft {
    */
   #handleMcApiEvent(source, message) {
     if (source?.typeId !== "minecraft:player" || message === undefined) return;
-    const packetData = BinaryStringConverter.decode(message, 0, message.length);
+    const packetData = Base64.toUint8Array(message);
     this.#_reader.setBufferSource(packetData);
     this.#handlePacket(this.#_reader);
   }
@@ -96,6 +117,7 @@ export default class VoiceCraft {
       this.disconnect();
       return;
     }
+    if (this.#_connecting) return; //If in connecting state. do not ping.
     const pingPacket = new PingPacket(this.#_sessionToken);
     this.sendPacket(pingPacket);
   }
@@ -107,12 +129,17 @@ export default class VoiceCraft {
     const packetId = reader.getByte();
     switch (packetId) {
       case McApiPacketType.Accept:
-        const acceptPacket = new AcceptPacket("");
+        const acceptPacket = new AcceptPacket();
         acceptPacket.deserialize(reader);
         this.#handleAcceptPacket(acceptPacket);
         break;
+      case McApiPacketType.Deny:
+        const denyPacket = new DenyPacket();
+        denyPacket.deserialize(reader);
+        this.#handleDenyPacket(denyPacket);
+        break;
       case McApiPacketType.Ping:
-        const pingPacket = new PingPacket("");
+        const pingPacket = new PingPacket();
         pingPacket.deserialize(reader);
         this.#handlePingPacket(pingPacket);
         break;
@@ -123,14 +150,21 @@ export default class VoiceCraft {
    * @param { AcceptPacket } packet
    */
   #handleAcceptPacket(packet) {
-    this.#_sessionToken = packet.SessionToken;
+    this.#_sessionToken = packet.sessionToken;
+  }
+
+  /**
+   * @param { DenyPacket } packet 
+   */
+  #handleDenyPacket(packet) {
+    this.disconnect(packet.reasonKey);
   }
 
   /**
    * @param { PingPacket } packet
    */
   #handlePingPacket(packet) {
-    if (packet.SessionToken !== this.#_sessionToken) return;
+    if (packet.sessionToken !== this.#_sessionToken) return;
     this.#_lastPing = Date.now();
   }
 }

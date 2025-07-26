@@ -1,0 +1,5 @@
+pack.name=VoiceCraft Addon RP
+pack.description=Addon for VoiceCraft Proximity MCBE
+
+McApi.DisconnectReason.InvalidLoginToken=§cLogin Denied: Invalid login token!
+McApi.DisconnectReason.IncompatibleVersion=§cLogin Denied: Incompatible version!

@@ -1,7 +1,7 @@
 import NetDataReader from "./NetDataReader";
 import NetDataWriter from "./NetDataWriter";
 
-const McApiPacketType = Object.freeze({
+export const McApiPacketType = Object.freeze({
   Unknown: 0,
   Login: 1,
   Logout: 2,
@@ -10,9 +10,9 @@ const McApiPacketType = Object.freeze({
   Deny: 5,
 });
 
-class McApiPacket {
+export class McApiPacket {
   /** @type { Number } */
-  PacketId = McApiPacketType.Unknown;
+  packetId = McApiPacketType.Unknown;
 
   /**
    * @param { NetDataWriter } writer
@@ -25,84 +25,132 @@ class McApiPacket {
   deserialize(reader) {}
 }
 
-class LoginPacket extends McApiPacket {
+export class LoginPacket extends McApiPacket {
   /** @type { String } */
-  LoginToken;
+  loginToken;
   /** @type { Number } */
-  Major;
+  major;
   /** @type { Number } */
-  Minor;
+  minor;
   /** @type { Number } */
-  Build;
+  build;
 
   constructor(loginToken, major, minor, build) {
     super();
-    this.PacketId = McApiPacketType.Login;
-    this.LoginToken = loginToken;
-    this.Major = major;
-    this.Minor = minor;
-    this.Build = build;
+    this.packetId = McApiPacketType.Login;
+    this.loginToken = loginToken;
+    this.major = major;
+    this.minor = minor;
+    this.build = build;
   }
 
   /**
    * @param { NetDataWriter } writer
    */
   serialize(writer) {
-    writer.putString(this.LoginToken);
-    writer.putInt(this.Major);
-    writer.putInt(this.Minor);
-    writer.putInt(this.Build);
+    writer.putString(this.loginToken);
+    writer.putInt(this.major);
+    writer.putInt(this.minor);
+    writer.putInt(this.build);
   }
 }
 
-class PingPacket extends McApiPacket {
+export class PingPacket extends McApiPacket {
   /** @type { String } */
-  SessionToken;
+  sessionToken;
 
-  constructor(sessionToken) {
+  constructor(sessionToken = "") {
     super();
-    this.PacketId = McApiPacketType.Ping;
-    this.SessionToken = sessionToken;
+    this.packetId = McApiPacketType.Ping;
+    this.sessionToken = sessionToken;
   }
 
   /**
    * @param { NetDataWriter } writer
    */
   serialize(writer) {
-    writer.putString(this.SessionToken);
+    writer.putString(this.sessionToken);
   }
 
   /**
    * @param { NetDataReader } reader
    */
   deserialize(reader) {
-    this.SessionToken = reader.getString();
+    this.sessionToken = reader.getString();
   }
 }
 
-class AcceptPacket extends McApiPacket {
+export class LogoutPacket extends McApiPacket {
   /** @type { String } */
-  SessionToken;
+  sessionToken;
 
-  constructor(sessionToken) {
+  constructor(sessionToken = "") {
     super();
-    this.PacketId = McApiPacketType.Accept;
-    this.SessionToken = sessionToken;
+    this.packetId = McApiPacketType.Ping;
+    this.sessionToken = sessionToken;
   }
 
   /**
    * @param { NetDataWriter } writer
    */
   serialize(writer) {
-    writer.putString(this.SessionToken);
+    writer.putString(this.sessionToken);
   }
 
   /**
    * @param { NetDataReader } reader
    */
   deserialize(reader) {
-    this.SessionToken = reader.getString();
+    this.sessionToken = reader.getString();
   }
 }
 
-export { McApiPacketType, McApiPacket, LoginPacket, PingPacket, AcceptPacket };
+export class AcceptPacket extends McApiPacket {
+  /** @type { String } */
+  sessionToken;
+
+  constructor(sessionToken = "") {
+    super();
+    this.packetId = McApiPacketType.Accept;
+    this.sessionToken = sessionToken;
+  }
+
+  /**
+   * @param { NetDataWriter } writer
+   */
+  serialize(writer) {
+    writer.putString(this.sessionToken);
+  }
+
+  /**
+   * @param { NetDataReader } reader
+   */
+  deserialize(reader) {
+    this.sessionToken = reader.getString();
+  }
+}
+
+export class DenyPacket extends McApiPacket {
+  /** @type { String } */
+  reasonKey;
+
+  constructor(reasonKey) {
+    super();
+    this.packetId = McApiPacketType.Deny;
+    this.reasonKey = reasonKey;
+  }
+
+    /**
+   * @param { NetDataWriter } writer
+   */
+  serialize(writer) {
+    writer.putString(this.reasonKey);
+  }
+
+  /**
+   * @param { NetDataReader } reader
+   */
+  deserialize(reader) {
+    this.reasonKey = reader.getString();
+  }
+}
