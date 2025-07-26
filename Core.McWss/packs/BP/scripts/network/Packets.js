@@ -2,17 +2,17 @@ import NetDataReader from "./NetDataReader";
 import NetDataWriter from "./NetDataWriter";
 
 export const McApiPacketType = Object.freeze({
-  Unknown: 0,
-  Login: 1,
-  Logout: 2,
-  Ping: 3,
-  Accept: 4,
-  Deny: 5,
+  unknown: 0,
+  login: 1,
+  logout: 2,
+  ping: 3,
+  accept: 4,
+  deny: 5,
 });
 
 export class McApiPacket {
   /** @type { Number } */
-  packetId = McApiPacketType.Unknown;
+  packetId = McApiPacketType.unknown;
 
   /**
    * @param { NetDataWriter } writer
@@ -37,7 +37,7 @@ export class LoginPacket extends McApiPacket {
 
   constructor(loginToken, major, minor, build) {
     super();
-    this.packetId = McApiPacketType.Login;
+    this.packetId = McApiPacketType.login;
     this.loginToken = loginToken;
     this.major = major;
     this.minor = minor;
@@ -61,7 +61,7 @@ export class PingPacket extends McApiPacket {
 
   constructor(sessionToken = "") {
     super();
-    this.packetId = McApiPacketType.Ping;
+    this.packetId = McApiPacketType.ping;
     this.sessionToken = sessionToken;
   }
 
@@ -86,7 +86,7 @@ export class LogoutPacket extends McApiPacket {
 
   constructor(sessionToken = "") {
     super();
-    this.packetId = McApiPacketType.Ping;
+    this.packetId = McApiPacketType.logout;
     this.sessionToken = sessionToken;
   }
 
@@ -111,7 +111,7 @@ export class AcceptPacket extends McApiPacket {
 
   constructor(sessionToken = "") {
     super();
-    this.packetId = McApiPacketType.Accept;
+    this.packetId = McApiPacketType.accept;
     this.sessionToken = sessionToken;
   }
 
@@ -136,7 +136,7 @@ export class DenyPacket extends McApiPacket {
 
   constructor(reasonKey) {
     super();
-    this.packetId = McApiPacketType.Deny;
+    this.packetId = McApiPacketType.deny;
     this.reasonKey = reasonKey;
   }
 

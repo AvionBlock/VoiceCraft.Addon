@@ -13,6 +13,7 @@ import NetDataReader from "./NetDataReader";
 import * as Base64 from "../Base64";
 
 export default class VoiceCraft {
+  static version = Object.freeze({ major: 1, minor: 1, build: 0 });
   /** @type { String } */
   static #_rawtextPacketId = "§p§k";
 
@@ -58,7 +59,12 @@ export default class VoiceCraft {
   connect(source, loginToken) {
     this.disconnect();
     this.#_source = source;
-    const loginPacket = new LoginPacket(loginToken, 1, 1, 0);
+    const loginPacket = new LoginPacket(
+      loginToken,
+      VoiceCraft.version.major,
+      VoiceCraft.version.minor,
+      VoiceCraft.version.build
+    );
     this.#_lastPing = Date.now();
     this.#_connecting = true;
     this.sendPacket(loginPacket);
@@ -66,14 +72,14 @@ export default class VoiceCraft {
 
   /**
    * @description Disconnects from the VoiceCraft server.
-   * @param { String } reasonKey 
+   * @param { String } reasonKey
    * @returns { Boolean }
    */
-  disconnect(reasonKey = undefined) {
+  disconnect(reasonKey = "McApi.DisconnectReason.None") {
     if (!this.isConnected) return false;
     if (!this.#_connecting)
       this.sendPacket(new LogoutPacket(this.#_sessionToken));
-    if(reasonKey !== undefined)
+    if (reasonKey !== undefined)
       this.#_source.sendMessage({ translate: reasonKey });
     this.#_connecting = false;
     this.#_source = undefined;
@@ -114,7 +120,7 @@ export default class VoiceCraft {
   #handleUpdate() {
     if (!this.isConnected) return;
     if (Date.now() - this.#_lastPing > 5000) {
-      this.disconnect();
+      this.disconnect("McApi.DisconnectReason.Timeout");
       return;
     }
     if (this.#_connecting) return; //If in connecting state. do not ping.
@@ -128,17 +134,17 @@ export default class VoiceCraft {
   #handlePacket(reader) {
     const packetId = reader.getByte();
     switch (packetId) {
-      case McApiPacketType.Accept:
+      case McApiPacketType.accept:
         const acceptPacket = new AcceptPacket();
         acceptPacket.deserialize(reader);
         this.#handleAcceptPacket(acceptPacket);
         break;
-      case McApiPacketType.Deny:
+      case McApiPacketType.deny:
         const denyPacket = new DenyPacket();
         denyPacket.deserialize(reader);
         this.#handleDenyPacket(denyPacket);
         break;
-      case McApiPacketType.Ping:
+      case McApiPacketType.ping:
         const pingPacket = new PingPacket();
         pingPacket.deserialize(reader);
         this.#handlePingPacket(pingPacket);
@@ -151,10 +157,12 @@ export default class VoiceCraft {
    */
   #handleAcceptPacket(packet) {
     this.#_sessionToken = packet.sessionToken;
+    this.#_connecting = false;
+    this.#_source.sendMessage({ translate: "McApi.Status.Connected" });
   }
 
   /**
-   * @param { DenyPacket } packet 
+   * @param { DenyPacket } packet
    */
   #handleDenyPacket(packet) {
     this.disconnect(packet.reasonKey);
