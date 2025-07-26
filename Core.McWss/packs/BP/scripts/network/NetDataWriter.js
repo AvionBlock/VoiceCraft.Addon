@@ -1,19 +1,12 @@
-import UTF8 from "../utf8";
+import UTF8 from "../UTF8";
 
 export default class NetDataWriter {
   /**
    * @description Contains the raw buffer data the writer holds.
-   * @type { ArrayBuffer }
+   * @type { Uint8Array }
    */
   get data() {
     return this.#_data;
-  }
-  /**
-   * @description Contains the raw buffer data the writer holds in byte array data format.
-   * @type { Uint8Array }
-   */
-  get uint8Data() {
-    return this.#_uint8Data;
   }
   /**
    * @description Contains the total length of the data that was written.
@@ -28,10 +21,8 @@ export default class NetDataWriter {
    */
   autoResize = true;
 
-  /** @type { ArrayBuffer } */
-  #_data;
   /** @type { Uint8Array } */
-  #_uint8Data;
+  #_data;
   /** @type { Number } */
   #_offset = 0;
   /** @type { DataView } */
@@ -43,9 +34,8 @@ export default class NetDataWriter {
    */
   constructor(buffer = undefined) {
     if (buffer !== undefined) this.#_data = buffer;
-    else this.#_data = new ArrayBuffer();
-    this.#_uint8Data = new Uint8Array(this.#_data);
-    this.#_dataView = new DataView(this.#_data);
+    else this.#_data = new Uint8Array();
+    this.#_dataView = new DataView(this.#_data.buffer);
   }
 
   /**
@@ -56,13 +46,11 @@ export default class NetDataWriter {
     if (!this.autoResize || this.#_data.byteLength >= newSize) return;
 
     newSize = Math.max(newSize, this.#_data.byteLength * 2);
-    const newBuffer = new ArrayBuffer(newSize);
-    const newUint8Buffer = new Uint8Array(newBuffer);
-    newUint8Buffer.set(this.#_uint8Data);
+    const newBuffer = new Uint8Array(newSize);
+    newBuffer.set(this.#_data);
 
     this.#_data = newBuffer;
-    this.#_uint8Data = newUint8Buffer;
-    this.#_dataView = new DataView(this.#_data); //new data view.
+    this.#_dataView = new DataView(this.#_data.buffer); //new data view.
   }
 
   /**
@@ -194,7 +182,7 @@ export default class NetDataWriter {
       value,
       0,
       charCount,
-      this.#_uint8Data,
+      this.#_data,
       this.#_offset + 2
     );
     if (encodedBytes === 0) {

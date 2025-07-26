@@ -8,7 +8,7 @@ import {
 } from "./Packets";
 import NetDataWriter from "./NetDataWriter";
 import NetDataReader from "./NetDataReader";
-import { Base64 } from "../base64";
+import BinaryStringConverter from "../BinaryStringConverter";
 
 export default class VoiceCraft {
   /** @type { Boolean } */
@@ -72,9 +72,7 @@ export default class VoiceCraft {
     this.#_writer.reset();
     this.#_writer.putByte(packet.PacketId);
     packet.serialize(this.#_writer); //Serialize
-    const packetData = Base64.fromUint8Array(
-      this.#_writer.uint8Data.slice(0, this.#_writer.length)
-    );
+    const packetData = BinaryStringConverter.encode(this.#_writer.data, 0, this.#_writer.length);
     if (packetData.length === 0) return;
     this.#_source?.runCommand(
       `tellraw @s {"rawtext":[{"text":"§p§k${packetData}"}]}`
@@ -87,8 +85,8 @@ export default class VoiceCraft {
    */
   #handleMcApiEvent(source, message) {
     if (source?.typeId !== "minecraft:player" || message === undefined) return;
-    const packetData = Base64.toUint8Array(message);
-    this.#_reader.setUint8BufferSource(packetData);
+    const packetData = BinaryStringConverter.decode(message, 0, message.length);
+    this.#_reader.setBufferSource(packetData);
     this.#handlePacket(this.#_reader);
   }
 
@@ -107,7 +105,6 @@ export default class VoiceCraft {
    */
   #handlePacket(reader) {
     const packetId = reader.getByte();
-    console.warn(packetId);
     switch (packetId) {
       case McApiPacketType.Accept:
         const acceptPacket = new AcceptPacket("");
@@ -126,7 +123,6 @@ export default class VoiceCraft {
    * @param { AcceptPacket } packet
    */
   #handleAcceptPacket(packet) {
-    console.warn(`Login Accepted: Session Token - ${packet.SessionToken}`);
     this.#_sessionToken = packet.SessionToken;
   }
 
@@ -134,7 +130,6 @@ export default class VoiceCraft {
    * @param { PingPacket } packet
    */
   #handlePingPacket(packet) {
-    console.warn(`Ping Received: Session Token - ${packet.SessionToken}`);
     if (packet.SessionToken !== this.#_sessionToken) return;
     this.#_lastPing = Date.now();
   }

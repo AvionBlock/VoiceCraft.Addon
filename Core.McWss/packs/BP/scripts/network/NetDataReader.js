@@ -1,20 +1,13 @@
 import NetDataWriter from "./NetDataWriter";
-import UTF8 from "../utf8";
+import UTF8 from "../UTF8";
 
 export default class NetDataReader {
   /**
    * @description Contains the raw buffer data the the reader is set to.
-   * @type { ArrayBuffer | undefined }
+   * @type { Uint8Array | undefined }
    */
   get data() {
     return this.#_data;
-  }
-  /**
-   * @description Contains the raw buffer data the the reader is set to.
-   * @type { Uint8Array | undefined }
-   */
-  get uint8Data() {
-    return this.#_uint8Data;
   }
   /**
    * @description Contains the length of the buffer when set, not the raw data length.
@@ -38,10 +31,8 @@ export default class NetDataReader {
     return this.#_data === undefined;
   }
 
-  /** @type { ArrayBuffer } */
-  #_data;
   /** @type { Uint8Array } */
-  #_uint8Data;
+  #_data;
   /** @type { Number } */
   #_dataSize;
   /** @type { Number } */
@@ -52,6 +43,7 @@ export default class NetDataReader {
   /**
    * @description Creates a new reader.
    * @param { NetDataWriter } writer
+   * @param { Uint8Array } buffer
    */
   constructor(writer = undefined, buffer = undefined) {
     if (writer !== undefined) this.setWriterSource(writer);
@@ -64,39 +56,24 @@ export default class NetDataReader {
    */
   setWriterSource(writer) {
     this.#_data = writer.data;
-    this.#_uint8Data = writer.uint8Data;
     this.#_offset = 0;
     this.#_dataSize = writer.length;
-    this.#_dataView = new DataView(this.#_data);
-  }
-
-  /**
-   * @description Sets the reader's source.
-   * @param { ArrayBuffer } buffer
-   */
-  setBufferSource(buffer) {
-    this.#_data = buffer;
-    this.#_uint8Data = new Uint8Array(this.#_data);
-    this.#_offset = 0;
-    this.#_dataSize = buffer.byteLength;
-    this.#_dataView = new DataView(this.#_data);
+    this.#_dataView = new DataView(this.#_data.buffer);
   }
 
   /**
    * @description Sets the reader's source.
    * @param { Uint8Array } buffer
    */
-  setUint8BufferSource(buffer) {
-    this.#_data = buffer.buffer;
-    this.#_uint8Data = buffer;
+  setBufferSource(buffer) {
+    this.#_data = buffer;
     this.#_offset = 0;
     this.#_dataSize = buffer.byteLength;
-    this.#_dataView = new DataView(this.#_data);
+    this.#_dataView = new DataView(this.#_data.buffer);
   }
 
   /**
    * @description Clear's the reader's source. Does not overwrite or reset the original source.
-   * @param { ArrayBuffer }
    */
 
   clear() {
@@ -214,7 +191,7 @@ export default class NetDataReader {
     if (num === 0) return "";
 
     const count = num - 1;
-    const str = UTF8.getString(this.#_uint8Data, this.#_offset, count);
+    const str = UTF8.getString(this.#_data, this.#_offset, count);
     this.#_offset += count;
     return str;
   }
