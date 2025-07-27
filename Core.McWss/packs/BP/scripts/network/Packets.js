@@ -1,3 +1,4 @@
+import NetSerializable from "../interfaces/NetSerializable";
 import NetDataReader from "./NetDataReader";
 import NetDataWriter from "./NetDataWriter";
 
@@ -10,19 +11,9 @@ export const McApiPacketType = Object.freeze({
   deny: 5,
 });
 
-export class McApiPacket {
+export class McApiPacket extends NetSerializable {
   /** @type { Number } */
   packetId = McApiPacketType.unknown;
-
-  /**
-   * @param { NetDataWriter } writer
-   */
-  serialize(writer) {}
-
-  /**
-   * @param { NetDataReader } reader
-   */
-  deserialize(reader) {}
 }
 
 export class LoginPacket extends McApiPacket {
@@ -140,7 +131,7 @@ export class DenyPacket extends McApiPacket {
     this.reasonKey = reasonKey;
   }
 
-    /**
+  /**
    * @param { NetDataWriter } writer
    */
   serialize(writer) {
