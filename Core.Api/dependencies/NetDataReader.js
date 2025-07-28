@@ -30,6 +30,20 @@ export default class NetDataReader {
   get isNull() {
     return this.#_data === undefined;
   }
+  /**
+   * @description Determines whether the buffer has been fully read.
+   * @type { Boolean }
+   */
+  get endOfData() {
+    return this.#_offset === this.#_dataSize;
+  }
+  /**
+   * @description Calculates how many bytes are left to read.
+   * @type { Number }
+   */
+  get availableBytes() {
+    return this.#_dataSize - this.#_offset;
+  }
 
   /** @type { Uint8Array } */
   #_data;
