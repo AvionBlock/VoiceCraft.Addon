@@ -7,6 +7,10 @@ import {
   PingPacket,
   AcceptPacket,
   DenyPacket,
+  SetEffectPacket,
+  AudioPacket,
+  SetTitlePacket,
+  SetDescriptionPacket,
 } from "./dependencies/Packets";
 import { DataTypes } from "./dependencies/ipc/DataTypes";
 import { System } from "./dependencies/ipc/System";
@@ -88,5 +92,29 @@ export class PacketEvents {
   #denyPacketEvent = new Event();
   get denyPacketEvent() {
     return this.#denyPacketEvent;
+  }
+
+  /** @type { Event<SetEffectPacket> } */
+  #setEffectPacketEvent = new Event();
+  get setEffectPacketEvent() {
+    return this.#setEffectPacketEvent;
+  }
+
+  /** @type { Event<AudioPacket> } */
+  #audioPacketEvent = new Event();
+  get audioPacketEvent() {
+    return this.#audioPacketEvent;
+  }
+
+  /** @type { Event<SetTitlePacket> } */
+  #setTitlePacketEvent = new Event();
+  get setTitlePacketEvent() {
+    return this.#setTitlePacketEvent;
+  }
+
+  /** @type { Event<SetDescriptionPacket> } */
+  #setDescriptionPacketEvent = new Event();
+  get setDescriptionPacketEvent() {
+    return this.#setDescriptionPacketEvent;
   }
 }

@@ -159,8 +159,32 @@ export class DenyPacket extends McApiPacket {
   }
 }
 
-//Set Effect Packet
+//TODO
+export class SetEffectPacket extends McApiPacket {
+  /** @type { String } */
+  sessionToken;
 
+  constructor(sessionToken) {
+    super();
+    this.packetId = McApiPacketType.setEffect;
+  }
+
+  /**
+   * @param { NetDataWriter } writer
+   */
+  serialize(writer) {
+    writer.putString(this.sessionToken);
+  }
+
+  /**
+   * @param { NetDataReader } reader
+   */
+  deserialize(reader) {
+    this.sessionToken = reader.getString();
+  }
+}
+
+//TODO
 export class AudioPacket extends McApiPacket {
   /** @type { String } */
   sessionToken;
