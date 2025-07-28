@@ -1,6 +1,3 @@
-import NetDataReader from "../dependencies/NetDataReader";
-import NetDataWriter from "../dependencies/NetDataWriter";
-
 export default class NetSerializable {
   /**
    * @param { NetDataWriter } writer

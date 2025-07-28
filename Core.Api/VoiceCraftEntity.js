@@ -1,6 +1,6 @@
-import NetSerializable from "../interfaces/NetSerializable";
-import Quaternion from "../interfaces/Quaternion";
-import Vector3 from "../interfaces/Vector3";
+import NetSerializable from "./dependencies/NetSerializable";
+import Quaternion from "./dependencies/Quaternion";
+import Vector3 from "./dependencies/Vector3";
 import VoiceCraftWorld from "./VoiceCraftWorld";
 
 export const EntityType = Object.freeze({
@@ -10,14 +10,7 @@ export const EntityType = Object.freeze({
 });
 
 export default class VoiceCraftEntity extends NetSerializable {
-  //Events
-  #onWorldIdUpdated = new WorldIdUpdatedEvent();
-
   //Public Events
-  get onWorldIdUpdated() {
-    return this.#onWorldIdUpdated;
-  }
-
   get id() {
     return this.#id;
   }
@@ -47,7 +40,6 @@ export default class VoiceCraftEntity extends NetSerializable {
   set worldId(value) {
     if (typeof value !== "string" || value === this.#worldId) return;
     this.#worldId = value;
-    this.#onWorldIdUpdated.trigger(value, this);
   }
 
   get name() {
@@ -96,7 +88,7 @@ export default class VoiceCraftEntity extends NetSerializable {
     return this.#rotation;
   }
   set rotation(value) {
-    if (value instanceof Quaternion) this.#rotation = value;
+    if (value instanceof Quaternion && value !== this.#rotation) return;
   }
 
   /** @type { Number } */
@@ -152,46 +144,5 @@ export default class VoiceCraftEntity extends NetSerializable {
     this.#listenBitmask = 0;
     this.#position = new Vector3();
     this.#rotation = new Quaternion();
-  }
-}
-
-//Event Types
-export class WorldIdUpdatedEvent {
-  /** @type { WorldIdUpdatedCallback[] } */
-  #registers = [];
-
-  /**
-   * @callback WorldIdUpdatedCallback
-   * @param { { value: String, entity: VoiceCraftEntity } } value
-   */
-
-  /**
-   * @param { WorldIdUpdatedCallback } callback
-   */
-  subscribe(callback) {
-    this.#registers.push(callback);
-  }
-
-  /**
-   * @param { WorldIdUpdatedCallback } callback
-   */
-  unsubscribe(callback) {
-    const index = this.#registers.findIndex((x) => x === callback);
-    if (index < 0) return;
-    this.#registers = this.#registers.splice(index, 1);
-  }
-
-  /**
-   * @param { String } value
-   * @param { VoiceCraftEntity } entity
-   */
-  trigger(value, entity) {
-    for (let callback of this.#registers) {
-      try {
-        callback({ value: value, entity: entity });
-      } catch {
-        // Do Nothing
-      }
-    }
   }
 }

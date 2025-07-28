@@ -20,4 +20,20 @@ export default class Quaternion {
   z;
   /** @type { Number } */
   w;
+
+  /**
+   * @param { Quaternion } value
+   * @returns { Boolean }
+   */
+  equals(value) {
+    if (!(value instanceof Quaternion)) return false;
+    if (
+      value.x !== this.x ||
+      value.y !== this.y ||
+      value.z !== this.z ||
+      value.w !== this.w
+    )
+      return false;
+    return true;
+  }
 }

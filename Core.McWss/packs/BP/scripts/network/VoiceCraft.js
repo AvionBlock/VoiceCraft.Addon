@@ -7,12 +7,18 @@ import {
   AcceptPacket,
   PingPacket,
   DenyPacket,
-} from "./Packets";
-import NetDataWriter from "./NetDataWriter";
-import NetDataReader from "./NetDataReader";
-import * as Base64 from "../Base64";
+} from "../dependencies/Packets";
+import NetDataWriter from "../dependencies/NetDataWriter";
+import NetDataReader from "../dependencies/NetDataReader";
+import * as Base64 from "../dependencies/Base64";
+import { DataTypes } from "../dependencies/ipc/DataTypes";
+import { System } from "../dependencies/ipc/System";
 
-export default class VoiceCraft {
+const IpcMcApiDataPacket = await System.registerPacket("IpcMcApiDataPacket", [
+  DataTypes.ByteArray,
+]);
+
+export class VoiceCraft {
   static version = Object.freeze({ major: 1, minor: 1, build: 0 });
   /** @type { String } */
   static #_rawtextPacketId = "§p§k";
@@ -112,9 +118,10 @@ export default class VoiceCraft {
    */
   #handleMcApiEvent(source, message) {
     if (source?.typeId !== "minecraft:player" || message === undefined) return;
+    /** @type { Uint8Array } */
     const packetData = Base64.toUint8Array(message);
     this.#_reader.setBufferSource(packetData);
-    this.#handlePacket(this.#_reader);
+    if (this.#handlePacket(this.#_reader)) IpcMcApiDataPacket.send([packetData]);
   }
 
   #handleUpdate() {
@@ -130,6 +137,7 @@ export default class VoiceCraft {
 
   /**
    * @param { NetDataReader } reader
+   * @returns { Boolean }
    */
   #handlePacket(reader) {
     const packetId = reader.getByte();
@@ -149,7 +157,10 @@ export default class VoiceCraft {
         pingPacket.deserialize(reader);
         this.#handlePingPacket(pingPacket);
         break;
+      //Any other value type. We return true.
     }
+
+    return false;
   }
 
   /**
