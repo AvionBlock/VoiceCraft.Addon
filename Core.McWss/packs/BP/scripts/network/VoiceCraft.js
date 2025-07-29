@@ -10,7 +10,7 @@ import {
 } from "../dependencies/Packets";
 import NetDataWriter from "../dependencies/NetDataWriter";
 import NetDataReader from "../dependencies/NetDataReader";
-import * as Base64 from "../dependencies/Base64";
+import Z85 from "../dependencies/Z85";
 import { DataTypes } from "../dependencies/ipc/DataTypes";
 import { System } from "../dependencies/ipc/System";
 
@@ -101,7 +101,7 @@ export class VoiceCraft {
     this.#_writer.reset();
     this.#_writer.putByte(packet.packetId);
     packet.serialize(this.#_writer); //Serialize
-    const packetData = Base64.fromUint8Array(
+    const packetData = Z85.getStringWithPadding(
       this.#_writer.data.slice(0, this.#_writer.length)
     );
     if (packetData.length === 0) return;
@@ -119,7 +119,7 @@ export class VoiceCraft {
   #handleMcApiEvent(source, message) {
     if (source?.typeId !== "minecraft:player" || message === undefined) return;
     /** @type { Uint8Array } */
-    const packetData = Base64.toUint8Array(message);
+    const packetData = Z85.getBytesWithPadding(message);
     this.#_reader.setBufferSource(packetData);
     if (this.#handlePacket(this.#_reader)) IpcMcApiDataPacket.send([packetData]);
   }
