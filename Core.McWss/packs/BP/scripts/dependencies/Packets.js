@@ -1,4 +1,4 @@
-import NetSerializable from "../interfaces/NetSerializable";
+import NetSerializable from "../dependencies/NetSerializable";
 import NetDataReader from "./NetDataReader";
 import NetDataWriter from "./NetDataWriter";
 

@@ -1,5 +1,5 @@
-import NetDataReader from "../dependencies/NetDataReader";
-import NetDataWriter from "../dependencies/NetDataWriter";
+import NetDataReader from "./NetDataReader";
+import NetDataWriter from "./NetDataWriter";
 
 export default class NetSerializable {
   /**

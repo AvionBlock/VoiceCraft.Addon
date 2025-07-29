@@ -68,7 +68,7 @@ export default class NetDataReader {
   setBufferSource(buffer) {
     this.#_data = buffer;
     this.#_offset = 0;
-    this.#_dataSize = buffer.byteLength;
+    this.#_dataSize = buffer.length;
     this.#_dataView = new DataView(this.#_data.buffer);
   }
 

@@ -38,9 +38,9 @@ export default class UTF8 {
       throw new TypeError("Parameter byteIndex is not a number!");
     if (s.length - charIndex < charCount)
       throw new RangeError("Argument out of range!", { cause: "s" });
-    if (byteIndex > bytes.byteLength)
+    if (byteIndex > bytes.length)
       throw new RangeError(
-        "Byte Index must be less than or equal to bytes.byteLength!",
+        "Byte Index must be less than or equal to bytes.length!",
         { cause: "byteIndex" }
       );
 
@@ -71,7 +71,7 @@ export default class UTF8 {
       throw new TypeError("Parameter index is not a number!");
     if (typeof count !== "number")
       throw new TypeError("Parameter count is not a number!");
-    if (bytes.byteLength - index < count)
+    if (bytes.length - index < count)
       throw new RangeError("Count argument out of range!");
 
     /** @type { Number[] } */
@@ -179,7 +179,7 @@ export default class UTF8 {
     let byteCount = this.getByteCountFromCharCode(charCode);
     switch (byteCount) {
       case 1:
-        if (bytes.byteLength < index) {
+        if (bytes.length < index) {
           byteCount = undefined;
           break;
         }
@@ -187,7 +187,7 @@ export default class UTF8 {
         bytes[index] = charCode;
         break;
       case 2:
-        if (bytes.byteLength < index + 1) {
+        if (bytes.length < index + 1) {
           byteCount = undefined;
           break;
         }
@@ -196,7 +196,7 @@ export default class UTF8 {
         bytes[index] = 0x80 | (charCode & 0x3f);
         break;
       case 3:
-        if (bytes.byteLength < index + 2) {
+        if (bytes.length < index + 2) {
           byteCount = undefined;
           break;
         }
@@ -221,7 +221,7 @@ export default class UTF8 {
       throw new TypeError("Parameter bytes is not an instance of Uint8Array!");
     if (typeof index !== "number")
       throw new TypeError("Parameter index is not a number!");
-    if (bytes.byteLength < index)
+    if (bytes.length < index)
       throw new RangeError("Index argument out of range!");
 
     const byte = bytes[index];

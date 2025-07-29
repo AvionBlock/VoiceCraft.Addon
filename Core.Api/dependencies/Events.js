@@ -1,4 +1,4 @@
-import { McApiPacket } from "../../Core.McWss/packs/BP/scripts/dependencies/Packets";
+import { McApiPacket } from "./dependencies/Packets";
 
 /** @template { McApiPacket } T */
 export default class Event {

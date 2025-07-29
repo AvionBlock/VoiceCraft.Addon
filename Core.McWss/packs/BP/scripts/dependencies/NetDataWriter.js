@@ -43,9 +43,9 @@ export default class NetDataWriter {
    * @param { Number } newSize
    */
   resizeIfNeeded(newSize) {
-    if (!this.autoResize || this.#_data.byteLength >= newSize) return;
+    if (!this.autoResize || this.#_data.length >= newSize) return;
 
-    newSize = Math.max(newSize, this.#_data.byteLength * 2);
+    newSize = Math.max(newSize, this.#_data.length * 2);
     const newBuffer = new Uint8Array(newSize);
     newBuffer.set(this.#_data);
 
