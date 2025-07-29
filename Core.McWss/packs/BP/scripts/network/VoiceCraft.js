@@ -105,11 +105,8 @@ export class VoiceCraft {
       this.#_writer.data.slice(0, this.#_writer.length)
     );
     if (packetData.length === 0) return;
-    this.#_source?.runCommand(
-      `tellraw @s {"rawtext":[{"text":"${
-        VoiceCraft.#_rawtextPacketId
-      }${packetData}"}]}`
-    ); //We have to do it this way because of how the mc client handles chats from different sources.
+    //this.#_source?.sendMessage({ rawtext: [{ text: `${VoiceCraft.#_rawtextPacketId}${packetData}`}] });
+    this.#_source?.runCommand(`tellraw @s {"rawtext":[{"text":"${VoiceCraft.#_rawtextPacketId}${packetData}"}]}`); //We have to do it this way because of how the mc client handles chats from different sources.
   }
 
   /**

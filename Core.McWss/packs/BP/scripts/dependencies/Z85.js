@@ -108,7 +108,7 @@ export default class Z85 {
     let bytesToPad = 0;
     if (paddingRequired) {
       bytesToPad = 4 - lengthMod4;
-      bytesToEncode = new Uint8Array[data.length + bytesToPad]();
+      bytesToEncode = new Uint8Array(data.length + bytesToPad);
       bytesToEncode.set(data);
     }
 
@@ -125,28 +125,27 @@ export default class Z85 {
    * @returns { String }
    */
   static getString(data) {
-    var stringBuilder = "";
-    var encodedChars = ["", "", "", ""];
-
-    for (var i = 0; i < data.length; i += 4) {
-      var binaryFrame =
-        (data[i + 0] << 24) |
-        (data[i + 1] << 16) |
-        (data[i + 2] << 8) |
-        data[i + 3];
-
-      var divisor = uint(
-        this.#Base85 * this.#Base85 * this.#Base85 * this.#Base85
-      );
-      for (var j = 0; j < 5; j++) {
-        var divisible = (binaryFrame / divisor) % 85;
-        encodedChars[j] = this.#EncodingTable[divisible];
-        binaryFrame -= divisible * divisor;
-        divisor /= Base85;
-      }
-      stringBuilder = stringBuilder.concat(encodedChars.join());
+    if (data.length % 4 != 0) {
+      throw new RangeError("Input length must be a multiple of 4.");
     }
-    return stringBuilder;
+
+    const view = new DataView(data.buffer);
+    let result = "";
+    let value = 0;
+
+    for (let i = 0; i < data.length; ++i) {
+      value = value * 256 + view.getUint8(i);
+      if ((i + 1) % 4 === 0) {
+        let divisor = this.#Base85 * this.#Base85 * this.#Base85 * this.#Base85;
+        for (let j = 5; j > 0; --j) {
+          const code = Math.floor(value / divisor) % this.#Base85;
+          result += this.#EncodingTable[code];
+          divisor /= this.#Base85;
+        }
+        value = 0;
+      }
+    }
+    return result;
   }
 
   /**
@@ -171,7 +170,7 @@ export default class Z85 {
       data = data.substring(0, data.length - 1);
     }
 
-    const output = this.getBytes(data);
+    let output = this.getBytes(data);
     //Remove padded bytes
     if (paddedBytes > 0) output = output.slice(0, output.length - paddedBytes);
     return output;
@@ -186,21 +185,24 @@ export default class Z85 {
       throw new RangeError("Input length must be a multiple of 5");
     }
 
-    var output = new Uint8Array((data.length / 5) * 4);
-    var outputIndex = 0;
-    for (var i = 0; i < data.length; i += 5) {
-      let value = 0;
-      value = value * Base85 + DecodingTable[data[i] - 32];
-      value = value * Base85 + DecodingTable[data[i + 1] - 32];
-      value = value * Base85 + DecodingTable[data[i + 2] - 32];
-      value = value * Base85 + DecodingTable[data[i + 3] - 32];
-      value = value * Base85 + DecodingTable[data[i + 4] - 32];
-
-      output[outputIndex] = value >> 24;
-      output[outputIndex + 1] = value >> 16;
-      output[outputIndex + 2] = value >> 8;
-      output[outputIndex + 3] = value;
-      outputIndex += 4;
+    const output = new Uint8Array((data.length / 5) * 4);
+    const view = new DataView(output.buffer);
+    let value = 0;
+    let charIdx = 0;
+    let byteIdx = 0;
+    for (var i = 0; i < data.length; ++i) {
+      const code = data.charCodeAt(charIdx++) - 32;
+      value = value * this.#Base85 + this.#DecodingTable[code];
+      if (charIdx % 5 === 0) {
+        let divisor = 256 * 256 * 256;
+        while (divisor >= 1) {
+          if (byteIdx < view.byteLength) {
+            view.setUint8(byteIdx++, Math.floor(value / divisor) % 256);
+          }
+          divisor /= 256;
+        }
+        value = 0;
+      }
     }
 
     return output;
