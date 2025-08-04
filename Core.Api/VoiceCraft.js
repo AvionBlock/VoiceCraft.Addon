@@ -14,6 +14,17 @@ import {
 } from "./dependencies/Packets";
 
 export class VoiceCraft {
+  static #version = Object.freeze({ major: 1, minor: 1, build: 0 });
+  static get version() {
+    return this.#version;
+  }
+
+  /** @type { String } */
+  static #rawtextPacketId = "§p§k";
+  static get rawtextPacketId() {
+    return this.#rawtextPacketId;
+  }
+
   /** @type { Boolean } */
   static #initialized = false;
   static get initialized() {

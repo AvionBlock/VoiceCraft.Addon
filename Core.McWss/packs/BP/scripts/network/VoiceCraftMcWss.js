@@ -1,5 +1,6 @@
 import { system, Player } from "@minecraft/server";
 import {
+  VoiceCraft,
   NetDataWriter,
   NetDataReader,
   Z85,
@@ -13,10 +14,6 @@ import {
   DenyPacket } from "../dependencies/VoiceCraftAPI";
 
 export class VoiceCraftMcWss {
-  static version = Object.freeze({ major: 1, minor: 1, build: 0 });
-  /** @type { String } */
-  static #_rawtextPacketId = "§p§k";
-
   /** @type { Boolean } */
   get isConnected() {
     return (
@@ -100,7 +97,7 @@ export class VoiceCraftMcWss {
     );
     if (packetData.length === 0) return;
     //this.#_source?.sendMessage({ rawtext: [{ text: `${VoiceCraft.#_rawtextPacketId}${packetData}`}] });
-    this.#_source?.runCommand(`tellraw @s {"rawtext":[{"text":"${VoiceCraft.#_rawtextPacketId}${packetData}"}]}`); //We have to do it this way because of how the mc client handles chats from different sources.
+    this.#_source?.runCommand(`tellraw @s {"rawtext":[{"text":"${VoiceCraft.rawtextPacketId}${packetData}"}]}`); //We have to do it this way because of how the mc client handles chats from different sources.
   }
 
   /**
