@@ -23,7 +23,7 @@
         "binding_condition": "once"
       },
       {
-        "source_property_name": "(((#text - $trigger_text) = #text) or not(#text - $trigger_text))",
+        "source_property_name": "(not ('%.23s' * #text = $trigger_text)))",
         "target_property_name": "#visible",
         "binding_type": "view"
       }

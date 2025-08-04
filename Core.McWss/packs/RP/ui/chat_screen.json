@@ -26,7 +26,7 @@
         },
         {
           "binding_type": "view",
-          "source_property_name": "(#chat_visible and (((#text - $trigger_text) = #text) or not(#text - $trigger_text)))",
+          "source_property_name": "(not (#chat_visible) and not ('%.23s' * #text = $trigger_text)))",
           "target_property_name": "#visible"
         }
       ]

@@ -12,12 +12,6 @@ import {
   SetTitlePacket,
   SetDescriptionPacket,
 } from "./dependencies/Packets";
-import { DataTypes } from "./dependencies/ipc/DataTypes";
-import { System } from "./dependencies/ipc/System";
-
-const IpcMcApiDataPacket = await System.registerPacket("IpcMcApiDataPacket", [
-  DataTypes.ByteArray,
-]);
 
 export class VoiceCraft {
   /** @type { Boolean } */

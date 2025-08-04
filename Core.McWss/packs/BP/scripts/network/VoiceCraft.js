@@ -11,12 +11,6 @@ import {
 import NetDataWriter from "../dependencies/NetDataWriter";
 import NetDataReader from "../dependencies/NetDataReader";
 import Z85 from "../dependencies/Z85";
-import { DataTypes } from "../dependencies/ipc/DataTypes";
-import { System } from "../dependencies/ipc/System";
-
-const IpcMcApiDataPacket = await System.registerPacket("IpcMcApiDataPacket", [
-  DataTypes.ByteArray,
-]);
 
 export class VoiceCraft {
   static version = Object.freeze({ major: 1, minor: 1, build: 0 });
@@ -118,7 +112,8 @@ export class VoiceCraft {
     /** @type { Uint8Array } */
     const packetData = Z85.getBytesWithPadding(message);
     this.#_reader.setBufferSource(packetData);
-    if (this.#handlePacket(this.#_reader)) IpcMcApiDataPacket.send([packetData]);
+    this.#handlePacket(this.#_reader);
+    system.sendScriptEvent("vcapi:core", message);
   }
 
   #handleUpdate() {
@@ -134,7 +129,6 @@ export class VoiceCraft {
 
   /**
    * @param { NetDataReader } reader
-   * @returns { Boolean }
    */
   #handlePacket(reader) {
     const packetId = reader.getByte();
@@ -154,10 +148,7 @@ export class VoiceCraft {
         pingPacket.deserialize(reader);
         this.#handlePingPacket(pingPacket);
         break;
-      //Any other value type. We return true.
     }
-
-    return false;
   }
 
   /**
@@ -166,7 +157,6 @@ export class VoiceCraft {
   #handleAcceptPacket(packet) {
     this.#_sessionToken = packet.sessionToken;
     this.#_connecting = false;
-    this.#_source.sendMessage({ translate: "McApi.Status.Connected" });
   }
 
   /**

@@ -1,41 +1,37 @@
 export default class Locales {
-  /** @type { Map<String, String> } */
-  static #localeKeys = new Map([
-    ["McApi.Status.Connected", "McApi.Status.Connected"],
-    ["McApi.DisconnectReason.None", "McApi.DisconnectReason.None"],
-    ["McApi.DisconnectReason.Timeout", "McApi.DisconnectReason.Timeout"],
-    [
-      "McApi.DisconnectReason.InvalidLoginToken",
-      "McApi.DisconnectReason.InvalidLoginToken",
-    ],
-    [
-      "McApi.DisconnectReason.IncompatibleVersion",
-      "McApi.DisconnectReason.IncompatibleVersion",
-    ],
-  ]);
-  
-  constructor()
-  {
-    throw new Error("Cannot initialize a static class!");
+  static get LocaleKeys() {
+    return this.#localeKeys;
   }
 
+  static #localeKeys = Object.freeze({
+    McApi: {
+      Status: {
+        Connected: "McApi.Status.Connected",
+      },
+      DisconnectReason: {
+        None: "McApi.DisconnectReason.None",
+        Timeout: "McApi.DisconnectReason.Timeout",
+        InvalidLoginToken: "McApi.DisconnectReason.InvalidLoginToken",
+        IncomaptibleVersion: "McApi.DisconnectReason.IncompatibleVersion",
+      },
+    },
+  });
 
-  /**
-   * @param { String } key
-   * @returns { String }
-   */
-  static get(key)
-  {
-    return this.#localeKeys.get(key);
-  }
+  /** @param { String } localeKey */
+  static get(localeKey) {
+    const splitKey = localeKey.split(".");
 
-  /**
-   * @param { String } key
-   * @param { String } value
-   */
-  static set(key, value)
-  {
-    if(!this.#localeKeys.has(key)) return;
-    this.#localeKeys.set(key, value);
+    let current = this.#localeKeys;
+    for(const key of splitKey)
+    {
+      current = current[key];
+      if(!current) return localeKey;
+    }
+
+    if (typeof current !== 'string') {
+			return localeKey;
+		}
+
+    return current;
   }
 }
