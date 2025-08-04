@@ -1,6 +1,6 @@
-import UTF8 from "./UTF8";
+import { UTF8 } from "./UTF8";
 
-export default class NetDataWriter {
+export class NetDataWriter {
   /**
    * @description Contains the raw buffer data the writer holds.
    * @type { Uint8Array }

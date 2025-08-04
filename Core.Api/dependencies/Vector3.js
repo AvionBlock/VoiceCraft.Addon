@@ -1,4 +1,4 @@
-export default class Vector3 {
+export class Vector3 {
   /**
    * @param { Number } x
    * @param { Number } y

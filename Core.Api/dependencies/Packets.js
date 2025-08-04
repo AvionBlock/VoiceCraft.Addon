@@ -1,6 +1,6 @@
-import NetSerializable from "./NetSerializable";
-import NetDataReader from "./NetDataReader";
-import NetDataWriter from "./NetDataWriter";
+import { NetSerializable } from "./NetSerializable";
+import { NetDataReader } from "./NetDataReader";
+import { NetDataWriter } from "./NetDataWriter";
 
 export const McApiPacketType = Object.freeze({
   unknown: 0,
@@ -315,7 +315,7 @@ export class Packet extends McApiPacket {
 
   constructor(sessionToken) {
     super();
-    this.packetId = McApiPacketType.;
+    this.packetId = McApiPacketType.unknown;
   }
 
   /**

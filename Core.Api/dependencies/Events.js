@@ -1,7 +1,7 @@
-import { McApiPacket } from "./dependencies/Packets";
+import { McApiPacket } from "./Packets";
 
 /** @template { McApiPacket } T */
-export default class Event {
+export class Event {
   /** @type { ((data: T)=>void)[] } */
   #listeners = [];
 

@@ -1,7 +1,7 @@
-import NetSerializable from "./dependencies/NetSerializable";
-import Quaternion from "./dependencies/Quaternion";
-import Vector3 from "./dependencies/Vector3";
-import VoiceCraftWorld from "./VoiceCraftWorld";
+import { NetSerializable } from "./dependencies/NetSerializable";
+import { Quaternion } from "./dependencies/Quaternion";
+import { Vector3 } from "./dependencies/Vector3";
+import { VoiceCraftWorld } from "./VoiceCraftWorld";
 
 export const EntityType = Object.freeze({
   Unknown: 0,
@@ -9,7 +9,7 @@ export const EntityType = Object.freeze({
   Network: 2,
 });
 
-export default class VoiceCraftEntity extends NetSerializable {
+export class VoiceCraftEntity extends NetSerializable {
   //Public Events
   get id() {
     return this.#id;

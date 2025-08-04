@@ -1,4 +1,4 @@
-export default class NetSerializable {
+export class NetSerializable {
   /**
    * @param { NetDataWriter } writer
    */

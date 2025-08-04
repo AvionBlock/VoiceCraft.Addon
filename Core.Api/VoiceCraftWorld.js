@@ -1,6 +1,6 @@
-import VoiceCraftEntity from "./VoiceCraftEntity";
+import { VoiceCraftEntity } from "./VoiceCraftEntity";
 
-export default class VoiceCraftWorld {
+export class VoiceCraftWorld {
   /** @type { MapIterator<VoiceCraftEntity> } */
   get entities() {
     return this.#_entities.values();

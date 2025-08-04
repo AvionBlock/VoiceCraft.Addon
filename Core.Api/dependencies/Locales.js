@@ -1,4 +1,4 @@
-export default class Locales {
+export class Locales {
   static get LocaleKeys() {
     return this.#localeKeys;
   }

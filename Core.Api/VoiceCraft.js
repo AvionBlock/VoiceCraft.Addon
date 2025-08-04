@@ -1,5 +1,5 @@
-import VoiceCraftWorld from "./VoiceCraftWorld";
-import Event from "./dependencies/Events";
+import { VoiceCraftWorld } from "./VoiceCraftWorld";
+import { Event } from "./dependencies/Events";
 import {
   McApiPacket,
   LoginPacket,

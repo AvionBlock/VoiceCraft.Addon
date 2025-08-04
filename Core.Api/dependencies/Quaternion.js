@@ -1,4 +1,4 @@
-export default class Quaternion {
+export class Quaternion {
   /**
    * @param { Number } x
    * @param { Number } y

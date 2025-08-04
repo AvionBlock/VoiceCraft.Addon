@@ -1,4 +1,4 @@
-export default class UTF8 {
+export class UTF8 {
   constructor() {
     throw new Error("Cannot initialize a static class!");
   }

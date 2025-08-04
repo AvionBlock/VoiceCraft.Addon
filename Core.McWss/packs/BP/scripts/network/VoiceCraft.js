@@ -1,18 +1,18 @@
 import { system, Player } from "@minecraft/server";
 import {
+  NetDataWriter,
+  NetDataReader,
+  Z85,
+  Locales,
   McApiPacketType,
   McApiPacket,
   LoginPacket,
   LogoutPacket,
   AcceptPacket,
   PingPacket,
-  DenyPacket,
-} from "../dependencies/Packets";
-import NetDataWriter from "../dependencies/NetDataWriter";
-import NetDataReader from "../dependencies/NetDataReader";
-import Z85 from "../dependencies/Z85";
+  DenyPacket } from "../dependencies/VoiceCraftAPI";
 
-export class VoiceCraft {
+export class VoiceCraftMcWss {
   static version = Object.freeze({ major: 1, minor: 1, build: 0 });
   /** @type { String } */
   static #_rawtextPacketId = "§p§k";
@@ -75,7 +75,7 @@ export class VoiceCraft {
    * @param { String } reasonKey
    * @returns { Boolean }
    */
-  disconnect(reasonKey = "McApi.DisconnectReason.None") {
+  disconnect(reasonKey = Locales.LocaleKeys.McApi.DisconnectReason.None) {
     if (!this.isConnected) return false;
     if (!this.#_connecting)
       this.sendPacket(new LogoutPacket(this.#_sessionToken));
@@ -119,7 +119,7 @@ export class VoiceCraft {
   #handleUpdate() {
     if (!this.isConnected) return;
     if (Date.now() - this.#_lastPing > 5000) {
-      this.disconnect("McApi.DisconnectReason.Timeout");
+      this.disconnect(Locales.LocaleKeys.McApi.DisconnectReason.Timeout);
       return;
     }
     if (this.#_connecting) return; //If in connecting state. do not ping.

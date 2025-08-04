@@ -1,4 +1,4 @@
-export default class Z85 {
+export class Z85 {
   static #Base85 = 85;
 
   static #EncodingTable = [
