@@ -10,5 +10,9 @@ export default {
       file: "../Core.McWss/packs/BP/scripts/dependencies/VoiceCraftAPI.js",
       format: "esm",
     },
+    {
+      file: "../Core.Http/packs/BP/scripts/dependencies/VoiceCraftAPI.js",
+      format: "esm",
+    },
   ],
 };
