@@ -196,4 +196,18 @@ export class NetDataWriter {
     this.putUshort(encodedCount);
     this.#_offset += encodedBytes;
   }
+
+  /**
+   * @description Writes byte values into the buffer
+   * @param { Uint8Array } value
+   * @param { Number } offset
+   * @param { Number } length
+   */
+
+  putBytes(value, offset, length)
+  {
+    this.resizeIfNeeded(this.#_offset + length);
+    this.#_data.set(value.slice(offset, offset + length), this.#_offset);
+    this.#_offset += length;
+  }
 }

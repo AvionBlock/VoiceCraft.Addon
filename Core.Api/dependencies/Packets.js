@@ -184,7 +184,6 @@ export class SetEffectPacket extends McApiPacket {
   }
 }
 
-//TODO
 export class AudioPacket extends McApiPacket {
   /** @type { String } */
   sessionToken;
@@ -218,7 +217,7 @@ export class AudioPacket extends McApiPacket {
     writer.putInt(this.id);
     writer.putUint(this.timeStamp);
     writer.putFloat(this.frameLoudness);
-    //Implement writing raw bytes.
+    writer.putBytes(this.data, 0, this.length);
   }
 
   /**
@@ -233,7 +232,7 @@ export class AudioPacket extends McApiPacket {
     if(this.length > 1000)
       throw new RangeError(`Array length exceeds maximum number of bytes per packet! Got ${Length} bytes.`);
     this.data = new Uint8Array(this.length);
-    //Implement reader raw bytes.
+    reader.getBytes(this.data, this.length);
   }
 }
 

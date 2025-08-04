@@ -209,4 +209,16 @@ export class NetDataReader {
     this.#_offset += count;
     return str;
   }
+
+  /**
+   * @description Get's a byte array from the buffer
+   * @param { Uint8Array } destination
+   * @param { Number } length
+   */
+
+  getBytes(destination, length)
+  {
+    destination.set(this.#_data.slice(this.#_offset, this.#_offset + length))
+    this.#_offset += length;
+  }
 }
