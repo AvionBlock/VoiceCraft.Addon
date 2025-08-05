@@ -1,4 +1,4 @@
-import { UTF8 } from "./UTF8";
+import { UTF8 } from "../encoders/UTF8";
 
 export class NetDataWriter {
   /**

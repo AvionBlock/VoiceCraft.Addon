@@ -1,5 +1,5 @@
 import { VoiceCraftWorld } from "./VoiceCraftWorld";
-import { Event } from "./dependencies/Events";
+import { Event } from "./Events";
 import {
   McApiPacket,
   LoginPacket,
@@ -11,7 +11,7 @@ import {
   AudioPacket,
   SetTitlePacket,
   SetDescriptionPacket,
-} from "./dependencies/Packets";
+} from "./network/Packets";
 
 export class VoiceCraft {
   static #version = Object.freeze({ major: 1, minor: 1, build: 0 });

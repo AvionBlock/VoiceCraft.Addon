@@ -3,13 +3,13 @@ export * from "./VoiceCraftEntity";
 export * from "./VoiceCraftWorld";
 
 //Dependencies
-export * from "./dependencies/Events";
-export * from "./dependencies/Locales";
-export * from "./dependencies/NetDataReader";
-export * from "./dependencies/NetDataWriter";
-export * from "./dependencies/NetSerializable";
-export * from "./dependencies/Packets";
-export * from "./dependencies/Quaternion";
-export * from "./dependencies/UTF8";
-export * from "./dependencies/Vector3";
-export * from "./dependencies/Z85";
+export * from "./Events";
+export * from "./Locales";
+export * from "./data/Quaternion";
+export * from "./data/Vector3";
+export * from "./encoders/UTF8";
+export * from "./encoders/Z85";
+export * from "./network/NetDataReader";
+export * from "./network/NetDataWriter";
+export * from "./network/NetSerializable";
+export * from "./network/Packets";

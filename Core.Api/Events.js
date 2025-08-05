@@ -1,6 +1,3 @@
-import { McApiPacket } from "./Packets";
-
-/** @template { McApiPacket } T */
 export class Event {
   /** @type { ((data: T)=>void)[] } */
   #listeners = [];

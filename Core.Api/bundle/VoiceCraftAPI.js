@@ -316,6 +316,43 @@ class VoiceCraftWorld {
   }
 }
 
+class Event {
+  /** @type { ((data: T)=>void)[] } */
+  #listeners = [];
+
+  /**
+   * @description Subscribes to the event.
+   * @param { ((data: T)=>void) } callback
+   */
+  subscribe(callback) {
+    this.#listeners.push(callback);
+  }
+
+  /**
+   * @description Unsubscribes a specific callback instance from the event.
+   * @param { ((data: T)=>void) } callback
+   */
+  unsubscribe(callback) {
+    const index = this.#listeners.findIndex((x) => x === callback);
+    if (index < 0) return;
+    this.#listeners = this.#listeners.splice(index, 1);
+  }
+
+  /**
+   * @description Triggers the event and calls all listeners.
+   * @param { T } data
+   */
+  emit(data) {
+    for (let callback of this.#listeners) {
+      try {
+        callback(data);
+      } catch {
+        //Do Nothing
+      }
+    }
+  }
+}
+
 class UTF8 {
   constructor() {
     throw new Error("Cannot initialize a static class!");
@@ -769,6 +806,20 @@ class NetDataWriter {
     this.putUshort(encodedCount);
     this.#_offset += encodedBytes;
   }
+
+  /**
+   * @description Writes byte values into the buffer
+   * @param { Uint8Array } value
+   * @param { Number } offset
+   * @param { Number } length
+   */
+
+  putBytes(value, offset, length)
+  {
+    this.resizeIfNeeded(this.#_offset + length);
+    this.#_data.set(value.slice(offset, offset + length), this.#_offset);
+    this.#_offset += length;
+  }
 }
 
 class NetDataReader {
@@ -979,6 +1030,18 @@ class NetDataReader {
     this.#_offset += count;
     return str;
   }
+
+  /**
+   * @description Get's a byte array from the buffer
+   * @param { Uint8Array } destination
+   * @param { Number } length
+   */
+
+  getBytes(destination, length)
+  {
+    destination.set(this.#_data.slice(this.#_offset, this.#_offset + length));
+    this.#_offset += length;
+  }
 }
 
 const McApiPacketType = Object.freeze({
@@ -1163,7 +1226,6 @@ class SetEffectPacket extends McApiPacket {
   }
 }
 
-//TODO
 class AudioPacket extends McApiPacket {
   /** @type { String } */
   sessionToken;
@@ -1197,7 +1259,7 @@ class AudioPacket extends McApiPacket {
     writer.putInt(this.id);
     writer.putUint(this.timeStamp);
     writer.putFloat(this.frameLoudness);
-    //Implement writing raw bytes.
+    writer.putBytes(this.data, 0, this.length);
   }
 
   /**
@@ -1212,7 +1274,7 @@ class AudioPacket extends McApiPacket {
     if(this.length > 1000)
       throw new RangeError(`Array length exceeds maximum number of bytes per packet! Got ${Length} bytes.`);
     this.data = new Uint8Array(this.length);
-    //Implement reader raw bytes.
+    reader.getBytes(this.data, this.length);
   }
 }
 
@@ -1309,44 +1371,6 @@ class Packet extends McApiPacket {
    */
   deserialize(reader) {
     this.sessionToken = reader.getString();
-  }
-}
-
-/** @template { McApiPacket } T */
-class Event {
-  /** @type { ((data: T)=>void)[] } */
-  #listeners = [];
-
-  /**
-   * @description Subscribes to the event.
-   * @param { ((data: T)=>void) } callback
-   */
-  subscribe(callback) {
-    this.#listeners.push(callback);
-  }
-
-  /**
-   * @description Unsubscribes a specific callback instance from the event.
-   * @param { ((data: T)=>void) } callback
-   */
-  unsubscribe(callback) {
-    const index = this.#listeners.findIndex((x) => x === callback);
-    if (index < 0) return;
-    this.#listeners = this.#listeners.splice(index, 1);
-  }
-
-  /**
-   * @description Triggers the event and calls all listeners.
-   * @param { T } data
-   */
-  emit(data) {
-    for (let callback of this.#listeners) {
-      try {
-        callback(data);
-      } catch {
-        //Do Nothing
-      }
-    }
   }
 }
 

@@ -1,6 +1,6 @@
-import { NetSerializable } from "./dependencies/NetSerializable";
-import { Quaternion } from "./dependencies/Quaternion";
-import { Vector3 } from "./dependencies/Vector3";
+import { NetSerializable } from "./network/NetSerializable";
+import { Quaternion } from "./data/Quaternion";
+import { Vector3 } from "./data/Vector3";
 import { VoiceCraftWorld } from "./VoiceCraftWorld";
 
 export const EntityType = Object.freeze({
