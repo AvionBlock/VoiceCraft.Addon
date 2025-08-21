@@ -1,8 +1,9 @@
 pack.name=VoiceCraft Addon RP
 pack.description=Addon for VoiceCraft Proximity MCBE
 
-McApi.Status.Connected=[McApi] §aConnected!
-McApi.DisconnectReason.None=[McApi] §eDisconnected!
-McApi.DisconnectReason.Timeout=[McApi] §eDisconnected: Timeout!
-McApi.DisconnectReason.InvalidLoginToken=[McApi] §cDisconnected: Invalid login token!
-McApi.DisconnectReason.IncompatibleVersion=[McApi] §cDisconnected: Incompatible version!
+VcMcApi.Status.Connected=[McWssApi] §aConnected!
+VcMcApi.Status.Connecting=[McWssApi] §eConnecting...
+VcMcApi.DisconnectReason.None=[McWssApi] §eDisconnected!
+VcMcApi.DisconnectReason.Timeout=[McWssApi] §eDisconnected: Timeout!
+VcMcApi.DisconnectReason.InvalidLoginToken=[McWssApi] §cDisconnected: Invalid login token!
+VcMcApi.DisconnectReason.IncompatibleVersion=[McWssApi] §cDisconnected: Incompatible version!

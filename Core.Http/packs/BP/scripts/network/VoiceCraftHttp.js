@@ -72,7 +72,7 @@ export class VoiceCraftHttp {
    * @param { String } reasonKey
    * @returns { Boolean }
    */
-  disconnect(reasonKey = Locales.LocaleKeys.McApi.DisconnectReason.None) {
+  disconnect(reasonKey = Locales.LocaleKeys.VcMcApi.DisconnectReason.None) {
     if (!this.isConnected) return false;
     if (!this.#_connecting)
       this.sendPacket(new LogoutPacket(this.#_sessionToken));
@@ -113,7 +113,7 @@ export class VoiceCraftHttp {
   #handleUpdate() {
     if (!this.isConnected) return;
     if (Date.now() - this.#_lastPing > 5000) {
-      this.disconnect(Locales.LocaleKeys.McApi.DisconnectReason.Timeout);
+      this.disconnect(Locales.LocaleKeys.VcMcApi.DisconnectReason.Timeout);
       return;
     }
     //Send any buffered packets here.
