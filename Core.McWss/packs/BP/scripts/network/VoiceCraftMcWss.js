@@ -65,6 +65,7 @@ export class VoiceCraftMcWss {
     this.#_lastPing = Date.now();
     this.#_connecting = true;
     this.sendPacket(loginPacket);
+    this.#_source.sendMessage({ translate: Locales.LocaleKeys.VcMcApi.Status.Connecting });
   }
 
   /**
@@ -72,7 +73,7 @@ export class VoiceCraftMcWss {
    * @param { String } reasonKey
    * @returns { Boolean }
    */
-  disconnect(reasonKey = Locales.LocaleKeys.McApi.DisconnectReason.None) {
+  disconnect(reasonKey = Locales.LocaleKeys.VcMcApi.DisconnectReason.None) {
     if (!this.isConnected) return false;
     if (!this.#_connecting)
       this.sendPacket(new LogoutPacket(this.#_sessionToken));
@@ -117,7 +118,7 @@ export class VoiceCraftMcWss {
   #handleUpdate() {
     if (!this.isConnected) return;
     if (Date.now() - this.#_lastPing > 5000) {
-      this.disconnect(Locales.LocaleKeys.McApi.DisconnectReason.Timeout);
+      this.disconnect(Locales.LocaleKeys.VcMcApi.DisconnectReason.Timeout);
       return;
     }
     if (this.#_connecting) return; //If in connecting state. do not ping.

@@ -4,15 +4,16 @@ export class Locales {
   }
 
   static #localeKeys = Object.freeze({
-    McApi: {
+    VcMcApi: {
       Status: {
-        Connected: "McApi.Status.Connected",
+        Connected: "VcMcApi.Status.Connected",
+        Connecting: "VcMcApi.Status.Connecting",
       },
       DisconnectReason: {
-        None: "McApi.DisconnectReason.None",
-        Timeout: "McApi.DisconnectReason.Timeout",
-        InvalidLoginToken: "McApi.DisconnectReason.InvalidLoginToken",
-        IncomaptibleVersion: "McApi.DisconnectReason.IncompatibleVersion",
+        None: "VcMcApi.DisconnectReason.None",
+        Timeout: "VcMcApi.DisconnectReason.Timeout",
+        InvalidLoginToken: "VcMcApi.DisconnectReason.InvalidLoginToken",
+        IncomaptibleVersion: "VcMcApi.DisconnectReason.IncompatibleVersion",
       },
     },
   });
