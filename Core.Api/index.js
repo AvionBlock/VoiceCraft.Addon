@@ -3,7 +3,7 @@ export * from "./VoiceCraftEntity";
 export * from "./VoiceCraftWorld";
 
 //Dependencies
-export * from "./Events";
+export * from "./Event";
 export * from "./Locales";
 export * from "./data/Quaternion";
 export * from "./data/Vector3";
