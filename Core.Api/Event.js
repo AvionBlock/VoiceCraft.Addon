@@ -1,3 +1,4 @@
+/** @template T */
 export class Event {
   /** @type { ((data: T)=>void)[] } */
   #listeners = [];

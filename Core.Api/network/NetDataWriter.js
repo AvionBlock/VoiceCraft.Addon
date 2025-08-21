@@ -161,6 +161,15 @@ export class NetDataWriter {
   }
 
   /**
+   * @description Writes a boolean value into the buffer.
+   * @param { Boolean } value 
+   */
+  putBool(value)
+  {
+    this.putByte(value? 1 : 0);
+  }
+
+  /**
    * @description Writes string value into the buffer.
    * @param { String } value
    * @param { Number } maxLength
