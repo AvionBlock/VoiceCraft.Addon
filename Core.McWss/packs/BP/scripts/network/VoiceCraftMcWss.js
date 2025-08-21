@@ -40,7 +40,7 @@ export class VoiceCraftMcWss {
     system.runInterval(() => this.#handleUpdate(), 20);
     system.afterEvents.scriptEventReceive.subscribe((e) => {
       switch (e.id) {
-        case "vc:mcapi":
+        case "vc:mcwss_api":
           this.#handleMcApiEvent(e.sourceEntity, e.message);
           break;
       }
@@ -97,7 +97,8 @@ export class VoiceCraftMcWss {
     );
     if (packetData.length === 0) return;
     //this.#_source?.sendMessage({ rawtext: [{ text: `${VoiceCraft.#_rawtextPacketId}${packetData}`}] });
-    this.#_source?.runCommand(`tellraw @s {"rawtext":[{"text":"${VoiceCraft.rawtextPacketId}${packetData}"}]}`); //We have to do it this way because of how the mc client handles chats from different sources.
+    this.#_source?.runCommand(`tellraw @s {"rawtext":[{"text":"vc:mcwss_api${packetData}"}]}`); //We have to do it this way because of how the mc client handles chats from different sources.
+    system.sendScriptEvent("vc:core_api_send", packetData);
   }
 
   /**
@@ -110,7 +111,7 @@ export class VoiceCraftMcWss {
     const packetData = Z85.getBytesWithPadding(message);
     this.#_reader.setBufferSource(packetData);
     this.#handlePacket(this.#_reader);
-    system.sendScriptEvent("vcapi:core", message);
+    system.sendScriptEvent("vc:core_api_receive", message);
   }
 
   #handleUpdate() {

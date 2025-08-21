@@ -197,6 +197,15 @@ export class NetDataReader {
   }
 
   /**
+   * @description Get's a boolean value from the buffer.
+   * @returns { Boolean }
+   */
+  getBool()
+  {
+    return this.getByte() === 1;
+  }
+
+  /**
    * @description Get's a string value from the buffer.
    * @returns { String }
    */

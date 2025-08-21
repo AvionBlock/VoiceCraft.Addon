@@ -1,5 +1,5 @@
 import { VoiceCraftWorld } from "./VoiceCraftWorld";
-import { Event } from "./Events";
+import { Event } from "./Event";
 import {
   McApiPacket,
   LoginPacket,
@@ -11,18 +11,14 @@ import {
   AudioPacket,
   SetTitlePacket,
   SetDescriptionPacket,
+  McApiPacketType,
 } from "./network/Packets";
+import { NetDataReader, NetDataWriter } from "../Core.McWss/packs/BP/scripts/dependencies/VoiceCraftAPI";
 
 export class VoiceCraft {
   static #version = Object.freeze({ major: 1, minor: 1, build: 0 });
   static get version() {
     return this.#version;
-  }
-
-  /** @type { String } */
-  static #rawtextPacketId = "§p§k";
-  static get rawtextPacketId() {
-    return this.#rawtextPacketId;
   }
 
   /** @type { Boolean } */
@@ -51,14 +47,84 @@ export class VoiceCraft {
     return this.#packetEvents;
   }
 
+  /** @type { NetDataWriter } */
+  static #_writer = new NetDataWriter();
+  /** @type { NetDataReader } */
+  static #_reader = new NetDataReader();
+
   constructor() {
     throw new Error("Cannot initialize a static class!");
   }
 
   static init() {
+    system.afterEvents.scriptEventReceive.subscribe((e) => {
+      switch (e.id) {
+        case "vc:core_api_receive":
+          this.#handleReceiveMcApiEvent(e.message);
+          break;
+      }
+    });
+
     this.#world = new VoiceCraftWorld();
     this.#packetEvents = new PacketEvents();
     this.#initialized = true;
+  }
+
+  /**
+   * @param { Entity } source
+   * @param { String } message
+   */
+  static #handleReceiveMcApiEvent(message) {
+    if (message === undefined) return;
+    /** @type { Uint8Array } */
+    const packetData = Z85.getBytesWithPadding(message);
+    this.#_reader.setBufferSource(packetData);
+    this.#handlePacket(this.#_reader);
+  }
+
+  /**
+   * @param { NetDataReader } reader
+   */
+  static #handlePacket(reader) {
+    const packetId = reader.getByte();
+    switch (packetId) {
+      case McApiPacketType.accept:
+        const acceptPacket = new AcceptPacket();
+        acceptPacket.deserialize(reader);
+        this.#handleAcceptPacket(acceptPacket);
+        break;
+      case McApiPacketType.deny:
+        const denyPacket = new DenyPacket();
+        denyPacket.deserialize(reader);
+        this.#handleDenyPacket(denyPacket);
+        break;
+      case McApiPacketType.ping:
+        const pingPacket = new PingPacket();
+        pingPacket.deserialize(reader);
+        this.#handlePingPacket(pingPacket);
+        break;
+    }
+  }
+
+  /**
+   * @param { AcceptPacket } packet
+   */
+  static #handleAcceptPacket(packet) {
+    this.#packetEvents.acceptPacketEvent.emit(packet);
+  }
+
+  /**
+   * @param { DenyPacket } packet
+   */
+  static #handleDenyPacket(packet) {
+    this.#packetEvents.denyPacketEvent.emit(packet);
+  }
+
+  /**
+   * @param { PingPacket } packet
+   */
+  static #handlePingPacket(packet) {
+    this.#packetEvents.pingPacketEvent.emit(packet);
   }
 }
 
