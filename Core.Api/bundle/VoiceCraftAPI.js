@@ -316,6 +316,7 @@ class VoiceCraftWorld {
   }
 }
 
+/** @template T */
 class Event {
   /** @type { ((data: T)=>void)[] } */
   #listeners = [];
@@ -350,6 +351,1155 @@ class Event {
         //Do Nothing
       }
     }
+  }
+}
+
+let UTF8$1 = class UTF8 {
+  constructor() {
+    throw new Error("Cannot initialize a static class!");
+  }
+
+  /**
+   * @description Encodes a string into a Uint8Array.
+   * @param { String } s
+   * @returns { Uint8Array | undefined }
+   */
+  static getBytes(s) {
+    if (typeof s !== "string")
+      throw new TypeError("Parameter s is not a string!");
+
+    const byteCount = this.getByteCount(s);
+    if (byteCount === 0) return undefined;
+
+    const bytes = new Uint8Array(byteCount);
+    this.setBytes(s, 0, s.length, bytes, 0);
+    return bytes;
+  }
+
+  /**
+   * @description Encodes a range of characters from a string into a Uint8Array.
+   * @param { String } s
+   * @param { Number } charIndex
+   * @param { Number } charCount
+   * @param { Uint8Array } bytes
+   * @param { Number } byteIndex
+   * @returns { Number } The number of bytes that were successfully encoded.
+   */
+  static setBytes(s, charIndex, charCount, bytes, byteIndex) {
+    if (typeof s !== "string")
+      throw new TypeError("Parameter s is not a string!");
+    if (typeof charIndex !== "number")
+      throw new TypeError("Parameter charIndex is not a number!");
+    if (typeof charCount !== "number")
+      throw new TypeError("Parameter charCount is not a number!");
+    if (!(bytes instanceof Uint8Array))
+      throw new TypeError("Parameter bytes is not an instance of Uint8Array!");
+    if (typeof byteIndex !== "number")
+      throw new TypeError("Parameter byteIndex is not a number!");
+    if (s.length - charIndex < charCount)
+      throw new RangeError("Argument out of range!", { cause: "s" });
+    if (byteIndex > bytes.length)
+      throw new RangeError(
+        "Byte Index must be less than or equal to bytes.length!",
+        { cause: "byteIndex" }
+      );
+
+    charCount = Math.min(charCount, s.length);
+    let bytesEncoded = 0;
+    for (let i = charIndex; i < charIndex + charCount; i++) {
+      const charCode = s.charCodeAt(i);
+      const byteCount = this.setBytesFromCharCode(charCode, bytes, byteIndex);
+      if (byteCount === undefined) continue;
+      bytesEncoded += byteCount;
+      byteIndex += byteCount;
+    }
+
+    return bytesEncoded;
+  }
+
+  /**
+   * @description Decodes a range of bytes from a Uint8Array into a string.
+   * @param { Uint8Array } bytes
+   * @param { Number } byteIndex
+   * @param { Number } count
+   * @returns { String } The decoded string.
+   */
+  static getString(bytes, index, count) {
+    if (!(bytes instanceof Uint8Array))
+      throw new TypeError("Parameter bytes is not an instance of Uint8Array!");
+    if (typeof index !== "number")
+      throw new TypeError("Parameter index is not a number!");
+    if (typeof count !== "number")
+      throw new TypeError("Parameter count is not a number!");
+    if (bytes.length - index < count)
+      throw new RangeError("Count argument out of range!");
+
+    /** @type { Number[] } */
+    const charCodes = [];
+    const maxIndex = count + index;
+    while (index < maxIndex) {
+      const charCode = this.getCharCodeFromBytes(bytes, index);
+      if (charCode !== undefined) {
+        charCodes.push(charCode);
+        index += this.getByteCountFromCharCode(charCode); //We know it's a valid utf8 character.
+        continue;
+      }
+
+      index++;
+    }
+
+    return String.fromCharCode.apply(null, charCodes);
+  }
+
+  //#region Byte Count Stuff
+  /**
+   * @description Calculates the exact number of bytes required to encode the string.
+   * @param { String } chars
+   * @returns { Number } The number of bytes that is required to encode the string.
+   */
+  static getByteCount(chars) {
+    if (typeof chars !== "string")
+      throw new TypeError("Parameter chars is not a string!");
+
+    let charCount = 0;
+    for (let i = 0; i < chars.length; i++) {
+      const byteCount = this.getByteCountFromCharCode(chars.charCodeAt(i));
+      if (byteCount === undefined) continue;
+      charCount += byteCount;
+    }
+
+    return charCount;
+  }
+  //#endregion
+
+  /**
+   * @description Calculates the maximum number of bytes produced by encoding the specified number of characters.
+   * @param { Number } charCount
+   * @returns { Number } The maximum possible number of bytes required to encode.
+   */
+  static getMaxByteCount(charCount) {
+    if (typeof charCount !== "number")
+      throw new TypeError("Parameter charCount is not a number!");
+
+    return (charCount + 1) * 3;
+  }
+
+  //#region Charcode Stuff
+  /**
+   * @description Calculates the required numbers of bytes to encode the specified char code.
+   * @param { Number } charCode
+   * @returns { Number | undefined }
+   */
+  static getByteCountFromCharCode(charCode) {
+    if (typeof charCode !== "number")
+      throw new TypeError("Parameter charCode is not a number!");
+
+    if (charCode <= 0x7f) {
+      return 1;
+    } else if (charCode <= 0x7ff) {
+      return 2;
+    } else if (charCode <= 0xffff) {
+      return 3;
+    }
+    return undefined;
+  }
+
+  /**
+   * @description Get's a Uint8Array with the encoded bytes for the specified charcode.
+   * @param { Number } charCode
+   * @returns { Uint8Array | undefined }
+   */
+  static getBytesFromCharCode(charCode) {
+    if (typeof charCode !== "number")
+      throw new TypeError("Parameter charCode is not a number!");
+
+    const byteCount = this.getByteCountFromCharCode(charCode);
+    if (byteCount === undefined) return undefined;
+
+    const bytes = new Uint8Array(byteCount);
+    this.setBytesFromCharCode(charCode, bytes, 0);
+    return bytes;
+  }
+
+  /**
+   * @description Sets a Uint8Array with the encoded bytes for the specified charcode.
+   * @param { Number } charCode
+   * @param { Uint8Array } bytes
+   * @param { Number } index
+   * @returns { Number | undefined } The number of bytes encoded.
+   */
+  static setBytesFromCharCode(charCode, bytes, index) {
+    if (typeof charCode !== "number")
+      throw new TypeError("Parameter charCode is not a number!");
+    if (!(bytes instanceof Uint8Array))
+      throw new TypeError("Parameter bytes is not an instance of Uint8Array!");
+    if (typeof index !== "number")
+      throw new TypeError("Parameter index is not a number!");
+
+    let byteCount = this.getByteCountFromCharCode(charCode);
+    switch (byteCount) {
+      case 1:
+        if (bytes.length < index) {
+          byteCount = undefined;
+          break;
+        }
+
+        bytes[index] = charCode;
+        break;
+      case 2:
+        if (bytes.length < index + 1) {
+          byteCount = undefined;
+          break;
+        }
+
+        bytes[index++] = 0xc0 | (charCode >> 6);
+        bytes[index] = 0x80 | (charCode & 0x3f);
+        break;
+      case 3:
+        if (bytes.length < index + 2) {
+          byteCount = undefined;
+          break;
+        }
+
+        bytes[index++] = 0xe0 | (charCode >> 12);
+        bytes[index++] = 0x80 | ((charCode >> 6) & 0x3f);
+        bytes[index] = 0x80 | (charCode & 0x3f);
+        break;
+    }
+
+    return byteCount;
+  }
+
+  /**
+   * @description Get's a charcode from the specified Uint8Array at index.
+   * @param { Uint8Array } bytes
+   * @param { Number } index
+   * @returns { Number | undefined }
+   */
+  static getCharCodeFromBytes(bytes, index) {
+    if (!(bytes instanceof Uint8Array))
+      throw new TypeError("Parameter bytes is not an instance of Uint8Array!");
+    if (typeof index !== "number")
+      throw new TypeError("Parameter index is not a number!");
+    if (bytes.length < index)
+      throw new RangeError("Index argument out of range!");
+
+    const byte = bytes[index];
+    if ((byte & 0x80) === 0) {
+      return byte;
+    } else if ((byte & 0xe0) == 0xc0) {
+      const byte2 = bytes[++index];
+      return ((byte & 0x1f) << 6) | (byte2 & 0x3f);
+    } else if ((byte & 0xf0) == 0xe0) {
+      const byte2 = bytes[++index];
+      const byte3 = bytes[++index];
+      return ((byte & 0x0f) << 12) | ((byte2 & 0x3f) << 6) | (byte3 & 0x3f);
+    } else if ((byte & 0xf8) == 0xf0) {
+      const byte2 = bytes[++index];
+      const byte3 = bytes[++index];
+      const byte4 = bytes[++index];
+      return (
+        ((byte & 0x0f) << 18) |
+        ((byte2 & 0x3f) << 12) |
+        ((byte3 & 0x3f) << 6) |
+        (byte4 & 0x3f)
+      );
+    }
+
+    return undefined;
+  }
+  //#endregion
+};
+
+let NetDataWriter$1 = class NetDataWriter {
+  /**
+   * @description Contains the raw buffer data the writer holds.
+   * @type { Uint8Array }
+   */
+  get data() {
+    return this.#_data;
+  }
+  /**
+   * @description Contains the total length of the data that was written.
+   * @type { Number }
+   */
+  get length() {
+    return this.#_offset;
+  }
+  /**
+   * @description Determines whether the internal buffer should automatically resize when inputting new data.
+   * @type { Boolean }
+   */
+  autoResize = true;
+
+  /** @type { Uint8Array } */
+  #_data;
+  /** @type { Number } */
+  #_offset = 0;
+  /** @type { DataView } */
+  #_dataView;
+
+  /**
+   * @description Creates a new writer.
+   * @param { ArrayBuffer } buffer
+   */
+  constructor(buffer = undefined) {
+    if (buffer !== undefined) this.#_data = buffer;
+    else this.#_data = new Uint8Array();
+    this.#_dataView = new DataView(this.#_data.buffer);
+  }
+
+  /**
+   * @description Resizes the internal buffer to the new size if required.
+   * @param { Number } newSize
+   */
+  resizeIfNeeded(newSize) {
+    if (!this.autoResize || this.#_data.length >= newSize) return;
+
+    newSize = Math.max(newSize, this.#_data.length * 2);
+    const newBuffer = new Uint8Array(newSize);
+    newBuffer.set(this.#_data);
+
+    this.#_data = newBuffer;
+    this.#_dataView = new DataView(this.#_data.buffer); //new data view.
+  }
+
+  /**
+   * @description Resets the writer.
+   */
+  reset() {
+    this.#_offset = 0;
+  }
+
+  /**
+   * @description Writes a float value into the buffer.
+   * @param { Number } value
+   */
+  putFloat(value) {
+    this.resizeIfNeeded(this.#_offset + 4);
+    this.#_dataView.setFloat32(this.#_offset, value, true);
+    this.#_offset += 4;
+  }
+
+  /**
+   * @description Writes a double value into the buffer.
+   * @param { Number } value
+   */
+  putDouble(value) {
+    this.resizeIfNeeded(this.#_offset + 8);
+    this.#_dataView.setFloat64(this.#_offset, value, true);
+    this.#_offset += 8;
+  }
+
+  /**
+   * @description Writes a signed byte value into the buffer.
+   * @param { Number } value
+   */
+  putSbyte(value) {
+    this.resizeIfNeeded(this.#_offset + 1);
+    this.#_dataView.setInt8(this.#_offset, value);
+    this.#_offset += 1;
+  }
+
+  /**
+   * @description Writes a short value into the buffer.
+   * @param { Number } value
+   */
+  putShort(value) {
+    this.resizeIfNeeded(this.#_offset + 2);
+    this.#_dataView.setInt16(this.#_offset, value, true);
+    this.#_offset += 2;
+  }
+
+  /**
+   * @description Writes an int value into the buffer.
+   * @param { Number } value
+   */
+  putInt(value) {
+    this.resizeIfNeeded(this.#_offset + 4);
+    this.#_dataView.setInt32(this.#_offset, value, true);
+    this.#_offset += 4;
+  }
+
+  /**
+   * @description Writes a long value into the buffer.
+   * @param { Number } value
+   */
+  putLong(value) {
+    this.resizeIfNeeded(this.#_offset + 8);
+    this.#_dataView.setBigInt64(this.#_offset, value, true);
+    this.#_offset += 8;
+  }
+
+  /**
+   * @description Writes a byte value into the buffer.
+   * @param { Number } value
+   */
+  putByte(value) {
+    this.resizeIfNeeded(this.#_offset + 1);
+    this.#_dataView.setUint8(this.#_offset, value);
+    this.#_offset += 1;
+  }
+
+  /**
+   * @description Writes an unsigned short value into the buffer.
+   * @param { Number } value
+   */
+  putUshort(value) {
+    this.resizeIfNeeded(this.#_offset + 2);
+    this.#_dataView.setUint16(this.#_offset, value, true);
+    this.#_offset += 2;
+  }
+
+  /**
+   * @description Writes an unsigned int value into the buffer.
+   * @param { Number } value
+   */
+  putUint(value) {
+    this.resizeIfNeeded(this.#_offset + 4);
+    this.#_dataView.setUint32(this.#_offset, value, true);
+    this.#_offset += 4;
+  }
+
+  /**
+   * @description Writes an unsigned long value into the buffer.
+   * @param { Number } value
+   */
+  putUlong(value) {
+    this.resizeIfNeeded(this.#_offset + 8);
+    this.#_dataView.setBigUint64(this.#_offset, value, true);
+    this.#_offset += 8;
+  }
+
+  /**
+   * @description Writes a boolean value into the buffer.
+   * @param { Boolean } value 
+   */
+  putBool(value)
+  {
+    this.putByte(value? 1 : 0);
+  }
+
+  /**
+   * @description Writes string value into the buffer.
+   * @param { String } value
+   * @param { Number } maxLength
+   */
+  putString(value, maxLength) {
+    if (value.length <= 0) {
+      this.putUshort(0);
+      return;
+    }
+    if (maxLength === undefined)
+      maxLength = 0;
+
+    const charCount =
+      maxLength <= 0 || value.length <= maxLength ? value.length : maxLength;
+    const maxByteCount = UTF8$1.getMaxByteCount(charCount);
+    this.resizeIfNeeded(this.#_offset + maxByteCount + 2);
+
+    const encodedBytes = UTF8$1.setBytes(
+      value,
+      0,
+      charCount,
+      this.#_data,
+      this.#_offset + 2
+    );
+    if (encodedBytes === 0) {
+      this.putUshort(0);
+      return;
+    }
+
+    const encodedCount = encodedBytes + 1;
+    if (encodedCount > 65535 || encodedBytes < 0)
+      throw new RangeError("Exceeded allowed number of encoded bytes!");
+    this.putUshort(encodedCount);
+    this.#_offset += encodedBytes;
+  }
+
+  /**
+   * @description Writes byte values into the buffer
+   * @param { Uint8Array } value
+   * @param { Number } offset
+   * @param { Number } length
+   */
+
+  putBytes(value, offset, length)
+  {
+    this.resizeIfNeeded(this.#_offset + length);
+    this.#_data.set(value.slice(offset, offset + length), this.#_offset);
+    this.#_offset += length;
+  }
+};
+
+let NetDataReader$1 = class NetDataReader {
+  /**
+   * @description Contains the raw buffer data the the reader is set to.
+   * @type { Uint8Array | undefined }
+   */
+  get data() {
+    return this.#_data;
+  }
+  /**
+   * @description Contains the length of the buffer when set, not the raw data length.
+   * @type { Number }
+   */
+  get length() {
+    return this.#_dataSize;
+  }
+  /**
+   * @description Contains the offset in the raw data it is reading from.
+   * @type { Number }
+   */
+  get offset() {
+    return this.#_offset;
+  }
+  /**
+   * @description Determines whether the buffer source has not been set.
+   * @type { Boolean }
+   */
+  get isNull() {
+    return this.#_data === undefined;
+  }
+  /**
+   * @description Determines whether the buffer has been fully read.
+   * @type { Boolean }
+   */
+  get endOfData() {
+    return this.#_offset === this.#_dataSize;
+  }
+  /**
+   * @description Calculates how many bytes are left to read.
+   * @type { Number }
+   */
+  get availableBytes() {
+    return this.#_dataSize - this.#_offset;
+  }
+
+  /** @type { Uint8Array } */
+  #_data;
+  /** @type { Number } */
+  #_dataSize;
+  /** @type { Number } */
+  #_offset = 0;
+  /** @type { DataView } */
+  #_dataView;
+
+  /**
+   * @description Creates a new reader.
+   * @param { NetDataWriter } writer
+   * @param { Uint8Array } buffer
+   */
+  constructor(writer = undefined, buffer = undefined) {
+    if (writer !== undefined) this.setWriterSource(writer);
+    else if (buffer !== undefined) this.setBufferSource(buffer);
+  }
+
+  /**
+   * @description Sets the reader's source.
+   * @param { NetDataWriter } writer
+   */
+  setWriterSource(writer) {
+    this.#_data = writer.data;
+    this.#_offset = 0;
+    this.#_dataSize = writer.length;
+    this.#_dataView = new DataView(this.#_data.buffer);
+  }
+
+  /**
+   * @description Sets the reader's source.
+   * @param { Uint8Array } buffer
+   */
+  setBufferSource(buffer) {
+    this.#_data = buffer;
+    this.#_offset = 0;
+    this.#_dataSize = buffer.length;
+    this.#_dataView = new DataView(this.#_data.buffer);
+  }
+
+  /**
+   * @description Clear's the reader's source. Does not overwrite or reset the original source.
+   */
+
+  clear() {
+    this.#_offset = 0;
+    this.#_dataSize = 0;
+    this.#_data = undefined;
+  }
+
+  /**
+   * @description Get's a float value from the buffer.
+   * @returns { Number }
+   */
+  getFloat() {
+    const value = this.#_dataView.getFloat32(this.#_offset, true);
+    this.#_offset += 4;
+    return value;
+  }
+
+  /**
+   * @description Get's a double value from the buffer.
+   * @returns { Number }
+   */
+  getDouble() {
+    const value = this.#_dataView.getFloat64(this.#_offset, true);
+    this.#_offset += 8;
+    return value;
+  }
+
+  /**
+   * @description Get's a signed byte value from the buffer.
+   * @returns { Number }
+   */
+  getSbyte() {
+    const value = this.#_dataView.getInt8(this.#_offset);
+    this.#_offset += 1;
+    return value;
+  }
+
+  /**
+   * @description Get's a short value from the buffer.
+   * @returns { Number }
+   */
+  getShort() {
+    const value = this.#_dataView.getInt16(this.#_offset, true);
+    this.#_offset += 2;
+    return value;
+  }
+
+  /**
+   * @description Get's an int value from the buffer.
+   * @returns { Number }
+   */
+  getInt() {
+    const value = this.#_dataView.getInt32(this.#_offset, true);
+    this.#_offset += 4;
+    return value;
+  }
+
+  /**
+   * @description Get's a long value from the buffer.
+   * @returns { Number }
+   */
+  getLong() {
+    const value = this.#_dataView.getBigInt64(this.#_offset, true);
+    this.#_offset += 8;
+    return value;
+  }
+
+  /**
+   * @description Get's a byte value from the buffer.
+   * @returns { Number }
+   */
+  getByte() {
+    const value = this.#_dataView.getUint8(this.#_offset);
+    this.#_offset += 1;
+    return value;
+  }
+
+  /**
+   * @description Get's an unsigned short value from the buffer.
+   * @returns { Number }
+   */
+  getUshort() {
+    const value = this.#_dataView.getUint16(this.#_offset, true);
+    this.#_offset += 2;
+    return value;
+  }
+
+  /**
+   * @description Get's an unsigned int value from the buffer.
+   * @returns { Number }
+   */
+  getUint() {
+    const value = this.#_dataView.getUint32(this.#_offset, true);
+    this.#_offset += 4;
+    return value;
+  }
+
+  /**
+   * @description Get's an unsigned long value from the buffer.
+   * @returns { Number }
+   */
+  getUlong() {
+    const value = this.#_dataView.getBigUint64(this.#_offset, true);
+    this.#_offset += 8;
+    return value;
+  }
+
+  /**
+   * @description Get's a boolean value from the buffer.
+   * @returns { Boolean }
+   */
+  getBool()
+  {
+    return this.getByte() === 1;
+  }
+
+  /**
+   * @description Get's a string value from the buffer.
+   * @returns { String }
+   */
+  getString() {
+    const num = this.getUshort();
+    if (num === 0) return "";
+
+    const count = num - 1;
+    const str = UTF8$1.getString(this.#_data, this.#_offset, count);
+    this.#_offset += count;
+    return str;
+  }
+
+  /**
+   * @description Get's a byte array from the buffer
+   * @param { Uint8Array } destination
+   * @param { Number } length
+   */
+
+  getBytes(destination, length)
+  {
+    destination.set(this.#_data.slice(this.#_offset, this.#_offset + length));
+    this.#_offset += length;
+  }
+};
+
+const McApiPacketType = Object.freeze({
+  unknown: 0,
+  login: 1,
+  logout: 2,
+  ping: 3,
+  accept: 4,
+  deny: 5,
+  setEffect: 6,
+  audio: 7,
+  setTitle: 8,
+  setDescription: 9,
+  entityCreated: 10,
+  entityDestroyed: 11,
+  setName: 12,
+  setMute: 13,
+  setDeafen: 14,
+  setTalkBitmask: 15,
+  setListenBitmask: 16,
+  setPosition: 17,
+  setRotation: 18,
+});
+
+class McApiPacket extends NetSerializable {
+  /** @type { Number } */
+  packetId = McApiPacketType.unknown;
+}
+
+class LoginPacket extends McApiPacket {
+  /** @type { String } */
+  loginToken;
+  /** @type { Number } */
+  major;
+  /** @type { Number } */
+  minor;
+  /** @type { Number } */
+  build;
+
+  constructor(loginToken, major, minor, build) {
+    super();
+    this.packetId = McApiPacketType.login;
+    this.loginToken = loginToken;
+    this.major = major;
+    this.minor = minor;
+    this.build = build;
+  }
+
+  /**
+   * @param { NetDataWriter } writer
+   */
+  serialize(writer) {
+    writer.putString(this.loginToken);
+    writer.putInt(this.major);
+    writer.putInt(this.minor);
+    writer.putInt(this.build);
+  }
+}
+
+class PingPacket extends McApiPacket {
+  /** @type { String } */
+  sessionToken;
+
+  constructor(sessionToken = "") {
+    super();
+    this.packetId = McApiPacketType.ping;
+    this.sessionToken = sessionToken;
+  }
+
+  /**
+   * @param { NetDataWriter } writer
+   */
+  serialize(writer) {
+    writer.putString(this.sessionToken);
+  }
+
+  /**
+   * @param { NetDataReader } reader
+   */
+  deserialize(reader) {
+    this.sessionToken = reader.getString();
+  }
+}
+
+class LogoutPacket extends McApiPacket {
+  /** @type { String } */
+  sessionToken;
+
+  constructor(sessionToken = "") {
+    super();
+    this.packetId = McApiPacketType.logout;
+    this.sessionToken = sessionToken;
+  }
+
+  /**
+   * @param { NetDataWriter } writer
+   */
+  serialize(writer) {
+    writer.putString(this.sessionToken);
+  }
+
+  /**
+   * @param { NetDataReader } reader
+   */
+  deserialize(reader) {
+    this.sessionToken = reader.getString();
+  }
+}
+
+class AcceptPacket extends McApiPacket {
+  /** @type { String } */
+  sessionToken;
+
+  constructor(sessionToken = "") {
+    super();
+    this.packetId = McApiPacketType.accept;
+    this.sessionToken = sessionToken;
+  }
+
+  /**
+   * @param { NetDataWriter } writer
+   */
+  serialize(writer) {
+    writer.putString(this.sessionToken);
+  }
+
+  /**
+   * @param { NetDataReader } reader
+   */
+  deserialize(reader) {
+    this.sessionToken = reader.getString();
+  }
+}
+
+class DenyPacket extends McApiPacket {
+  /** @type { String } */
+  reasonKey;
+
+  constructor(reasonKey) {
+    super();
+    this.packetId = McApiPacketType.deny;
+    this.reasonKey = reasonKey;
+  }
+
+  /**
+   * @param { NetDataWriter } writer
+   */
+  serialize(writer) {
+    writer.putString(this.reasonKey);
+  }
+
+  /**
+   * @param { NetDataReader } reader
+   */
+  deserialize(reader) {
+    this.reasonKey = reader.getString();
+  }
+}
+
+//TODO
+class SetEffectPacket extends McApiPacket {
+  /** @type { String } */
+  sessionToken;
+
+  constructor(sessionToken) {
+    super();
+    this.packetId = McApiPacketType.setEffect;
+  }
+
+  /**
+   * @param { NetDataWriter } writer
+   */
+  serialize(writer) {
+    writer.putString(this.sessionToken);
+  }
+
+  /**
+   * @param { NetDataReader } reader
+   */
+  deserialize(reader) {
+    this.sessionToken = reader.getString();
+  }
+}
+
+class AudioPacket extends McApiPacket {
+  /** @type { String } */
+  sessionToken;
+  /** @type { Number } */
+  id;
+  /** @type { Number } */
+  timeStamp;
+  /** @type { Number } */
+  frameLoudness;
+  /** @type { Number } */
+  length;
+  /** @type { Uint8Array } */
+  data;
+
+  constructor(sessionToken, id, timeStamp, frameLoudness, length, data) {
+    super();
+    this.packetId = McApiPacketType.audio;
+    this.sessionToken = sessionToken;
+    this.id = id;
+    this.timeStamp = timeStamp;
+    this.frameLoudness = frameLoudness;
+    this.length = length;
+    this.data = data;
+  }
+
+  /**
+   * @param { NetDataWriter } writer
+   */
+  serialize(writer) {
+    writer.putString(this.sessionToken);
+    writer.putInt(this.id);
+    writer.putUint(this.timeStamp);
+    writer.putFloat(this.frameLoudness);
+    writer.putBytes(this.data, 0, this.length);
+  }
+
+  /**
+   * @param { NetDataReader } reader
+   */
+  deserialize(reader) {
+    this.sessionToken = reader.getString();
+    this.id = reader.getInt();
+    this.timeStamp = reader.getUint();
+    this.frameLoudness = reader.getFloat();
+    this.length = reader.availableBytes;
+    if (this.length > 1000)
+      throw new RangeError(
+        `Array length exceeds maximum number of bytes per packet! Got ${Length} bytes.`
+      );
+    this.data = new Uint8Array(this.length);
+    reader.getBytes(this.data, this.length);
+  }
+}
+
+class SetTitlePacket extends McApiPacket {
+  /** @type { String } */
+  sessionToken;
+  /** @type { Number } */
+  id;
+  /** @type { String } */
+  value;
+
+  constructor(sessionToken, id, value) {
+    super();
+    this.packetId = McApiPacketType.setTitle;
+    this.sessionToken = sessionToken;
+    this.id = id;
+    this.value = value;
+  }
+
+  /**
+   * @param { NetDataWriter } writer
+   */
+  serialize(writer) {
+    writer.putString(this.sessionToken);
+    writer.putInt(this.id);
+    writer.putString(this.value);
+  }
+
+  /**
+   * @param { NetDataReader } reader
+   */
+  deserialize(reader) {
+    this.sessionToken = reader.getString();
+    this.id = reader.getInt();
+    this.value = reader.getString();
+  }
+}
+
+class SetDescriptionPacket extends McApiPacket {
+  /** @type { String } */
+  sessionToken;
+  /** @type { Number } */
+  id;
+  /** @type { String } */
+  value;
+
+  constructor(sessionToken, id, value) {
+    super();
+    this.packetId = McApiPacketType.setDescription;
+    this.sessionToken = sessionToken;
+    this.id = id;
+    this.value = value;
+  }
+
+  /**
+   * @param { NetDataWriter } writer
+   */
+  serialize(writer) {
+    writer.putString(this.sessionToken);
+    writer.putInt(this.id);
+    writer.putString(this.value);
+  }
+
+  /**
+   * @param { NetDataReader } reader
+   */
+  deserialize(reader) {
+    this.sessionToken = reader.getString();
+    this.id = reader.getInt();
+    this.value = reader.getString();
+  }
+}
+
+class EntityCreatedPacket extends McApiPacket {
+  /** @type { String } */
+  sessionToken;
+  /** @type { Number } */
+  id;
+  /** @type { Number } */
+  entityType;
+  /** @type { Number } */
+  lastSpoke;
+  /** @type { Boolean } */
+  destroyed;
+  /** @type { String } */
+  worldId;
+  /** @type { String } */
+  name;
+  /** @type { Boolean } */
+  muted;
+  /** @type { Boolean } */
+  deafened;
+  /** @type { Number } */
+  talkBitmask;
+  /** @type { Number } */
+  listenBitmask;
+  /** @type { Vector3 } */
+  position;
+  /** @type { Quaternion } */
+  rotation;
+  /** @type { String | undefined } */
+  userGuid;
+  /** @type { String | undefined } */
+  serverUserGuid;
+  /** @type { String | undefined } */
+  locale;
+  /** @type { Number | undefined } */
+  positioningType;
+
+  constructor(
+    sessionToken,
+    id,
+    entityType,
+    lastSpoke,
+    destroyed,
+    worldId,
+    name,
+    muted,
+    deafened,
+    talkBitmask,
+    listenBitmask,
+    position,
+    rotation,
+    userGuid,
+    serverUserGuid,
+    locale,
+    positioningType
+  ) {
+    super();
+    this.sessionToken = sessionToken;
+    this.id = id;
+    this.entityType = entityType;
+    this.lastSpoke = lastSpoke;
+    this.destroyed = destroyed;
+    this.worldId = worldId;
+    this.name = name;
+    this.muted = muted;
+    this.deafened = deafened;
+    this.talkBitmask = talkBitmask;
+    this.listenBitmask = listenBitmask;
+    this.position = position;
+    this.rotation = rotation;
+    this.userGuid = userGuid;
+    this.serverUserGuid = serverUserGuid;
+    this.locale = locale;
+    this.positioningType = positioningType;
+  }
+
+  /**
+   * @param { NetDataWriter } writer
+   */
+  serialize(writer) {
+    writer.putString(this.sessionToken);
+    writer.putInt(this.id);
+    writer.putByte(this.entityType);
+    writer.putDouble(this.lastSpoke);
+    writer.putBool(this.destroyed);
+    writer.putString(this.worldId);
+    writer.putString(this.name);
+    writer.putBool(this.muted);
+    writer.putBool(this.deafened);
+    writer.putUlong(this.talkBitmask);
+    writer.putUlong(this.listenBitmask);
+    writer.putFloat(this.position.x);
+    writer.putFloat(this.position.y);
+    writer.putFloat(this.position.z);
+    writer.putFloat(this.rotation.x);
+    writer.putFloat(this.rotation.y);
+    writer.putFloat(this.rotation.z);
+    writer.putFloat(this.rotation.w);
+
+    if(this.entityType !== EntityType.Network) return;
+    if(this.userGuid === undefined || this.serverUserGuid === undefined || this.locale === undefined || this.positioningType === undefined)
+      throw new Error("Invalid Packet!");
+
+    writer.putString(this.userGuid);
+    writer.putString(this.serverUserGuid);
+    writer.putString(this.locale);
+    writer.putByte(this.positioningType);
+  }
+
+  /**
+   * @param { NetDataReader } reader
+   */
+  deserialize(reader) {
+    this.sessionToken = reader.getString();
+    this.id = reader.getInt();
+    this.entityType = reader.getByte();
+    this.lastSpoke = reader.getDouble();
+    this.destroyed = reader.getBool();
+    this.worldId = reader.getString();
+    this.name = reader.getString();
+    this.muted = reader.getBool();
+    this.deafened = reader.getBool();
+    this.talkBitmask = reader.getUlong();
+    this.listenBitmask = reader.getUlong();
+    this.position = new Vector3(reader.getFloat(), reader.getFloat(), reader.getFloat());
+    this.rotation = new Quaternion(reader.getFloat(), reader.getFloat(), reader.getFloat(), reader.getFloat());
+
+    if(this.entityType !== EntityType.Network) return;
+    this.userGuid = reader.getString();
+    this.serverUserGuid = reader.getString();
+    this.locale = reader.getString();
+    this.positioningType = reader.getByte();
   }
 }
 
@@ -1044,346 +2194,10 @@ class NetDataReader {
   }
 }
 
-const McApiPacketType = Object.freeze({
-  unknown: 0,
-  login: 1,
-  logout: 2,
-  ping: 3,
-  accept: 4,
-  deny: 5,
-  setEffect: 6,
-  audio: 7,
-  setTitle: 8,
-  setDescription: 9,
-  entityCreated: 10,
-  entityDestroyed: 11,
-  setName: 12,
-  setMute: 13,
-  setDeafen: 14,
-  setTalkBitmask: 15,
-  setListenBitmask: 16,
-  setPosition: 17,
-  setRotation: 18,
-});
-
-class McApiPacket extends NetSerializable {
-  /** @type { Number } */
-  packetId = McApiPacketType.unknown;
-}
-
-class LoginPacket extends McApiPacket {
-  /** @type { String } */
-  loginToken;
-  /** @type { Number } */
-  major;
-  /** @type { Number } */
-  minor;
-  /** @type { Number } */
-  build;
-
-  constructor(loginToken, major, minor, build) {
-    super();
-    this.packetId = McApiPacketType.login;
-    this.loginToken = loginToken;
-    this.major = major;
-    this.minor = minor;
-    this.build = build;
-  }
-
-  /**
-   * @param { NetDataWriter } writer
-   */
-  serialize(writer) {
-    writer.putString(this.loginToken);
-    writer.putInt(this.major);
-    writer.putInt(this.minor);
-    writer.putInt(this.build);
-  }
-}
-
-class PingPacket extends McApiPacket {
-  /** @type { String } */
-  sessionToken;
-
-  constructor(sessionToken = "") {
-    super();
-    this.packetId = McApiPacketType.ping;
-    this.sessionToken = sessionToken;
-  }
-
-  /**
-   * @param { NetDataWriter } writer
-   */
-  serialize(writer) {
-    writer.putString(this.sessionToken);
-  }
-
-  /**
-   * @param { NetDataReader } reader
-   */
-  deserialize(reader) {
-    this.sessionToken = reader.getString();
-  }
-}
-
-class LogoutPacket extends McApiPacket {
-  /** @type { String } */
-  sessionToken;
-
-  constructor(sessionToken = "") {
-    super();
-    this.packetId = McApiPacketType.logout;
-    this.sessionToken = sessionToken;
-  }
-
-  /**
-   * @param { NetDataWriter } writer
-   */
-  serialize(writer) {
-    writer.putString(this.sessionToken);
-  }
-
-  /**
-   * @param { NetDataReader } reader
-   */
-  deserialize(reader) {
-    this.sessionToken = reader.getString();
-  }
-}
-
-class AcceptPacket extends McApiPacket {
-  /** @type { String } */
-  sessionToken;
-
-  constructor(sessionToken = "") {
-    super();
-    this.packetId = McApiPacketType.accept;
-    this.sessionToken = sessionToken;
-  }
-
-  /**
-   * @param { NetDataWriter } writer
-   */
-  serialize(writer) {
-    writer.putString(this.sessionToken);
-  }
-
-  /**
-   * @param { NetDataReader } reader
-   */
-  deserialize(reader) {
-    this.sessionToken = reader.getString();
-  }
-}
-
-class DenyPacket extends McApiPacket {
-  /** @type { String } */
-  reasonKey;
-
-  constructor(reasonKey) {
-    super();
-    this.packetId = McApiPacketType.deny;
-    this.reasonKey = reasonKey;
-  }
-
-  /**
-   * @param { NetDataWriter } writer
-   */
-  serialize(writer) {
-    writer.putString(this.reasonKey);
-  }
-
-  /**
-   * @param { NetDataReader } reader
-   */
-  deserialize(reader) {
-    this.reasonKey = reader.getString();
-  }
-}
-
-//TODO
-class SetEffectPacket extends McApiPacket {
-  /** @type { String } */
-  sessionToken;
-
-  constructor(sessionToken) {
-    super();
-    this.packetId = McApiPacketType.setEffect;
-  }
-
-  /**
-   * @param { NetDataWriter } writer
-   */
-  serialize(writer) {
-    writer.putString(this.sessionToken);
-  }
-
-  /**
-   * @param { NetDataReader } reader
-   */
-  deserialize(reader) {
-    this.sessionToken = reader.getString();
-  }
-}
-
-class AudioPacket extends McApiPacket {
-  /** @type { String } */
-  sessionToken;
-  /** @type { Number } */
-  id;
-  /** @type { Number } */
-  timeStamp;
-  /** @type { Number } */
-  frameLoudness;
-  /** @type { Number } */
-  length;
-  /** @type { Uint8Array } */
-  data;
-
-  constructor(sessionToken, id, timeStamp, frameLoudness, length, data) {
-    super();
-    this.packetId = McApiPacketType.audio;
-    this.sessionToken = sessionToken;
-    this.id = id;
-    this.timeStamp = timeStamp;
-    this.frameLoudness = frameLoudness;
-    this.length = length;
-    this.data = data;
-  }
-
-  /**
-   * @param { NetDataWriter } writer
-   */
-  serialize(writer) {
-    writer.putString(this.sessionToken);
-    writer.putInt(this.id);
-    writer.putUint(this.timeStamp);
-    writer.putFloat(this.frameLoudness);
-    writer.putBytes(this.data, 0, this.length);
-  }
-
-  /**
-   * @param { NetDataReader } reader
-   */
-  deserialize(reader) {
-    this.sessionToken = reader.getString();
-    this.id = reader.getInt();
-    this.timeStamp = reader.getUint();
-    this.frameLoudness = reader.getFloat();
-    this.length = reader.availableBytes;
-    if(this.length > 1000)
-      throw new RangeError(`Array length exceeds maximum number of bytes per packet! Got ${Length} bytes.`);
-    this.data = new Uint8Array(this.length);
-    reader.getBytes(this.data, this.length);
-  }
-}
-
-class SetTitlePacket extends McApiPacket {
-  /** @type { String } */
-  sessionToken;
-  /** @type { Number } */
-  id;
-  /** @type { String } */
-  value;
-
-
-  constructor(sessionToken, id, value) {
-    super();
-    this.packetId = McApiPacketType.setTitle;
-    this.sessionToken = sessionToken;
-    this.id = id;
-    this.value = value;
-  }
-
-  /**
-   * @param { NetDataWriter } writer
-   */
-  serialize(writer) {
-    writer.putString(this.sessionToken);
-    writer.putInt(this.id);
-    writer.putString(this.value);
-  }
-
-  /**
-   * @param { NetDataReader } reader
-   */
-  deserialize(reader) {
-    this.sessionToken = reader.getString();
-    this.id = reader.getInt();
-    this.value = reader.getString();
-  }
-}
-
-class SetDescriptionPacket extends McApiPacket {
-  /** @type { String } */
-  sessionToken;
-  /** @type { Number } */
-  id;
-  /** @type { String } */
-  value;
-
-
-  constructor(sessionToken, id, value) {
-    super();
-    this.packetId = McApiPacketType.setDescription;
-    this.sessionToken = sessionToken;
-    this.id = id;
-    this.value = value;
-  }
-
-  /**
-   * @param { NetDataWriter } writer
-   */
-  serialize(writer) {
-    writer.putString(this.sessionToken);
-    writer.putInt(this.id);
-    writer.putString(this.value);
-  }
-
-  /**
-   * @param { NetDataReader } reader
-   */
-  deserialize(reader) {
-    this.sessionToken = reader.getString();
-    this.id = reader.getInt();
-    this.value = reader.getString();
-  }
-}
-
-class Packet extends McApiPacket {
-  /** @type { String } */
-  sessionToken;
-
-  constructor(sessionToken) {
-    super();
-    this.packetId = McApiPacketType.unknown;
-  }
-
-  /**
-   * @param { NetDataWriter } writer
-   */
-  serialize(writer) {
-    writer.putString(this.sessionToken);
-  }
-
-  /**
-   * @param { NetDataReader } reader
-   */
-  deserialize(reader) {
-    this.sessionToken = reader.getString();
-  }
-}
-
 class VoiceCraft {
   static #version = Object.freeze({ major: 1, minor: 1, build: 0 });
   static get version() {
     return this.#version;
-  }
-
-  /** @type { String } */
-  static #rawtextPacketId = "§p§k";
-  static get rawtextPacketId() {
-    return this.#rawtextPacketId;
   }
 
   /** @type { Boolean } */
@@ -1412,14 +2226,84 @@ class VoiceCraft {
     return this.#packetEvents;
   }
 
+  /** @type { NetDataWriter } */
+  static #_writer = new NetDataWriter();
+  /** @type { NetDataReader } */
+  static #_reader = new NetDataReader();
+
   constructor() {
     throw new Error("Cannot initialize a static class!");
   }
 
   static init() {
+    system.afterEvents.scriptEventReceive.subscribe((e) => {
+      switch (e.id) {
+        case "vc:core_api_receive":
+          this.#handleReceiveMcApiEvent(e.message);
+          break;
+      }
+    });
+
     this.#world = new VoiceCraftWorld();
     this.#packetEvents = new PacketEvents();
     this.#initialized = true;
+  }
+
+  /**
+   * @param { Entity } source
+   * @param { String } message
+   */
+  static #handleReceiveMcApiEvent(message) {
+    if (message === undefined) return;
+    /** @type { Uint8Array } */
+    const packetData = Z85.getBytesWithPadding(message);
+    this.#_reader.setBufferSource(packetData);
+    this.#handlePacket(this.#_reader);
+  }
+
+  /**
+   * @param { NetDataReader } reader
+   */
+  static #handlePacket(reader) {
+    const packetId = reader.getByte();
+    switch (packetId) {
+      case McApiPacketType.accept:
+        const acceptPacket = new AcceptPacket();
+        acceptPacket.deserialize(reader);
+        this.#handleAcceptPacket(acceptPacket);
+        break;
+      case McApiPacketType.deny:
+        const denyPacket = new DenyPacket();
+        denyPacket.deserialize(reader);
+        this.#handleDenyPacket(denyPacket);
+        break;
+      case McApiPacketType.ping:
+        const pingPacket = new PingPacket();
+        pingPacket.deserialize(reader);
+        this.#handlePingPacket(pingPacket);
+        break;
+    }
+  }
+
+  /**
+   * @param { AcceptPacket } packet
+   */
+  static #handleAcceptPacket(packet) {
+    this.#packetEvents.acceptPacketEvent.emit(packet);
+  }
+
+  /**
+   * @param { DenyPacket } packet
+   */
+  static #handleDenyPacket(packet) {
+    this.#packetEvents.denyPacketEvent.emit(packet);
+  }
+
+  /**
+   * @param { PingPacket } packet
+   */
+  static #handlePingPacket(packet) {
+    this.#packetEvents.pingPacketEvent.emit(packet);
   }
 }
 
@@ -1523,7 +2407,7 @@ class Locales {
   }
 }
 
-class Z85 {
+let Z85$1 = class Z85 {
   static #Base85 = 85;
 
   static #EncodingTable = [
@@ -1732,6 +2616,6 @@ class Z85 {
 
     return output;
   }
-}
+};
 
-export { AcceptPacket, AudioPacket, DenyPacket, EntityType, Event, Locales, LoginPacket, LogoutPacket, McApiPacket, McApiPacketType, NetDataReader, NetDataWriter, NetSerializable, Packet, PacketEvents, PingPacket, Quaternion, SetDescriptionPacket, SetEffectPacket, SetTitlePacket, UTF8, Vector3, VoiceCraft, VoiceCraftEntity, VoiceCraftWorld, Z85 };
+export { AcceptPacket, AudioPacket, DenyPacket, EntityCreatedPacket, EntityType, Event, Locales, LoginPacket, LogoutPacket, McApiPacket, McApiPacketType, NetDataReader$1 as NetDataReader, NetDataWriter$1 as NetDataWriter, NetSerializable, PacketEvents, PingPacket, Quaternion, SetDescriptionPacket, SetEffectPacket, SetTitlePacket, UTF8$1 as UTF8, Vector3, VoiceCraft, VoiceCraftEntity, VoiceCraftWorld, Z85$1 as Z85 };
