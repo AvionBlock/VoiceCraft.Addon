@@ -13,7 +13,8 @@ import {
   SetDescriptionPacket,
   McApiPacketType,
 } from "./network/Packets";
-import { NetDataReader, NetDataWriter } from "../Core.McWss/packs/BP/scripts/dependencies/VoiceCraftAPI";
+import { NetDataReader } from "./network/NetDataReader";
+import { NetDataWriter } from "./network/NetDataWriter";
 
 export class VoiceCraft {
   static #version = Object.freeze({ major: 1, minor: 1, build: 0 });
