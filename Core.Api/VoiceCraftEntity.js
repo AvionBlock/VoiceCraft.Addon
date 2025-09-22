@@ -1,13 +1,7 @@
 import { NetSerializable } from "./network/NetSerializable";
-import { Quaternion } from "./data/Quaternion";
+import { Vector2 } from "./data/Vector2";
 import { Vector3 } from "./data/Vector3";
 import { VoiceCraftWorld } from "./VoiceCraftWorld";
-
-export const EntityType = Object.freeze({
-  Unknown: 0,
-  Server: 1,
-  Network: 2,
-});
 
 export class VoiceCraftEntity extends NetSerializable {
   //Public Events
@@ -88,7 +82,7 @@ export class VoiceCraftEntity extends NetSerializable {
     return this.#rotation;
   }
   set rotation(value) {
-    if (value instanceof Quaternion && value !== this.#rotation) return;
+    if (value instanceof Vector2 && value !== this.#rotation) return;
   }
 
   /** @type { Number } */
@@ -119,7 +113,7 @@ export class VoiceCraftEntity extends NetSerializable {
   #listenBitmask;
   /** @type { Vector3 } */
   #position;
-  /** @type { Quaternion } */
+  /** @type { Vector2 } */
   #rotation;
 
   constructor(id, world) {
@@ -143,6 +137,6 @@ export class VoiceCraftEntity extends NetSerializable {
     this.#talkBitmask = 0;
     this.#listenBitmask = 0;
     this.#position = new Vector3();
-    this.#rotation = new Quaternion();
+    this.#rotation = new Vector2();
   }
 }

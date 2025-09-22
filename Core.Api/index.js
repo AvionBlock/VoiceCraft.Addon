@@ -5,7 +5,7 @@ export * from "./VoiceCraftWorld";
 //Dependencies
 export * from "./Event";
 export * from "./Locales";
-export * from "./data/Quaternion";
+export * from "./data/Vector2";
 export * from "./data/Vector3";
 export * from "./encoders/UTF8";
 export * from "./encoders/Z85";

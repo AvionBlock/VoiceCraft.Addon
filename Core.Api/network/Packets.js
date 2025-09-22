@@ -2,8 +2,7 @@ import { NetSerializable } from "./NetSerializable";
 import { NetDataReader } from "./NetDataReader";
 import { NetDataWriter } from "./NetDataWriter";
 import { Vector3 } from "../data/Vector3";
-import { Quaternion } from "../data/Quaternion";
-import { EntityType } from "../VoiceCraftEntity";
+import { Vector2 } from "../data/Vector2";
 
 export const McApiPacketType = Object.freeze({
   unknown: 0,
@@ -59,6 +58,16 @@ export class LoginPacket extends McApiPacket {
     writer.putInt(this.major);
     writer.putInt(this.minor);
     writer.putInt(this.build);
+  }
+
+  /**
+   * @param { NetDataReader } reader 
+   */
+  deserialize(reader) {
+    this.loginToken = reader.getString();
+    this.major = reader.getInt();
+    this.minor = reader.getInt();
+    this.build = reader.getInt();
   }
 }
 
@@ -308,139 +317,5 @@ export class SetDescriptionPacket extends McApiPacket {
     this.sessionToken = reader.getString();
     this.id = reader.getInt();
     this.value = reader.getString();
-  }
-}
-
-export class EntityCreatedPacket extends McApiPacket {
-  /** @type { String } */
-  sessionToken;
-  /** @type { Number } */
-  id;
-  /** @type { Number } */
-  entityType;
-  /** @type { Number } */
-  lastSpoke;
-  /** @type { Boolean } */
-  destroyed;
-  /** @type { String } */
-  worldId;
-  /** @type { String } */
-  name;
-  /** @type { Boolean } */
-  muted;
-  /** @type { Boolean } */
-  deafened;
-  /** @type { Number } */
-  talkBitmask;
-  /** @type { Number } */
-  listenBitmask;
-  /** @type { Vector3 } */
-  position;
-  /** @type { Quaternion } */
-  rotation;
-  /** @type { String | undefined } */
-  userGuid;
-  /** @type { String | undefined } */
-  serverUserGuid;
-  /** @type { String | undefined } */
-  locale;
-  /** @type { Number | undefined } */
-  positioningType;
-
-  constructor(
-    sessionToken,
-    id,
-    entityType,
-    lastSpoke,
-    destroyed,
-    worldId,
-    name,
-    muted,
-    deafened,
-    talkBitmask,
-    listenBitmask,
-    position,
-    rotation,
-    userGuid,
-    serverUserGuid,
-    locale,
-    positioningType
-  ) {
-    super();
-    this.sessionToken = sessionToken;
-    this.id = id;
-    this.entityType = entityType;
-    this.lastSpoke = lastSpoke;
-    this.destroyed = destroyed;
-    this.worldId = worldId;
-    this.name = name;
-    this.muted = muted;
-    this.deafened = deafened;
-    this.talkBitmask = talkBitmask;
-    this.listenBitmask = listenBitmask;
-    this.position = position;
-    this.rotation = rotation;
-    this.userGuid = userGuid;
-    this.serverUserGuid = serverUserGuid;
-    this.locale = locale;
-    this.positioningType = positioningType;
-  }
-
-  /**
-   * @param { NetDataWriter } writer
-   */
-  serialize(writer) {
-    writer.putString(this.sessionToken);
-    writer.putInt(this.id);
-    writer.putByte(this.entityType);
-    writer.putDouble(this.lastSpoke);
-    writer.putBool(this.destroyed);
-    writer.putString(this.worldId);
-    writer.putString(this.name);
-    writer.putBool(this.muted);
-    writer.putBool(this.deafened);
-    writer.putUlong(this.talkBitmask);
-    writer.putUlong(this.listenBitmask);
-    writer.putFloat(this.position.x);
-    writer.putFloat(this.position.y);
-    writer.putFloat(this.position.z);
-    writer.putFloat(this.rotation.x);
-    writer.putFloat(this.rotation.y);
-    writer.putFloat(this.rotation.z);
-    writer.putFloat(this.rotation.w);
-
-    if(this.entityType !== EntityType.Network) return;
-    if(this.userGuid === undefined || this.serverUserGuid === undefined || this.locale === undefined || this.positioningType === undefined)
-      throw new Error("Invalid Packet!");
-
-    writer.putString(this.userGuid);
-    writer.putString(this.serverUserGuid);
-    writer.putString(this.locale);
-    writer.putByte(this.positioningType);
-  }
-
-  /**
-   * @param { NetDataReader } reader
-   */
-  deserialize(reader) {
-    this.sessionToken = reader.getString();
-    this.id = reader.getInt();
-    this.entityType = reader.getByte();
-    this.lastSpoke = reader.getDouble();
-    this.destroyed = reader.getBool();
-    this.worldId = reader.getString();
-    this.name = reader.getString();
-    this.muted = reader.getBool();
-    this.deafened = reader.getBool();
-    this.talkBitmask = reader.getUlong();
-    this.listenBitmask = reader.getUlong();
-    this.position = new Vector3(reader.getFloat(), reader.getFloat(), reader.getFloat());
-    this.rotation = new Quaternion(reader.getFloat(), reader.getFloat(), reader.getFloat(), reader.getFloat());
-
-    if(this.entityType !== EntityType.Network) return;
-    this.userGuid = reader.getString()
-    this.serverUserGuid = reader.getString();
-    this.locale = reader.getString();
-    this.positioningType = reader.getByte();
   }
 }
