@@ -7,7 +7,7 @@ import { InternalPacket } from "./InternalPacket";
 export class InternalMcApiPacket extends InternalPacket {
   constructor(requestId: string, packet?: McApiPacket) {
     super(requestId);
-    this._type = packet?.PacketType ?? 256 as McApiPacketType; //This will always be an unknown packet type.
+    this._type = packet?.PacketType ?? McApiPacketType.Unknown;
     this._packet = packet;
   }
 
@@ -26,7 +26,7 @@ export class InternalMcApiPacket extends InternalPacket {
 
   public override Serialize(writer: NetDataWriter) {
     super.Serialize(writer);
-    writer.PutShort(this._packet?.PacketType ?? 256 as McApiPacketType); //Put short so we can handle numbers larger than 255
+    writer.PutShort(this._packet?.PacketType ?? McApiPacketType.Unknown); //Put short so we can handle numbers larger than 255
     this._packet?.Serialize(writer);
   }
 
