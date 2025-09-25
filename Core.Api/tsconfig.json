@@ -9,9 +9,5 @@
         "skipLibCheck": true,
         "rootDir": "./src",
         "outDir": "./compiled"
-    },
-    "exclude": [
-        "node_modules",
-        "Temp"
-    ]
+    }
 }
