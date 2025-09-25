@@ -1,14 +1,14 @@
 export class Vector2 {
   constructor(x = 0, y = 0) {
-    this.x = x;
-    this.y = y;
+    this.X = x;
+    this.Y = y;
   }
 
-  x: number;
-  y: number;
+  X: number;
+  Y: number;
 
   Equals(value: Vector2): boolean {
-    if (value.x !== this.x || value.y !== this.y) return false;
+    if (value.X !== this.X || value.Y !== this.Y) return false;
     return true;
   }
 }
