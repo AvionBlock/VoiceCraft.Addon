@@ -17,21 +17,4 @@ export class Locales {
       },
     },
   });
-
-  /** @param { String } key */
-  static Get(key: string) {
-    const splitKey = key.split(".");
-
-    let current: any = this._localeKeys; //Any is stupid.
-    for (const key of splitKey) {
-      current = current[key];
-      if (!current) return key;
-    }
-
-    if (typeof current !== "string") {
-      return key;
-    }
-
-    return current;
-  }
 }
