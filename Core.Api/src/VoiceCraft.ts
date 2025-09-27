@@ -44,7 +44,7 @@ export class VoiceCraft {
 
   public async SendInternalPacketAsync(packet: InternalPacket): Promise<{ Packet?: InternalPacket; Entity?: Entity }> {
     const requestId = packet.RequestId;
-    if (requestId !== undefined && this._requests.has(requestId))
+    if (!requestId.isEmptyOrWhiteSpace() && this._requests.has(requestId))
       throw new Error(`A request with the id ${requestId} already exists!`);
 
     this._writer.Reset();
