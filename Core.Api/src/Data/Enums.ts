@@ -1,5 +1,5 @@
 export enum InternalPacketType {
-  Connect
+  Connect,
 }
 
 export enum McApiPacketType {
@@ -9,5 +9,5 @@ export enum McApiPacketType {
   Accept,
   Deny,
 
-  Unknown = 256 //Special handling
+  Unknown = 256, //Special handling
 }

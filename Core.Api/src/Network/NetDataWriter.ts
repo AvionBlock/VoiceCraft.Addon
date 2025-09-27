@@ -150,33 +150,25 @@ export class NetDataWriter {
   /**
    * @description Writes string value into the buffer.
    */
-  public PutString(value: string, maxLength: number) {
+  public PutString(value: string, maxLength?: number) {
     if (value.length <= 0) {
       this.PutUshort(0);
       return;
     }
     if (maxLength === undefined) maxLength = 0;
 
-    const charCount =
-      maxLength <= 0 || value.length <= maxLength ? value.length : maxLength;
+    const charCount = maxLength <= 0 || value.length <= maxLength ? value.length : maxLength;
     const maxByteCount = UTF8.GetMaxByteCount(charCount);
     this.ResizeIfNeeded(this._offset + maxByteCount + 2);
 
-    const encodedBytes = UTF8.SetBytes(
-      value,
-      0,
-      charCount,
-      this._data,
-      this._offset + 2
-    );
+    const encodedBytes = UTF8.SetBytes(value, 0, charCount, this._data, this._offset + 2);
     if (encodedBytes === 0) {
       this.PutUshort(0);
       return;
     }
 
     const encodedCount = encodedBytes + 1;
-    if (encodedCount > 65535 || encodedBytes < 0)
-      throw new RangeError("Exceeded allowed number of encoded bytes!");
+    if (encodedCount > 65535 || encodedBytes < 0) throw new RangeError("Exceeded allowed number of encoded bytes!");
     this.PutUshort(encodedCount);
     this._offset += encodedBytes;
   }

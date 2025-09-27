@@ -89,11 +89,10 @@ export class Z85 {
   ];
 
   private static _decodingTable = [
-    0, 68, 0, 84, 83, 82, 72, 0, 75, 76, 70, 65, 0, 63, 62, 69, 0, 1, 2, 3, 4,
-    5, 6, 7, 8, 9, 64, 0, 73, 66, 74, 71, 81, 36, 37, 38, 39, 40, 41, 42, 43,
-    44, 45, 46, 47, 48, 49, 50, 51, 52, 53, 54, 55, 56, 57, 58, 59, 60, 61, 77,
-    0, 78, 67, 0, 0, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 21, 22, 23, 24,
-    25, 26, 27, 28, 29, 30, 31, 32, 33, 34, 35, 79, 0, 80, 0, 0,
+    0, 68, 0, 84, 83, 82, 72, 0, 75, 76, 70, 65, 0, 63, 62, 69, 0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 64, 0, 73, 66, 74, 71, 81,
+    36, 37, 38, 39, 40, 41, 42, 43, 44, 45, 46, 47, 48, 49, 50, 51, 52, 53, 54, 55, 56, 57, 58, 59, 60, 61, 77, 0, 78,
+    67, 0, 0, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 21, 22, 23, 24, 25, 26, 27, 28, 29, 30, 31, 32, 33, 34, 35,
+    79, 0, 80, 0, 0,
   ];
 
   public static GetStringWithPadding(data: Uint8Array): string {
@@ -142,9 +141,7 @@ export class Z85 {
   public static GetBytesWithPadding(data: string): Uint8Array {
     var lengthMod5 = data.length % 5;
     if (lengthMod5 != 0 && (data.length - 1) % 5 != 0) {
-      throw new RangeError(
-        "Input length must be a multiple of 5 with either padding or no padding."
-      );
+      throw new RangeError("Input length must be a multiple of 5 with either padding or no padding.");
     }
 
     let paddedBytes = 0;

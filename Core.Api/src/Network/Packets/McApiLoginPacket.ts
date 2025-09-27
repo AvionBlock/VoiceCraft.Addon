@@ -15,7 +15,7 @@ export class McApiLoginPacket extends McApiPacket {
   public override get PacketType(): McApiPacketType {
     return McApiPacketType.Login;
   }
-  
+
   public get LoginToken(): string {
     return this._loginToken;
   }
@@ -34,10 +34,6 @@ export class McApiLoginPacket extends McApiPacket {
 
   public override Deserialize(reader: NetDataReader) {
     this._loginToken = reader.GetString(Constants.MaxStringLength);
-    this._version = new Version(
-      reader.GetInt(),
-      reader.GetInt(),
-      reader.GetInt()
-    );
+    this._version = new Version(reader.GetInt(), reader.GetInt(), reader.GetInt());
   }
 }

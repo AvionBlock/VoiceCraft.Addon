@@ -25,13 +25,9 @@ export class UTF8 {
     bytes: Uint8Array,
     byteIndex: number
   ): number {
-    if (s.length - charIndex < charCount)
-      throw new RangeError("Argument out of range!", { cause: "s" });
+    if (s.length - charIndex < charCount) throw new RangeError("Argument out of range!", { cause: "s" });
     if (byteIndex > bytes.length)
-      throw new RangeError(
-        "Byte Index must be less than or equal to bytes.length!",
-        { cause: "byteIndex" }
-      );
+      throw new RangeError("Byte Index must be less than or equal to bytes.length!", { cause: "byteIndex" });
 
     charCount = Math.min(charCount, s.length);
     let bytesEncoded = 0;
@@ -49,13 +45,8 @@ export class UTF8 {
   /**
    * @description Decodes a range of bytes from a Uint8Array into a string.
    */
-  public static GetString(
-    bytes: Uint8Array,
-    index: number,
-    count: number
-  ): string {
-    if (bytes.length - index < count)
-      throw new RangeError("Count argument out of range!");
+  public static GetString(bytes: Uint8Array, index: number, count: number): string {
+    if (bytes.length - index < count) throw new RangeError("Count argument out of range!");
 
     const charCodes: number[] = [];
     const maxIndex = count + index;
@@ -91,11 +82,7 @@ export class UTF8 {
   /**
    * @description Calculates the exact number characters encoded into the byte array.
    */
-  public static GetCharCount(
-    bytes: Uint8Array,
-    index: number,
-    count: number
-  ): number {
+  public static GetCharCount(bytes: Uint8Array, index: number, count: number): number {
     const maxIndex = count + index;
     let charCount = 0;
     while (index < maxIndex) {
@@ -144,11 +131,7 @@ export class UTF8 {
   /**
    * @description Sets a Uint8Array with the encoded bytes for the specified charcode.
    */
-  public static SetBytesFromCharCode(
-    charCode: number,
-    bytes: Uint8Array,
-    index: number
-  ): number | undefined {
+  public static SetBytesFromCharCode(charCode: number, bytes: Uint8Array, index: number): number | undefined {
     let byteCount = this.GetByteCountFromCharCode(charCode);
     switch (byteCount) {
       case 1:
@@ -186,10 +169,7 @@ export class UTF8 {
   /**
    * @description Get's a charcode from the specified Uint8Array at index.
    */
-  public static GetCharCodeFromBytes(
-    bytes: Uint8Array,
-    index: number
-  ): number | undefined {
+  public static GetCharCodeFromBytes(bytes: Uint8Array, index: number): number | undefined {
     const byte = bytes[index];
     if ((byte & 0x80) === 0) {
       return byte;
@@ -204,12 +184,7 @@ export class UTF8 {
       const byte2 = bytes[++index];
       const byte3 = bytes[++index];
       const byte4 = bytes[++index];
-      return (
-        ((byte & 0x0f) << 18) |
-        ((byte2 & 0x3f) << 12) |
-        ((byte3 & 0x3f) << 6) |
-        (byte4 & 0x3f)
-      );
+      return ((byte & 0x0f) << 18) | ((byte2 & 0x3f) << 12) | ((byte3 & 0x3f) << 6) | (byte4 & 0x3f);
     }
 
     return undefined;

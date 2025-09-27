@@ -86,8 +86,7 @@ export class NetDataReader {
    * @description Get's a float value from the buffer.
    */
   public GetFloat(): number {
-    if (this._dataView === undefined)
-      throw new Error("Data is null! No data to read from!");
+    if (this._dataView === undefined) throw new Error("Data is null! No data to read from!");
 
     const value = this._dataView.getFloat32(this._offset, true);
     this._offset += 4;
@@ -98,8 +97,7 @@ export class NetDataReader {
    * @description Get's a double value from the buffer.
    */
   public GetDouble(): number {
-    if (this._dataView === undefined)
-      throw new Error("Data is null! No data to read from!");
+    if (this._dataView === undefined) throw new Error("Data is null! No data to read from!");
 
     const value = this._dataView.getFloat64(this._offset, true);
     this._offset += 8;
@@ -110,8 +108,7 @@ export class NetDataReader {
    * @description Get's a signed byte value from the buffer.
    */
   public GetSbyte(): number {
-    if (this._dataView === undefined)
-      throw new Error("Data is null! No data to read from!");
+    if (this._dataView === undefined) throw new Error("Data is null! No data to read from!");
 
     const value = this._dataView.getInt8(this._offset);
     this._offset += 1;
@@ -122,8 +119,7 @@ export class NetDataReader {
    * @description Get's a short value from the buffer.
    */
   public GetShort(): number {
-    if (this._dataView === undefined)
-      throw new Error("Data is null! No data to read from!");
+    if (this._dataView === undefined) throw new Error("Data is null! No data to read from!");
 
     const value = this._dataView.getInt16(this._offset, true);
     this._offset += 2;
@@ -134,8 +130,7 @@ export class NetDataReader {
    * @description Get's an int value from the buffer.
    */
   public GetInt(): number {
-    if (this._dataView === undefined)
-      throw new Error("Data is null! No data to read from!");
+    if (this._dataView === undefined) throw new Error("Data is null! No data to read from!");
 
     const value = this._dataView.getInt32(this._offset, true);
     this._offset += 4;
@@ -146,8 +141,7 @@ export class NetDataReader {
    * @description Get's a long value from the buffer.
    */
   public GetLong(): bigint {
-    if (this._dataView === undefined)
-      throw new Error("Data is null! No data to read from!");
+    if (this._dataView === undefined) throw new Error("Data is null! No data to read from!");
 
     const value = this._dataView.getBigInt64(this._offset, true);
     this._offset += 8;
@@ -158,8 +152,7 @@ export class NetDataReader {
    * @description Get's a byte value from the buffer.
    */
   public GetByte(): number {
-    if (this._dataView === undefined)
-      throw new Error("Data is null! No data to read from!");
+    if (this._dataView === undefined) throw new Error("Data is null! No data to read from!");
 
     const value = this._dataView.getUint8(this._offset);
     this._offset += 1;
@@ -170,8 +163,7 @@ export class NetDataReader {
    * @description Get's an unsigned short value from the buffer.
    */
   public GetUshort(): number {
-    if (this._dataView === undefined)
-      throw new Error("Data is null! No data to read from!");
+    if (this._dataView === undefined) throw new Error("Data is null! No data to read from!");
 
     const value = this._dataView.getUint16(this._offset, true);
     this._offset += 2;
@@ -182,8 +174,7 @@ export class NetDataReader {
    * @description Get's an unsigned int value from the buffer.
    */
   public GetUint(): number {
-    if (this._dataView === undefined)
-      throw new Error("Data is null! No data to read from!");
+    if (this._dataView === undefined) throw new Error("Data is null! No data to read from!");
 
     const value = this._dataView.getUint32(this._offset, true);
     this._offset += 4;
@@ -194,8 +185,7 @@ export class NetDataReader {
    * @description Get's an unsigned long value from the buffer.
    */
   public GetUlong(): bigint {
-    if (this._dataView === undefined)
-      throw new Error("Data is null! No data to read from!");
+    if (this._dataView === undefined) throw new Error("Data is null! No data to read from!");
 
     const value = this._dataView.getBigUint64(this._offset, true);
     this._offset += 8;
@@ -221,8 +211,7 @@ export class NetDataReader {
 
     const count = num - 1;
     const str =
-      maxLength > 0 &&
-      UTF8.GetCharCount(this._data, this._offset, count) > maxLength
+      maxLength > 0 && UTF8.GetCharCount(this._data, this._offset, count) > maxLength
         ? ""
         : UTF8.GetString(this._data, this._offset, count);
     this._offset += count;

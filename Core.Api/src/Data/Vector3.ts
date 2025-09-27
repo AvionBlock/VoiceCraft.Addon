@@ -10,8 +10,7 @@ export class Vector3 {
   Z: number;
 
   Equals(value: Vector3): boolean {
-    if (value.X !== this.X || value.Y !== this.Y || value.Z !== this.Z)
-      return false;
+    if (value.X !== this.X || value.Y !== this.Y || value.Z !== this.Z) return false;
     return true;
   }
 }
