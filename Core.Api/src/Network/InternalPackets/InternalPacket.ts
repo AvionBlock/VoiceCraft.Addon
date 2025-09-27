@@ -16,10 +16,11 @@ export abstract class InternalPacket implements INetSerializable {
   private _requestId?: string;
 
   public Serialize(writer: NetDataWriter): void {
-    if (this._requestId) writer.PutString(this._requestId, Constants.MaxStringLength);
-    writer.PutString("", Constants.MaxStringLength);
+    if (this._requestId !== undefined) writer.PutString(this._requestId, Constants.MaxStringLength);
+    else writer.PutString("", Constants.MaxStringLength);
   }
   public Deserialize(reader: NetDataReader): void {
     this._requestId = reader.GetString(Constants.MaxStringLength);
+    if(this._requestId.length === 0) this._requestId = undefined;
   }
 }
