@@ -54,14 +54,15 @@ export class VoiceCraft {
         `A request with the id ${packet.RequestId} already exists!`
       );
 
-    this._requests.add(packet.RequestId);
     this._writer.Reset();
+    this._writer.PutShort(packet.PacketType);
     packet.Serialize(this._writer);
     const data = Z85.GetStringWithPadding(
       this._writer.Data.slice(0, this._writer.Length)
     );
-    system.sendScriptEvent(`vc:${packet.PacketType}`, data);
-    return this.GetInternalPacketResultAsync(packet.RequestId);
+    this._requests.add(packet.RequestId);
+    system.sendScriptEvent("vc:internal_api", data);
+    return await this.GetInternalPacketResultAsync(packet.RequestId);
   }
 
   private async GetInternalPacketResultAsync(
@@ -83,13 +84,14 @@ export class VoiceCraft {
   }
 
   private HandleScriptEvent(ev: ScriptEventCommandMessageAfterEvent) {
-    if (!ev.id.startsWith("vc:")) return;
+    if (ev.id !== "vc:internal_api") return;
 
     const data = Z85.GetBytesWithPadding(ev.message);
     this._reader.SetBufferSource(data);
+    const id = this._reader.GetShort();
 
-    switch (ev.id) {
-      case `vc:${InternalPacketType.Connect}`:
+    switch (id) {
+      case InternalPacketType.Connect:
         const connectPacket = new InternalConnectPacket("");
         connectPacket.Deserialize(this._reader);
         this.HandleInternalConnectPacket(
