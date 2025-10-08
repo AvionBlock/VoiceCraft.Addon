@@ -1,4 +1,6 @@
 export enum InternalPacketType {
+  RequestIdAllocated,
+  RequestIdUnallocated,
   Connect,
 }
 
