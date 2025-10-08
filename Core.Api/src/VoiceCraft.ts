@@ -65,7 +65,7 @@ export class VoiceCraft {
     return result;
   }
 
-  private async SendInternalPacketAsync(packet: InternalPacket): Promise<{ Packet?: InternalPacket; Entity?: Entity }> {
+  protected async SendInternalPacketAsync(packet: InternalPacket): Promise<{ Packet?: InternalPacket; Entity?: Entity }> {
     if (packet.RequestId !== undefined && this._requests.has(packet.RequestId))
       throw new Error(`A request with the id ${packet.RequestId} already exists!`);
 
@@ -85,7 +85,7 @@ export class VoiceCraft {
     return { Packet: undefined, Entity: undefined };
   }
 
-  private async SendInternalPacketNoResponseAsync(packet: InternalPacket) {
+  protected async SendInternalPacketNoResponseAsync(packet: InternalPacket) {
     this._writer.Reset();
     this._writer.PutShort(packet.PacketType);
     packet.Serialize(this._writer);
