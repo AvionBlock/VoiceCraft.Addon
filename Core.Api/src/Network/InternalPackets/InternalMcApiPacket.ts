@@ -5,7 +5,7 @@ import { McApiPacket } from "../Packets/McApiPacket";
 import { InternalPacket } from "./InternalPacket";
 
 export class InternalMcApiPacket extends InternalPacket {
-  constructor(requestId: string, packet?: McApiPacket) {
+  constructor(requestId?: string, packet?: McApiPacket) {
     super(requestId);
     this._type = packet?.PacketType ?? McApiPacketType.Unknown;
     this._packet = packet;

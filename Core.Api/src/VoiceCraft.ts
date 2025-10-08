@@ -8,6 +8,8 @@ import { Event } from "./Event";
 import { InternalPacket } from "./Network/InternalPackets/InternalPacket";
 import { McApiPacket } from "./Network/Packets/McApiPacket";
 import { InternalMcApiPacket } from "./Network/InternalPackets/InternalMcApiPacket";
+import { InternalRequestIdAllocatedPacket } from "./Network/InternalPackets/InternalRequestIdAllocatedPacket copy";
+import { InternalRequestIdUnallocatedPacket } from "./Network/InternalPackets/InternalRequestIdUnallocatedPacket";
 
 export class VoiceCraft {
   constructor() {
@@ -26,12 +28,33 @@ export class VoiceCraft {
     Packet: InternalPacket;
     Entity?: Entity;
   }>;
+  public OnInternalRequestIdAllocatedPacket?: Event<{
+    Packet: InternalRequestIdAllocatedPacket;
+    Entity?: Entity;
+  }>;
+  public OnInternalRequestIdUnallocatedPacket?: Event<{
+    Packet: InternalRequestIdAllocatedPacket;
+    Entity?: Entity;
+  }>;
   public OnInternalConnectPacket?: Event<{
     Packet: InternalConnectPacket;
     Entity?: Entity;
   }>;
   //McApi
   public OnMcApiPacketReceived?: Event<McApiPacket>;
+
+  private async AllocatedRequestId(requestId: string): Promise<boolean> {
+    if (this._requests.add(requestId)) {
+      await this.SendInternalPacketNoResponseAsync(new InternalRequestIdAllocatedPacket(requestId));
+      return true;
+    }
+    return false;
+  }
+
+  private async UnallocateRequestId(requestId: string) {
+    if (this._requests.delete(requestId))
+      await this.SendInternalPacketNoResponseAsync(new InternalRequestIdUnallocatedPacket(requestId));
+  }
 
   public async SendPacketAsync(
     requestId: string,
@@ -42,24 +65,33 @@ export class VoiceCraft {
     return result;
   }
 
-  public async SendInternalPacketAsync(packet: InternalPacket): Promise<{ Packet?: InternalPacket; Entity?: Entity }> {
-    const requestId = packet.RequestId;
-    if (!requestId.isEmptyOrWhiteSpace() && this._requests.has(requestId))
-      throw new Error(`A request with the id ${requestId} already exists!`);
+  private async SendInternalPacketAsync(packet: InternalPacket): Promise<{ Packet?: InternalPacket; Entity?: Entity }> {
+    if (packet.RequestId !== undefined && this._requests.has(packet.RequestId))
+      throw new Error(`A request with the id ${packet.RequestId} already exists!`);
 
     this._writer.Reset();
     this._writer.PutShort(packet.PacketType);
     packet.Serialize(this._writer);
     const data = Z85.GetStringWithPadding(this._writer.Data.slice(0, this._writer.Length));
 
-    if (requestId !== undefined) {
-      this._requests.add(requestId);
+    if (packet.RequestId !== undefined && await this.AllocatedRequestId(packet.RequestId)) {
       system.sendScriptEvent("vc:internal_api", data);
-      return await this.GetInternalPacketResultAsync(requestId);
+      const result = await this.GetInternalPacketResultAsync(packet.RequestId);
+      this.UnallocateRequestId(packet.RequestId);
+      return result;
     }
 
     system.sendScriptEvent("vc:internal_api", data);
     return { Packet: undefined, Entity: undefined };
+  }
+
+  private async SendInternalPacketNoResponseAsync(packet: InternalPacket) {
+    this._writer.Reset();
+    this._writer.PutShort(packet.PacketType);
+    packet.Serialize(this._writer);
+    const data = Z85.GetStringWithPadding(this._writer.Data.slice(0, this._writer.Length));
+
+    system.sendScriptEvent("vc:internal_api", data);
   }
 
   private async GetInternalPacketResultAsync(requestId: string): Promise<{ Packet: InternalPacket; Entity?: Entity }> {
@@ -73,7 +105,6 @@ export class VoiceCraft {
       await system.waitTicks(1);
     }
     this.OnInternalPacketReceived?.Unsubscribe(callback);
-    this._requests.delete(requestId);
     return result;
   }
 
@@ -85,6 +116,16 @@ export class VoiceCraft {
     const id = this._reader.GetShort();
 
     switch (id) {
+      case InternalPacketType.RequestIdAllocated:
+        const requestIdAllocatedPacket = new InternalRequestIdAllocatedPacket();
+        requestIdAllocatedPacket.Deserialize(this._reader);
+        this.HandleInternalRequestIdAllocatedPacket(requestIdAllocatedPacket, ev.initiator ?? ev.sourceEntity);
+        break;
+      case InternalPacketType.RequestIdUnallocated:
+        const requestIdUnallocatedPacket = new InternalRequestIdUnallocatedPacket();
+        requestIdUnallocatedPacket.Deserialize(this._reader);
+        this.HandleInternalRequestIdUnallocatedPacket(requestIdUnallocatedPacket, ev.initiator ?? ev.sourceEntity);
+        break;
       case InternalPacketType.Connect:
         const connectPacket = new InternalConnectPacket();
         connectPacket.Deserialize(this._reader);
@@ -93,7 +134,18 @@ export class VoiceCraft {
     }
   }
 
+  private HandleInternalRequestIdAllocatedPacket(packet: InternalRequestIdAllocatedPacket, entity?: Entity) {
+    this.OnInternalPacketReceived?.Invoke({ Packet: packet, Entity: entity });
+    this.OnInternalRequestIdAllocatedPacket?.Invoke({ Packet: packet, Entity: entity });
+  }
+
+  private HandleInternalRequestIdUnallocatedPacket(packet: InternalRequestIdUnallocatedPacket, entity?: Entity) {
+    this.OnInternalPacketReceived?.Invoke({ Packet: packet, Entity: entity });
+    this.OnInternalRequestIdUnallocatedPacket?.Invoke({ Packet: packet, Entity: entity });
+  }
+
   private HandleInternalConnectPacket(packet: InternalConnectPacket, entity?: Entity) {
+    this.OnInternalPacketReceived?.Invoke({ Packet: packet, Entity: entity });
     this.OnInternalConnectPacket?.Invoke({ Packet: packet, Entity: entity });
   }
 }

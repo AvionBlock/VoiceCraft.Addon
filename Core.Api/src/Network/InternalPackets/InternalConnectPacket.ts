@@ -5,7 +5,7 @@ import { NetDataWriter } from "../NetDataWriter";
 import { InternalPacket } from "./InternalPacket";
 
 export class InternalConnectPacket extends InternalPacket {
-  constructor(requestId: string = "", ip: string = "", port: number = 0, loginToken: string = "") {
+  constructor(requestId?: string, ip: string = "", port: number = 0, loginToken: string = "") {
     super(requestId);
     this._ip = ip;
     this._port = port;
