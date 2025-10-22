@@ -1,6 +1,7 @@
 import { system } from "@minecraft/server";
-import { VoiceCraftMcWss } from "./network/VoiceCraftMcWss";
-const vc = new VoiceCraftMcWss();
+import { McApiMcwss } from "./McApiMcwss";
+
+const vc = new McApiMcwss();
 
 system.afterEvents.scriptEventReceive.subscribe((e) => {
   switch (e.id) {
