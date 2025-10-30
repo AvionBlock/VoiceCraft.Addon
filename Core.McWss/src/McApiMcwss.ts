@@ -1,4 +1,4 @@
-import { Player, system } from "@minecraft/server";
+import { Player, ScriptEventCommandMessageAfterEvent, system } from "@minecraft/server";
 import { Version } from "./API/Data/Version";
 import { VoiceCraft } from "./API/VoiceCraft";
 import { NetDataWriter } from "./API/Network/NetDataWriter";
@@ -24,6 +24,12 @@ export class McApiMcwss {
   private _connecting: boolean = false;
   private _requestIds: Set<string> = new Set<string>();
 
+  constructor() {
+    system.afterEvents.scriptEventReceive.subscribe((ev) => {
+      this.HandleScriptEvent(ev);
+    })
+  }
+
   public async ConnectAsync(token: string) {
     this._requestIds.clear();
     const packet = new McApiLoginPacket(Guid.Create().toString(), token, this._version);
@@ -45,6 +51,8 @@ export class McApiMcwss {
     this._source?.runCommand(
       `tellraw @s {"rawtext":[{"text":"${this._tunnelId}${packetData}"}]}`
     ); //We have to do it this way because of how the mc client handles chats from different sources.
+
+    console.log(`Packet Sent: ${packetData}`);
   }
 
   private RegisterRequestId(requestId: string): boolean {
@@ -70,5 +78,9 @@ export class McApiMcwss {
     finally {
       this.DeregisterRequestId(requestId);
     }
+  }
+
+  private async HandleScriptEvent(ev: ScriptEventCommandMessageAfterEvent) {
+    console.log(ev.message);
   }
 }

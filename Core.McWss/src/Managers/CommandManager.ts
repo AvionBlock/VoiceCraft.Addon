@@ -1,4 +1,4 @@
-import { CommandPermissionLevel, CustomCommandOrigin, CustomCommandParamType, CustomCommandRegistry, system } from "@minecraft/server"
+import { CommandPermissionLevel, CustomCommandError, CustomCommandOrigin, CustomCommandParamType, CustomCommandRegistry, CustomCommandStatus, Player, system } from "@minecraft/server"
 import { McApiMcwss } from "../McApiMcwss";
 
 export class CommandManager {
@@ -22,8 +22,18 @@ export class CommandManager {
     }
 
     private ConnectCommand(origin: CustomCommandOrigin, token: string) {
+        if (origin.sourceEntity === undefined || origin.sourceEntity.constructor !== Player)
+            throw new Error("Command origin must be of type player!");
         system.run(async () => {
-            this._mcapi.ConnectAsync(token);
+            const player = origin.sourceEntity as Player;
+            try {
+                player.sendMessage("§eConnecting...");
+                await this._mcapi.ConnectAsync(token);
+                player.sendMessage("§aConnection Successful!");
+            }
+            catch (ex) {
+                player.sendMessage(`§cFailed to connect to server - ${ex}`)
+            }
         });
         return undefined;
     }
