@@ -1,9 +1,10 @@
-import { CommandPermissionLevel, CustomCommandOrigin, CustomCommandRegistry, system } from "@minecraft/server"
+import { CommandPermissionLevel, CustomCommandOrigin, CustomCommandParamType, CustomCommandRegistry, system } from "@minecraft/server"
+import { McApiMcwss } from "../McApiMcwss";
 
-export class CommandController {
-    private static readonly Namespace: string = "voicecraft";
+export class CommandManager {
+    private static readonly Namespace: string = "voicecraft_mcwss";
 
-    constructor() {
+    constructor(private _mcapi: McApiMcwss) {
         system.beforeEvents.startup.subscribe(ev => {
             this.RegisterCommands(ev.customCommandRegistry);
         });
@@ -11,15 +12,18 @@ export class CommandController {
 
     private RegisterCommands(registry: CustomCommandRegistry) {
         registry.registerCommand({
-            name: `${CommandController.Namespace}:connect`,
+            name: `${CommandManager.Namespace}:vcconnect`,
             description: "Attempts a connection to the McWss server.",
-            permissionLevel: CommandPermissionLevel.Admin
-        }, (origin) => this.ConnectCommand(origin))
+            permissionLevel: CommandPermissionLevel.Admin,
+            mandatoryParameters: [
+                { name: "token", type: CustomCommandParamType.String },
+            ]
+        }, (origin, token) => this.ConnectCommand(origin, token))
     }
 
-    private ConnectCommand(origin: CustomCommandOrigin) {
+    private ConnectCommand(origin: CustomCommandOrigin, token: string) {
         system.run(async () => {
-
+            this._mcapi.ConnectAsync(token);
         });
         return undefined;
     }
