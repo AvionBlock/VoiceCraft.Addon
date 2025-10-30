@@ -5,25 +5,25 @@ import { NetDataWriter } from "../NetDataWriter";
 import { McApiPacket } from "./McApiPacket";
 
 export class McApiPingPacket extends McApiPacket {
-  constructor(sessionToken: string = "") {
+  constructor(token: string = "") {
     super();
-    this._sessionToken = sessionToken;
+    this._token = token;
   }
 
   public override get PacketType(): McApiPacketType {
     return McApiPacketType.Ping;
   }
 
-  public get SessionToken(): string {
-    return this._sessionToken;
+  public get Token(): string {
+    return this._token;
   }
-  private _sessionToken: string;
+  private _token: string;
 
   public override Serialize(writer: NetDataWriter) {
-    writer.PutString(this._sessionToken, Constants.MaxStringLength);
+    writer.PutString(this.Token, Constants.MaxStringLength);
   }
 
   public override Deserialize(reader: NetDataReader) {
-    this._sessionToken = reader.GetString(Constants.MaxStringLength);
+    this._token = reader.GetString(Constants.MaxStringLength);
   }
 }
