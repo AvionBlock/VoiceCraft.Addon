@@ -14,7 +14,7 @@ export class CommandManager {
         registry.registerCommand({
             name: `${CommandManager.Namespace}:vcconnect`,
             description: "Attempts a connection to the McWss server.",
-            permissionLevel: CommandPermissionLevel.Admin,
+            permissionLevel: CommandPermissionLevel.Host,
             mandatoryParameters: [
                 { name: "token", type: CustomCommandParamType.String },
             ]

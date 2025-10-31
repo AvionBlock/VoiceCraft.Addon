@@ -1,5 +1,5 @@
-pack.name=VoiceCraft Addon RP
-pack.description=Addon for VoiceCraft Proximity MCBE
+pack.name=VoiceCraft.Addon.Core.McWss.RP
+pack.description=McWss Backend Addon for VoiceCraft Proximity Chat
 
 VcMcApi.Status.Connected=[McWssApi] §aConnected!
 VcMcApi.Status.Connecting=[McWssApi] §eConnecting...
