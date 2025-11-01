@@ -12,7 +12,7 @@ export class CommandManager {
         registry.registerCommand({
             name: `${CommandManager.Namespace}:vcconnect`,
             description: "Attempts a connection to the McWss server.",
-            permissionLevel: CommandPermissionLevel.Admin,
+            permissionLevel: CommandPermissionLevel.Host,
             mandatoryParameters: [
                 { name: "token", type: CustomCommandParamType.String },
             ]
@@ -25,7 +25,7 @@ export class CommandManager {
             const player = origin.sourceEntity;
             try {
                 player.sendMessage("§eConnecting...");
-                await this._mcapi.ConnectAsync(token);
+                await this._mcapi.ConnectAsync(player, token);
                 player.sendMessage("§aConnection Successful!");
             }
             catch (ex) {
