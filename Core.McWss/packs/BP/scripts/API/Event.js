@@ -5,6 +5,7 @@ export class Event {
      */
     Subscribe(callback) {
         this._listeners.push(callback);
+        return callback;
     }
     /**
      * @description Unsubscribes a specific callback instance from the event.

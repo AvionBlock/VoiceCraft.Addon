@@ -28,7 +28,7 @@ export class CommandManager {
             const player = origin.sourceEntity as Player;
             try {
                 player.sendMessage("§eConnecting...");
-                await this._mcapi.ConnectAsync(token);
+                await this._mcapi.ConnectAsync(player, token);
                 player.sendMessage("§aConnection Successful!");
             }
             catch (ex) {

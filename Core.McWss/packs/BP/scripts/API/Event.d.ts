@@ -3,7 +3,7 @@ export declare class Event<T> {
     /**
      * @description Subscribes to the event.
      */
-    Subscribe(callback: (data: T) => void): void;
+    Subscribe(callback: (data: T) => void): (data: T) => void;
     /**
      * @description Unsubscribes a specific callback instance from the event.
      */
