@@ -3,55 +3,54 @@ import { Version } from "./API/Data/Version";
 import { VoiceCraft } from "./API/VoiceCraft";
 import { NetDataWriter } from "./API/Network/NetDataWriter";
 import { NetDataReader } from "./API/Network/NetDataReader";
-import { McApiPacket } from "./API/Network/Packets/McApiPacket";
-import { Z85 } from "./API/Encoders/Z85";
 import { CommandManager } from "./Managers/CommandManager";
-import { McApiLoginPacket } from "./API/Network/Packets/McApiLoginPacket";
 import { Guid } from "./API/Data/Guid";
 import { McApiPacketType } from "./API/Data/Enums";
-import { McApiAcceptPacket } from "./API/Network/Packets/McApiAcceptPacket";
 import { Event } from "./API/Event";
+import { Queue } from "./API/Data/Queue";
+import { McApiPacket } from "./API/Network/Packets/McApiPacket";
+import { McApiPingPacket } from "./API/Network/Packets/McApiPingPacket";
+import { McApiAcceptPacket } from "./API/Network/Packets/McApiAcceptPacket";
+import { McApiLoginPacket } from "./API/Network/Packets/McApiLoginPacket";
 export class McApiMcwss {
     _vc = new VoiceCraft();
-    _tunnelId = "vc:mcwss_api";
     _version = new Version(1, 1, 0);
     _commands = new CommandManager(this);
     _defaultTimeoutMs = 5000;
     //Connection state objects.
-    _source = undefined;
     _token = undefined;
     _writer = new NetDataWriter();
     _reader = new NetDataReader();
     _lastPing = 0;
     _connecting = false;
     _requestIds = new Set();
+    //Queue
+    OutboundQueue = new Queue();
+    //Events
     OnPacket = new Event();
     OnAcceptPacket = new Event();
-    constructor() {
-        system.afterEvents.scriptEventReceive.subscribe((ev) => {
-            this.HandleScriptEvent(ev);
-        });
-    }
-    async ConnectAsync(source, token) {
+    OnPingPacket = new Event();
+    async ConnectAsync(token) {
         this._requestIds.clear();
-        this._source = source;
         const packet = new McApiLoginPacket(Guid.Create().toString(), token, this._version);
         if (this.RegisterRequestId(packet.RequestId)) {
             this.SendPacket(packet);
             const response = await this.GetResponseAsync(packet.RequestId, McApiAcceptPacket);
-            console.log(JSON.stringify(response));
+            if (response instanceof McApiAcceptPacket) {
+                this._token = response.Token;
+            }
         }
     }
     SendPacket(packet) {
         this._writer.Reset();
         this._writer.PutByte(packet.PacketType);
         packet.Serialize(this._writer); //Serialize
-        const packetData = Z85.GetStringWithPadding(this._writer.Data.slice(0, this._writer.Length));
-        if (packetData.length === 0)
-            return;
-        //this.#_source?.sendMessage({ rawtext: [{ text: `${VoiceCraft.#_rawtextPacketId}${packetData}`}] });
-        this._source?.runCommand(`tellraw @s {"rawtext":[{"text":"${this._tunnelId}${packetData}"}]}`); //We have to do it this way because of how the mc client handles chats from different sources.
-        console.log(`Packet Sent: ${this._tunnelId}${packetData}`);
+        this.OutboundQueue.enqueue(this._writer.CopyData());
+    }
+    async ReceivePacketAsync(packet) {
+        this._reader.SetBufferSource(packet);
+        const packetType = this._reader.GetByte();
+        await this.HandlePacketAsync(packetType, this._reader);
     }
     RegisterRequestId(requestId) {
         if (this._requestIds.has(requestId))
@@ -65,7 +64,10 @@ export class McApiMcwss {
     async GetResponseAsync(requestId, type = McApiPacket, timeout = this._defaultTimeoutMs) {
         let callbackData = undefined;
         const callback = this.OnPacket.Subscribe((data) => {
-            if ("RequestId" in data && typeof data.RequestId === "string" && data.RequestId === requestId && data instanceof type) {
+            if ("RequestId" in data &&
+                typeof data.RequestId === "string" &&
+                data.RequestId === requestId &&
+                data instanceof type) {
                 this.DeregisterRequestId(requestId);
                 callbackData = data;
             }
@@ -84,12 +86,6 @@ export class McApiMcwss {
             this.OnPacket.Unsubscribe(callback);
         }
     }
-    async HandleScriptEvent(ev) {
-        const data = Z85.GetBytesWithPadding(ev.message);
-        this._reader.SetBufferSource(data);
-        const packetType = this._reader.GetByte();
-        await this.HandlePacketAsync(packetType, this._reader);
-    }
     async HandlePacketAsync(packetType, reader) {
         switch (packetType) {
             case McApiPacketType.Accept:
@@ -97,10 +93,21 @@ export class McApiMcwss {
                 acceptPacket.Deserialize(reader);
                 this.HandleAcceptPacket(acceptPacket);
                 break;
+            case McApiPacketType.Ping:
+                const pingPacket = new McApiPingPacket();
+                pingPacket.Deserialize(reader);
+                this.HandlePingPacket(pingPacket);
+                break;
         }
     }
     HandleAcceptPacket(packet) {
         this.OnPacket.Invoke(packet);
         this.OnAcceptPacket.Invoke(packet);
+    }
+    HandlePingPacket(packet) {
+        this.OnPacket.Invoke(packet);
+        this.OnPingPacket.Invoke(packet);
+        if (this._token === packet.Token)
+            this.SendPacket(new McApiPingPacket(this._token));
     }
 }

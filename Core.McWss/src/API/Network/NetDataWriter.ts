@@ -51,6 +51,16 @@ export class NetDataWriter {
   }
 
   /**
+   * @description Copies the data into a new Uint8Array
+   * @returns The copied data.
+   */
+  CopyData(): Uint8Array {
+    const dst = new Uint8Array(this._offset);
+    dst.set(this._data.slice(0, this._offset));
+    return dst;
+  }
+
+  /**
    * @description Writes a float value into the buffer.
    */
   public PutFloat(value: number) {

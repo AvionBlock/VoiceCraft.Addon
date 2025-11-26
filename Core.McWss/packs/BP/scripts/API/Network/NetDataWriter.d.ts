@@ -24,6 +24,11 @@ export declare class NetDataWriter {
      */
     Reset(): void;
     /**
+     * @description Copies the data into a new Uint8Array
+     * @returns The copied data.
+     */
+    CopyData(): Uint8Array;
+    /**
      * @description Writes a float value into the buffer.
      */
     PutFloat(value: number): void;
