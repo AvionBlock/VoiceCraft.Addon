@@ -4,7 +4,7 @@ export class Event<T> {
   /**
    * @description Subscribes to the event.
    */
-  public Subscribe(callback: (data: T) => void): (data: T) => void {
+  public Subscribe(callback: (data: T) => void) {
     this._listeners.push(callback);
     return callback;
   }
