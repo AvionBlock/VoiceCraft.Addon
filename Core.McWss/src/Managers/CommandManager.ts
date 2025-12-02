@@ -10,6 +10,8 @@ import {
 } from "@minecraft/server";
 import { McApiMcwss } from "../McApiMcwss";
 import { Z85 } from "../API/Encoders/Z85";
+import { Locales } from "../API/Locales";
+import "../Extensions";
 
 export class CommandManager {
   private static readonly Namespace: string = "voicecraft";
@@ -55,11 +57,14 @@ export class CommandManager {
     system.run(async () => {
       const player = origin.sourceEntity as Player;
       try {
-        player.sendMessage("§eConnecting...");
+        player.translateMessage(Locales.VcMcApi.Status.Connecting);
         await this._mcapi.ConnectAsync(token);
-        player.sendMessage("§aConnection Successful!");
+        player.translateMessage(Locales.VcMcApi.Status.Connected);
       } catch (ex) {
-        player.sendMessage(`§cFailed to connect to server - ${ex}`);
+        if (ex instanceof Error)
+          player.translateMessage(Locales.VcMcApi.Status.DisconnectError, {
+            rawtext: [{ translate: ex.message }],
+          });
       }
     });
     return undefined;

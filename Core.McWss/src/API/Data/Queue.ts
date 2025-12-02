@@ -23,6 +23,14 @@ export class Queue<Type = any>{
         this.queue = [...args];
         this.start = 0;
     }
+
+    /**
+     * Clears the queue
+     */
+    public clear(): void {
+        this.queue = [];
+        this.start = 0;
+    }
     
     /**
      * Add to end of queue.

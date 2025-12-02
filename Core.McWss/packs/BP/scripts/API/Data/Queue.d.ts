@@ -16,6 +16,10 @@ export declare class Queue<Type = any> {
      */
     constructor(...args: Type[]);
     /**
+     * Clears the queue
+     */
+    clear(): void;
+    /**
      * Add to end of queue.
      * @param {Type} value Value to add to end of queue.
      * @param {Type[]} values Optional: Value(s) to add to end of queue.

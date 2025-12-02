@@ -1,0 +1,12 @@
+pack.name=VoiceCraft.Addon.Core.McWss.RP
+pack.description=McWss Backend Addon for VoiceCraft Proximity Chat
+
+VcMcApi.Status.Connected=§aSuccessully Connected!
+VcMcApi.Status.Connecting=§eConnecting...
+VcMcApi.Status.Disconnected=§cDisconnected!
+VcMcApi.Status.DisconnectError=§cDisconnected! Reason - %1
+
+VcMcApi.DisconnectReason.None=Disconnected
+VcMcApi.DisconnectReason.Timeout=Timeout
+VcMcApi.DisconnectReason.InvalidLoginToken=Invalid Login Token
+VcMcApi.DisconnectReason.IncomaptibleVersion=Incomaptible Version

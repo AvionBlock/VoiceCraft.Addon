@@ -6,6 +6,7 @@ export class Event<T> {
    */
   public Subscribe(callback: (data: T) => void) {
     this._listeners.push(callback);
+    return callback;
   }
 
   /**

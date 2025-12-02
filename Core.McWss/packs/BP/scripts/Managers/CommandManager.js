@@ -1,5 +1,7 @@
 import { CommandPermissionLevel, CustomCommandParamType, CustomCommandStatus, Player, system, } from "@minecraft/server";
 import { Z85 } from "../API/Encoders/Z85";
+import { Locales } from "../API/Locales";
+import "../Extensions";
 export class CommandManager {
     _mcapi;
     static Namespace = "voicecraft";
@@ -34,12 +36,15 @@ export class CommandManager {
         system.run(async () => {
             const player = origin.sourceEntity;
             try {
-                player.sendMessage("§eConnecting...");
+                player.translateMessage(Locales.VcMcApi.Status.Connecting);
                 await this._mcapi.ConnectAsync(token);
-                player.sendMessage("§aConnection Successful!");
+                player.translateMessage(Locales.VcMcApi.Status.Connected);
             }
             catch (ex) {
-                player.sendMessage(`§cFailed to connect to server - ${ex}`);
+                if (ex instanceof Error)
+                    player.translateMessage(Locales.VcMcApi.Status.DisconnectError, {
+                        rawtext: [{ translate: ex.message }],
+                    });
             }
         });
         return undefined;

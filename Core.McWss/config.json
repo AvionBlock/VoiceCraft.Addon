@@ -3,7 +3,8 @@
 	"author": "SineVector241",
 	"name": "VoiceCraft.Addon.Core.McWss",
 	"packs": {
-		"behaviorPack": "./packs/BP"
+		"behaviorPack": "./packs/BP",
+		"resourcePack": "./packs/RP"
 	},
 	"regolith": {
 		"dataPath": "./packs/data",
