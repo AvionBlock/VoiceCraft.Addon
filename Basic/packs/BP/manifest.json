@@ -1,0 +1,56 @@
+{
+	"format_version": 2,
+	"metadata": {
+		"authors": [
+			"SineVector241",
+			"Miniontoby"
+		]
+	},
+	"header": {
+		"name": "pack.name",
+		"description": "pack.description",
+		"min_engine_version": [
+			1,
+			21,
+			20
+		],
+		"uuid": "3b7f8296-3ecb-4a1d-a8a8-b61a76cd2121",
+		"version": [
+			1,
+			1,
+			0
+		]
+	},
+	"modules": [
+		{
+			"type": "data",
+			"uuid": "9298d917-4650-4fcf-af28-64a6262e6499",
+			"version": [
+				1,
+				0,
+				0
+			]
+		},
+		{
+			"type": "script",
+			"language": "javascript",
+			"uuid": "623c4c3c-71ae-437a-85e5-d8427207ebb4",
+			"entry": "scripts/main.js",
+			"version": [
+				1,
+				0,
+				0
+			]
+		}
+	],
+	"dependencies": [
+		{
+			"module_name": "@minecraft/server",
+			"version": "2.2.0"
+		},
+		{
+			"module_name": "@minecraft/server-ui",
+			"version": "2.0.0"
+		}
+	]
+}

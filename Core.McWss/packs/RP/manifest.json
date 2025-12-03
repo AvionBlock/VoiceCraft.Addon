@@ -11,11 +11,11 @@
     "version": [1, 1, 0]
   },
   "modules": [
-    {
-      "description": "pack.description",
-      "type": "resources",
-      "uuid": "52c8c0c1-1648-456d-a30b-20afe98f6f76",
-      "version": [1, 1, 0]
-    }
-  ]
+   {
+     "description": "pack.description",
+     "type": "resources",
+     "uuid": "da233aa0-8bfa-4c12-8200-4b25c9d074da",
+     "version": [1, 1, 0]
+   }
+ ]
 }

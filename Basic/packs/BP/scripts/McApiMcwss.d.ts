@@ -1,0 +1,32 @@
+import { Event } from "./API/Event";
+import { Queue } from "./API/Data/Queue";
+import { McApiPacket } from "./API/Network/Packets/McApiPacket";
+import "./Extensions";
+export declare class McApiMcwss {
+    private _version;
+    private _commands;
+    private _defaultTimeoutMs;
+    private _token?;
+    private _pinger?;
+    private _writer;
+    private _reader;
+    private _lastPing;
+    private _connectionState;
+    private _requestIds;
+    OutboundQueue: Queue<Uint8Array>;
+    OnConnected: Event<string>;
+    OnPacket: Event<McApiPacket>;
+    ConnectAsync(token: string): Promise<void>;
+    Disconnect(reason?: string): void;
+    SendPacket(packet: McApiPacket): void;
+    ReceivePacketAsync(packet: string): Promise<void>;
+    private RegisterRequestId;
+    private DeregisterRequestId;
+    private GetResponseAsync;
+    private GetTypeResponseAsync;
+    private PingIntervalLogic;
+    private HandlePacketAsync;
+    private HandleAcceptPacket;
+    private HandleDenyPacket;
+    private HandlePingPacket;
+}
