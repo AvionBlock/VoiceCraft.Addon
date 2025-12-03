@@ -3,8 +3,7 @@ export class Locales {
     Status: {
       Connected: "VcMcApi.Status.Connected",
       Connecting: "VcMcApi.Status.Connecting",
-      Disconnected: "VcMcApi.Status.Disconnected",
-      DisconnectError: "VcMcApi.Status.DisconnectError"
+      Disconnected: "VcMcApi.Status.Disconnected"
     },
     DisconnectReason: {
       None: "VcMcApi.DisconnectReason.None",

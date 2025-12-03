@@ -20,10 +20,10 @@ export class McApiDenyPacket extends McApiPacket {
     return this._requestId;
   }
   public get Token(): string {
-    return this._requestId;
+    return this._token;
   }
   public get ReasonKey(): string {
-    return this._requestId;
+    return this._reasonKey;
   }
   private _requestId: string;
   private _token: string;

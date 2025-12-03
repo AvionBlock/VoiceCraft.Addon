@@ -4,7 +4,6 @@ export declare class Locales {
             Connected: string;
             Connecting: string;
             Disconnected: string;
-            DisconnectError: string;
         };
         DisconnectReason: {
             None: string;

@@ -1,5 +1,9 @@
-import { Player } from "@minecraft/server";
-function translateMessage(message, with_message) {
+import { Player, World } from "@minecraft/server";
+function translateMessagePlayer(message, with_message) {
     this.sendMessage({ translate: message, with: with_message });
 }
-Player.prototype.translateMessage = translateMessage;
+function translateMessageWorld(message, with_message) {
+    this.sendMessage({ translate: message, with: with_message });
+}
+Player.prototype.translateMessage = translateMessagePlayer;
+World.prototype.translateMessage = translateMessageWorld;

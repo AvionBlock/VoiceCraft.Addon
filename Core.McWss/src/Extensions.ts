@@ -1,7 +1,15 @@
-import { Player, RawMessage } from "@minecraft/server";
+import { Player, RawMessage, World } from "@minecraft/server";
 
-function translateMessage(
+function translateMessagePlayer(
   this: Player,
+  message: string,
+  with_message?: RawMessage | string[]
+) {
+  this.sendMessage({ translate: message, with: with_message });
+}
+
+function translateMessageWorld(
+  this: World,
   message: string,
   with_message?: RawMessage | string[]
 ) {
@@ -13,6 +21,10 @@ declare module "@minecraft/server" {
   interface Player {
     translateMessage(message: string, with_message?: RawMessage | string[]): void;
   }
+  interface World {
+    translateMessage(message: string, with_message?: RawMessage | string[]): void;
+  }
 }
 
-Player.prototype.translateMessage = translateMessage;
+Player.prototype.translateMessage = translateMessagePlayer;
+World.prototype.translateMessage = translateMessageWorld;
