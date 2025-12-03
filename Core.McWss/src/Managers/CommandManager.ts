@@ -11,11 +11,10 @@ import {
 import { McApiMcwss } from "../McApiMcwss";
 import { Z85 } from "../API/Encoders/Z85";
 import { Locales } from "../API/Locales";
+import { VoiceCraft } from "../API/VoiceCraft";
 import "../Extensions";
 
 export class CommandManager {
-  private static readonly Namespace: string = "voicecraft";
-
   constructor(private _mcapi: McApiMcwss) {
     system.beforeEvents.startup.subscribe((ev) => {
       this.RegisterCommands(ev.customCommandRegistry);
@@ -25,7 +24,7 @@ export class CommandManager {
   private RegisterCommands(registry: CustomCommandRegistry) {
     registry.registerCommand(
       {
-        name: `${CommandManager.Namespace}:vcconnect`,
+        name: `${VoiceCraft.Namespace}:vcconnect`,
         description: "Attempts a connection to the McWss server.",
         permissionLevel: CommandPermissionLevel.Host,
         mandatoryParameters: [
@@ -37,7 +36,7 @@ export class CommandManager {
 
     registry.registerCommand(
       {
-        name: `${CommandManager.Namespace}:data_tunnel`,
+        name: `${VoiceCraft.Namespace}:data_tunnel`,
         description: "Data transfer tunnel between servers",
         permissionLevel: CommandPermissionLevel.Host,
         optionalParameters: [
@@ -62,7 +61,7 @@ export class CommandManager {
         player.translateMessage(Locales.VcMcApi.Status.Connected);
       } catch (ex) {
         if (ex instanceof Error)
-          player.translateMessage(Locales.VcMcApi.Status.DisconnectError, {
+          player.translateMessage(Locales.VcMcApi.Status.Disconnected, {
             rawtext: [{ translate: ex.message }],
           });
       }
@@ -80,9 +79,9 @@ export class CommandManager {
       while (this._mcapi.OutboundQueue.size > 0) {
         const packetData = this._mcapi.OutboundQueue.dequeue();
         if (packetData === undefined) break;
-        stringData = stringData.concat(
-          `${!first ? "|" : ""}${Z85.GetStringWithPadding(packetData)}`
-        );
+
+        const data = Z85.GetStringWithPadding(packetData);
+        stringData = stringData.concat(`${!first ? "|" : ""}${data.replaceAll("%", "%%")}`); //Issue workaround.
         if (first) {
           first = false;
           continue;
@@ -91,15 +90,13 @@ export class CommandManager {
 
       if (data !== undefined) {
         system.run(() => {
-          console.info(data);
           const packets = data.split("|");
           for (const packet of packets) {
-            const packetData = Z85.GetBytesWithPadding(packet);
-            if (packetData.length <= 0) return;
-            this._mcapi.ReceivePacketAsync(packetData);
+            this._mcapi.ReceivePacketAsync(packet);
           }
         });
       }
+
       return { status: CustomCommandStatus.Success, message: stringData };
     } catch {
       return { status: CustomCommandStatus.Failure };

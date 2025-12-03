@@ -1,10 +1,8 @@
 import { Event } from "./API/Event";
 import { Queue } from "./API/Data/Queue";
 import { McApiPacket } from "./API/Network/Packets/McApiPacket";
-import { McApiPingPacket } from "./API/Network/Packets/McApiPingPacket";
-import { McApiAcceptPacket } from "./API/Network/Packets/McApiAcceptPacket";
+import "./Extensions";
 export declare class McApiMcwss {
-    private _vc;
     private _version;
     private _commands;
     private _defaultTimeoutMs;
@@ -18,12 +16,10 @@ export declare class McApiMcwss {
     OutboundQueue: Queue<Uint8Array>;
     OnConnected: Event<string>;
     OnPacket: Event<McApiPacket>;
-    OnAcceptPacket: Event<McApiAcceptPacket>;
-    OnPingPacket: Event<McApiPingPacket>;
     ConnectAsync(token: string): Promise<void>;
-    Disconnect(): void;
+    Disconnect(reason?: string): void;
     SendPacket(packet: McApiPacket): void;
-    ReceivePacketAsync(packet: Uint8Array): Promise<void>;
+    ReceivePacketAsync(packet: string): Promise<void>;
     private RegisterRequestId;
     private DeregisterRequestId;
     private GetResponseAsync;
@@ -31,5 +27,6 @@ export declare class McApiMcwss {
     private PingIntervalLogic;
     private HandlePacketAsync;
     private HandleAcceptPacket;
+    private HandleDenyPacket;
     private HandlePingPacket;
 }
