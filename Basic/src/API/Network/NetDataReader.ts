@@ -83,6 +83,14 @@ export class NetDataReader {
   }
 
   /**
+   * @description Skips a certain amount of bytes.
+   * @param count The number of bytes to skip.
+   */
+  public SkipBytes(count: number) {
+    this._offset += count;
+  }
+
+  /**
    * @description Get's a float value from the buffer.
    */
   public GetFloat(): number {

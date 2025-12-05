@@ -3,7 +3,7 @@ pack.description=McWss Backend Addon for VoiceCraft Proximity Chat
 
 VcMcApi.Status.Connected=§aSuccessully Connected!
 VcMcApi.Status.Connecting=§eConnecting...
-VcMcApi.Status.Disconnected=§cDisconnected - Reason - %1
+VcMcApi.Status.Disconnected=§cDisconnected - Reason: %1
 
 VcMcApi.DisconnectReason.None=Disconnected
 VcMcApi.DisconnectReason.Timeout=Timeout

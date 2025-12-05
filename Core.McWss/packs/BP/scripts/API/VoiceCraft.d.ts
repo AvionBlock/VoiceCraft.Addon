@@ -2,6 +2,8 @@ import { McApiAcceptPacket } from "./Network/Packets/McApiAcceptPacket";
 import { McApiDenyPacket } from "./Network/Packets/McApiDenyPacket";
 import { McApiPingPacket } from "./Network/Packets/McApiPingPacket";
 import { Event } from "./Event";
+import { McApiEntityCreatedPacket } from "./Network/Packets/McApiEntityCreatedPacket";
+import { McApiNetworkEntityCreatedPacket } from "./Network/Packets/McApiNetworkEntityCreatedPacket";
 export declare class VoiceCraft {
     static readonly Namespace: string;
     private _writer;
@@ -16,4 +18,6 @@ export declare class VoiceCraft {
     HandleAcceptPacket(packet: McApiAcceptPacket): void;
     HandleDenyPacket(packet: McApiDenyPacket): void;
     HandlePingPacket(packet: McApiPingPacket): void;
+    HandleEntityCreatedPacket(packet: McApiEntityCreatedPacket): void;
+    HandleNetworkEntityCreatedPacket(packet: McApiNetworkEntityCreatedPacket): void;
 }

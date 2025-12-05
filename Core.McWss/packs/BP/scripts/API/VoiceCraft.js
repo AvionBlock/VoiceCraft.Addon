@@ -7,6 +7,8 @@ import { McApiDenyPacket } from "./Network/Packets/McApiDenyPacket";
 import { McApiPingPacket } from "./Network/Packets/McApiPingPacket";
 import { Event } from "./Event";
 import { NetDataWriter } from "./Network/NetDataWriter";
+import { McApiEntityCreatedPacket } from "./Network/Packets/McApiEntityCreatedPacket";
+import { McApiNetworkEntityCreatedPacket } from "./Network/Packets/McApiNetworkEntityCreatedPacket";
 export class VoiceCraft {
     static Namespace = "voicecraft";
     _writer = new NetDataWriter();
@@ -53,18 +55,31 @@ export class VoiceCraft {
                 pingPacket.Deserialize(reader);
                 this.HandlePingPacket(pingPacket);
                 break;
+            case McApiPacketType.EntityCreated:
+                const entityCreatedPacket = new McApiEntityCreatedPacket();
+                entityCreatedPacket.Deserialize(reader);
+                this.HandleEntityCreatedPacket(entityCreatedPacket);
+                break;
+            case McApiPacketType.NetworkEntityCreated:
+                const networkEntityCreatedPacket = new McApiNetworkEntityCreatedPacket();
+                networkEntityCreatedPacket.Deserialize(reader);
+                this.HandleNetworkEntityCreatedPacket(networkEntityCreatedPacket);
+                break;
         }
     }
     HandleAcceptPacket(packet) {
         this.OnAcceptPacket.Invoke(packet);
-        console.log("Accept Packet");
     }
     HandleDenyPacket(packet) {
         this.OnDenyPacket.Invoke(packet);
-        console.log("Deny Packet");
     }
     HandlePingPacket(packet) {
         this.OnPingPacket.Invoke(packet);
-        console.log("Ping Packet");
+    }
+    HandleEntityCreatedPacket(packet) {
+        console.log(JSON.stringify(packet));
+    }
+    HandleNetworkEntityCreatedPacket(packet) {
+        console.log(JSON.stringify(packet));
     }
 }

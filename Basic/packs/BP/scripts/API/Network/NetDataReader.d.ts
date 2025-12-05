@@ -45,6 +45,11 @@ export declare class NetDataReader {
      */
     Clear(): void;
     /**
+     * @description Skips a certain amount of bytes.
+     * @param count The number of bytes to skip.
+     */
+    SkipBytes(count: number): void;
+    /**
      * @description Get's a float value from the buffer.
      */
     GetFloat(): number;
