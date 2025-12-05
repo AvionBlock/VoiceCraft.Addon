@@ -447,42 +447,38 @@ class GUIHandler {
     page.show(player).then((result) => {
       if (result.canceled) return;
 
-      switch (result.selection) {
-        case 0:
-          this.ShowBitmask1Settings(player, selectedPlayer);
-          break;
-        case 1:
-          this.ShowBitmask2Settings(player, selectedPlayer);
-          break;
-        case 2:
-          this.ShowBitmask3Settings(player, selectedPlayer);
-          break;
-        case 3:
-          this.ShowBitmask4Settings(player, selectedPlayer);
-          break;
-        case 4:
-          this.ShowBitmask5Settings(player, selectedPlayer);
-          break;
-      }
+      this.ShowBitmaskSettings(player, selectedPlayer, result.selection + 1);
     });
   }
 
   /**
-   * @description Shows a players bitmask1 settings.
+   * @description Shows a players bitmask settings dynamically.
    * @param {Player} player
    * @param {Player} selectedPlayer
+   * @param {Number} index 1-5
    */
-  ShowBitmask1Settings(player, selectedPlayer) {
+  ShowBitmaskSettings(player, selectedPlayer, index) {
+    // Dynamic Key Resolution
+    const talkKey = BitmaskMap[`TalkBitmask${index}`];
+    const listenKey = BitmaskMap[`ListenBitmask${index}`];
+    const settingsMask = BitmaskMap[`Bitmask${index}Settings`];
+    const locationShift = BitmaskLocations[`Bitmask${index}Settings`];
+
+    if (talkKey === undefined || listenKey === undefined) {
+      player.sendMessage(`§cError: Invalid Bitmask Index ${index}`);
+      return;
+    }
+
     this.Network.GetPlayerBitmask(selectedPlayer)
       .then((res) => {
         const page = new ModalFormData()
-          .title(`${selectedPlayer.name} Bitmask1 Settings`)
-          .toggle("Talk Enabled", { defaultValue: (res & BitmaskMap.TalkBitmask1) != 0 })
-          .toggle("Listen Enabled", { defaultValue: (res & BitmaskMap.ListenBitmask1) != 0 })
+          .title(`${selectedPlayer.name} Bitmask${index} Settings`)
+          .toggle("Talk Enabled", { defaultValue: (res & talkKey) != 0 })
+          .toggle("Listen Enabled", { defaultValue: (res & listenKey) != 0 })
           .toggle(
             "Proximity Disabled",
             { defaultValue: 
-              ((res >> BitmaskLocations.Bitmask1Settings) &
+              ((res >> locationShift) &
                 BitmaskSettings.ProximityDisabled) !=
                 0
             }
@@ -490,7 +486,7 @@ class GUIHandler {
           .toggle(
             "Death Disabled",
             { defaultValue: 
-              ((res >> BitmaskLocations.Bitmask1Settings) &
+              ((res >> locationShift) &
                 BitmaskSettings.DeathDisabled) !=
                 0
             }
@@ -498,7 +494,7 @@ class GUIHandler {
           .toggle(
             "VoiceEffects Disabled",
             { defaultValue: 
-              ((res >> BitmaskLocations.Bitmask1Settings) &
+              ((res >> locationShift) &
                 BitmaskSettings.VoiceEffectsDisabled) !=
                 0
             }
@@ -506,7 +502,7 @@ class GUIHandler {
           .toggle(
             "Environment Disabled",
             { defaultValue: 
-              ((res >> BitmaskLocations.Bitmask1Settings) &
+              ((res >> locationShift) &
                 BitmaskSettings.EnvironmentDisabled) !=
                 0
             }
@@ -516,350 +512,26 @@ class GUIHandler {
           if (result.canceled) return;
 
           res &= ~(
-            BitmaskMap.Bitmask1Settings |
-            BitmaskMap.TalkBitmask1 |
-            BitmaskMap.ListenBitmask1
+            settingsMask |
+            talkKey |
+            listenKey
           ); //Reset all values we want to modify to 0.
           let settings = BitmaskSettings.None;
           const [TE, LE, PD, DD, VD, ED] = result.formValues;
 
-          if (TE) res |= BitmaskMap.TalkBitmask1;
-          if (LE) res |= BitmaskMap.ListenBitmask1;
+          if (TE) res |= talkKey;
+          if (LE) res |= listenKey;
           if (PD) settings |= BitmaskSettings.ProximityDisabled;
           if (DD) settings |= BitmaskSettings.DeathDisabled;
           if (VD) settings |= BitmaskSettings.VoiceEffectsDisabled;
           if (ED) settings |= BitmaskSettings.EnvironmentDisabled;
-          settings <<= BitmaskLocations.Bitmask1Settings; //Move settings into position.
+          settings <<= locationShift; //Move settings into position.
           res |= settings; //Set settings.
 
           this.Network.SetPlayerBitmask(selectedPlayer, res)
             .then(() => {
               player.sendMessage(
-                "§2Successfully set player bitmask1 settings!"
-              );
-            })
-            .catch((res) => {
-              player.sendMessage(`§c${res}`);
-            });
-        });
-      })
-      .catch((res) => {
-        player.sendMessage(`§c${res}`);
-      });
-  }
-
-  /**
-   * @description Shows a players bitmask2 settings.
-   * @param {Player} player
-   * @param {Player} selectedPlayer
-   */
-  ShowBitmask2Settings(player, selectedPlayer) {
-    this.Network.GetPlayerBitmask(selectedPlayer)
-      .then((res) => {
-        const page = new ModalFormData()
-          .title(`${selectedPlayer.name} Bitmask2 Settings`)
-          .toggle("Talk Enabled", { defaultValue: (res & BitmaskMap.TalkBitmask2) != 0 })
-          .toggle("Listen Enabled", { defaultValue: (res & BitmaskMap.ListenBitmask2) != 0 })
-          .toggle(
-            "Proximity Disabled",
-            { defaultValue: 
-              ((res >> BitmaskLocations.Bitmask2Settings) &
-                BitmaskSettings.ProximityDisabled) !=
-                0
-            }
-          )
-          .toggle(
-            "Death Disabled",
-            { defaultValue: 
-              ((res >> BitmaskLocations.Bitmask2Settings) &
-                BitmaskSettings.DeathDisabled) !=
-                0
-            }
-          )
-          .toggle(
-            "VoiceEffects Disabled",
-            { defaultValue: 
-              ((res >> BitmaskLocations.Bitmask2Settings) &
-                BitmaskSettings.VoiceEffectsDisabled) !=
-                0
-            }
-          )
-          .toggle(
-            "Environment Disabled",
-            { defaultValue: 
-              ((res >> BitmaskLocations.Bitmask2Settings) &
-                BitmaskSettings.EnvironmentDisabled) !=
-                0
-            }
-          );
-
-        page.show(player).then((result) => {
-          if (result.canceled) return;
-
-          res &= ~(
-            BitmaskMap.Bitmask2Settings |
-            BitmaskMap.TalkBitmask2 |
-            BitmaskMap.ListenBitmask2
-          ); //Reset all values we want to modify to 0.
-          let settings = BitmaskSettings.None;
-          const [TE, LE, PD, DD, VD, ED] = result.formValues;
-
-          if (TE) res |= BitmaskMap.TalkBitmask2;
-          if (LE) res |= BitmaskMap.ListenBitmask2;
-          if (PD) settings |= BitmaskSettings.ProximityDisabled;
-          if (DD) settings |= BitmaskSettings.DeathDisabled;
-          if (VD) settings |= BitmaskSettings.VoiceEffectsDisabled;
-          if (ED) settings |= BitmaskSettings.EnvironmentDisabled;
-          settings <<= BitmaskLocations.Bitmask2Settings; //Move settings into position.
-          res |= settings; //Set settings.
-
-          this.Network.SetPlayerBitmask(selectedPlayer, res)
-            .then(() => {
-              player.sendMessage(
-                "§2Successfully set player bitmask2 settings!"
-              );
-            })
-            .catch((res) => {
-              player.sendMessage(`§c${res}`);
-            });
-        });
-      })
-      .catch((res) => {
-        player.sendMessage(`§c${res}`);
-      });
-  }
-
-  /**
-   * @description Shows a players bitmask3 settings.
-   * @param {Player} player
-   * @param {Player} selectedPlayer
-   */
-  ShowBitmask3Settings(player, selectedPlayer) {
-    this.Network.GetPlayerBitmask(selectedPlayer)
-      .then((res) => {
-        const page = new ModalFormData()
-          .title(`${selectedPlayer.name} Bitmask3 Settings`)
-          .toggle("Talk Enabled", { defaultValue: (res & BitmaskMap.TalkBitmask3) != 0 })
-          .toggle("Listen Enabled", { defaultValue: (res & BitmaskMap.ListenBitmask3) != 0 })
-          .toggle(
-            "Proximity Disabled",
-            { defaultValue: 
-              ((res >> BitmaskLocations.Bitmask3Settings) &
-                BitmaskSettings.ProximityDisabled) !=
-                0
-            }
-          )
-          .toggle(
-            "Death Disabled",
-            { defaultValue: 
-              ((res >> BitmaskLocations.Bitmask3Settings) &
-                BitmaskSettings.DeathDisabled) !=
-                0
-            }
-          )
-          .toggle(
-            "VoiceEffects Disabled",
-            { defaultValue: 
-              ((res >> BitmaskLocations.Bitmask3Settings) &
-                BitmaskSettings.VoiceEffectsDisabled) !=
-                0
-            }
-          )
-          .toggle(
-            "Environment Disabled",
-            { defaultValue: 
-              ((res >> BitmaskLocations.Bitmask3Settings) &
-                BitmaskSettings.EnvironmentDisabled) !=
-                0
-            }
-          );
-
-        page.show(player).then((result) => {
-          if (result.canceled) return;
-
-          res &= ~(
-            BitmaskMap.Bitmask3Settings |
-            BitmaskMap.TalkBitmask3 |
-            BitmaskMap.ListenBitmask3
-          ); //Reset all values we want to modify to 0.
-          let settings = BitmaskSettings.None;
-          const [TE, LE, PD, DD, VD, ED] = result.formValues;
-
-          if (TE) res |= BitmaskMap.TalkBitmask3;
-          if (LE) res |= BitmaskMap.ListenBitmask3;
-          if (PD) settings |= BitmaskSettings.ProximityDisabled;
-          if (DD) settings |= BitmaskSettings.DeathDisabled;
-          if (VD) settings |= BitmaskSettings.VoiceEffectsDisabled;
-          if (ED) settings |= BitmaskSettings.EnvironmentDisabled;
-          settings <<= BitmaskLocations.Bitmask3Settings; //Move settings into position.
-          res |= settings; //Set settings.
-
-          this.Network.SetPlayerBitmask(selectedPlayer, res)
-            .then(() => {
-              player.sendMessage(
-                "§2Successfully set player bitmask3 settings!"
-              );
-            })
-            .catch((res) => {
-              player.sendMessage(`§c${res}`);
-            });
-        });
-      })
-      .catch((res) => {
-        player.sendMessage(`§c${res}`);
-      });
-  }
-
-  /**
-   * @description Shows a players bitmask4 settings.
-   * @param {Player} player
-   * @param {Player} selectedPlayer
-   */
-  ShowBitmask4Settings(player, selectedPlayer) {
-    this.Network.GetPlayerBitmask(selectedPlayer)
-      .then((res) => {
-        const page = new ModalFormData()
-          .title(`${selectedPlayer.name} Bitmask4 Settings`)
-          .toggle("Talk Enabled", { defaultValue: (res & BitmaskMap.TalkBitmask4) != 0 })
-          .toggle("Listen Enabled", { defaultValue: (res & BitmaskMap.ListenBitmask4) != 0 })
-          .toggle(
-            "Proximity Disabled",
-            { defaultValue: 
-              ((res >> BitmaskLocations.Bitmask4Settings) &
-                BitmaskSettings.ProximityDisabled) !=
-                0
-            }
-          )
-          .toggle(
-            "Death Disabled",
-            { defaultValue: 
-              ((res >> BitmaskLocations.Bitmask4Settings) &
-                BitmaskSettings.DeathDisabled) !=
-                0
-            }
-          )
-          .toggle(
-            "VoiceEffects Disabled",
-            { defaultValue: 
-              ((res >> BitmaskLocations.Bitmask4Settings) &
-                BitmaskSettings.VoiceEffectsDisabled) !=
-                0
-            }
-          )
-          .toggle(
-            "Environment Disabled",
-            { defaultValue: 
-              ((res >> BitmaskLocations.Bitmask4Settings) &
-                BitmaskSettings.EnvironmentDisabled) !=
-                0
-            }
-          );
-
-        page.show(player).then((result) => {
-          if (result.canceled) return;
-
-          res &= ~(
-            BitmaskMap.Bitmask4Settings |
-            BitmaskMap.TalkBitmask4 |
-            BitmaskMap.ListenBitmask4
-          ); //Reset all values we want to modify to 0.
-          let settings = BitmaskSettings.None;
-          const [TE, LE, PD, DD, VD, ED] = result.formValues;
-
-          if (TE) res |= BitmaskMap.TalkBitmask4;
-          if (LE) res |= BitmaskMap.ListenBitmask4;
-          if (PD) settings |= BitmaskSettings.ProximityDisabled;
-          if (DD) settings |= BitmaskSettings.DeathDisabled;
-          if (VD) settings |= BitmaskSettings.VoiceEffectsDisabled;
-          if (ED) settings |= BitmaskSettings.EnvironmentDisabled;
-          settings <<= BitmaskLocations.Bitmask4Settings; //Move settings into position.
-          res |= settings; //Set settings.
-
-          this.Network.SetPlayerBitmask(selectedPlayer, res)
-            .then(() => {
-              player.sendMessage(
-                "§2Successfully set player bitmask4 settings!"
-              );
-            })
-            .catch((res) => {
-              player.sendMessage(`§c${res}`);
-            });
-        });
-      })
-      .catch((res) => {
-        player.sendMessage(`§c${res}`);
-      });
-  }
-
-  /**
-   * @description Shows a players bitmask5 settings.
-   * @param {Player} player
-   * @param {Player} selectedPlayer
-   */
-  ShowBitmask5Settings(player, selectedPlayer) {
-    this.Network.GetPlayerBitmask(selectedPlayer)
-      .then((res) => {
-        const page = new ModalFormData()
-          .title(`${selectedPlayer.name} Bitmask5 Settings`)
-          .toggle("Talk Enabled", { defaultValue: (res & BitmaskMap.TalkBitmask5) != 0 })
-          .toggle("Listen Enabled", { defaultValue: (res & BitmaskMap.ListenBitmask5) != 0 })
-          .toggle(
-            "Proximity Disabled",
-            { defaultValue:
-              ((res >> BitmaskLocations.Bitmask5Settings) &
-                BitmaskSettings.ProximityDisabled) !=
-                0
-            }
-          )
-          .toggle(
-            "Death Disabled",
-            { defaultValue: 
-              ((res >> BitmaskLocations.Bitmask5Settings) &
-                BitmaskSettings.DeathDisabled) !=
-                0
-            }
-          )
-          .toggle(
-            "VoiceEffects Disabled",
-            { defaultValue: 
-              ((res >> BitmaskLocations.Bitmask5Settings) &
-                BitmaskSettings.VoiceEffectsDisabled) !=
-                0
-            }
-          )
-          .toggle(
-            "Environment Disabled",
-            { defaultValue: 
-              ((res >> BitmaskLocations.Bitmask5Settings) &
-                BitmaskSettings.EnvironmentDisabled) !=
-                0
-            }
-          );
-
-        page.show(player).then((result) => {
-          if (result.canceled) return;
-
-          res &= ~(
-            BitmaskMap.Bitmask5Settings |
-            BitmaskMap.TalkBitmask5 |
-            BitmaskMap.ListenBitmask5
-          ); //Reset all values we want to modify to 0.
-          let settings = BitmaskSettings.None;
-          const [TE, LE, PD, DD, VD, ED] = result.formValues;
-
-          if (TE) res |= BitmaskMap.TalkBitmask5;
-          if (LE) res |= BitmaskMap.ListenBitmask5;
-          if (PD) settings |= BitmaskSettings.ProximityDisabled;
-          if (DD) settings |= BitmaskSettings.DeathDisabled;
-          if (VD) settings |= BitmaskSettings.VoiceEffectsDisabled;
-          if (ED) settings |= BitmaskSettings.EnvironmentDisabled;
-          settings <<= BitmaskLocations.Bitmask5Settings; //Move settings into position.
-          res |= settings; //Set settings.
-
-          this.Network.SetPlayerBitmask(selectedPlayer, res)
-            .then(() => {
-              player.sendMessage(
-                "§2Successfully set player bitmask5 settings!"
+                `§2Successfully set player bitmask${index} settings!`
               );
             })
             .catch((res) => {

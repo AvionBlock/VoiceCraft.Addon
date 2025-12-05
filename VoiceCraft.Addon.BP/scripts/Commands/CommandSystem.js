@@ -40,7 +40,7 @@ class CommandSystem {
               case "string":
                 if (value == undefined) {
                   source.sendMessage(
-                    `§cInvalid Paramater Input: §e[${paramName}]§r. Received §e[${value}]§r, Expected §e[${type}]§r`
+                    `§cInvalid Parameter Input: §e[${paramName}]§r. Received §e[${value}]§r, Expected §e[${type}]§r`
                   );
                   return;
                 }
@@ -49,7 +49,7 @@ class CommandSystem {
                 value = parseInt(value);
                 if (isNaN(value)) {
                   source.sendMessage(
-                    `§cInvalid Paramater Input: §e[${paramName}]§r. Received §e[${value}]§r, Expected §e[${type}]§r`
+                    `§cInvalid Parameter Input: §e[${paramName}]§r. Received §e[${value}]§r, Expected §e[${type}]§r`
                   );
                   return;
                 }
@@ -58,7 +58,7 @@ class CommandSystem {
                 value = parseFloat(value);
                 if (isNaN(value)) {
                   source.sendMessage(
-                    `§cInvalid Paramater Input: §e[${paramName}]§r. Received §e[${value}]§r, Expected §e[${type}]§r`
+                    `§cInvalid Parameter Input: §e[${paramName}]§r. Received §e[${value}]§r, Expected §e[${type}]§r`
                   );
                   return;
                 }
@@ -75,7 +75,7 @@ class CommandSystem {
           }
           command.callback.call(null, typedArgs);
         } else {
-          source.sendMessage(`§cUnkown command: ${commandName}`);
+          source.sendMessage(`§cUnknown command: ${commandName}`);
         }
       });
     }

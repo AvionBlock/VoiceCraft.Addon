@@ -33,6 +33,9 @@ class NetworkRunner {
       "minecraft:tuff",
     ]);
 
+    /** @type {Boolean} */
+    this.isUpdating = false;
+
     // Cache for expensive calculations (EchoFactor, Muffled)
     /** @type {WeakMap<Player, {echo: number, muffled: boolean, lastUpdate: number}>} */
     this.PlayerCache = new WeakMap();
@@ -44,7 +47,11 @@ class NetworkRunner {
   Start() {
     // Run every 2 ticks for smooth movement updates.
     // Heavy logic will be staggered inside the loop.
-    this.UpdateLoop = system.runInterval(() => this.Update(), 2);
+    this.UpdateLoop = system.runInterval(() => {
+      if (!this.isUpdating) {
+        this.Update();
+      }
+    }, 2);
   }
 
   /**

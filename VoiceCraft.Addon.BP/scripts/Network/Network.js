@@ -462,16 +462,15 @@ class Network {
   }
 
   /**
-   * @description Disconnects a player from the VoiceCraft server.
-   * @param {Player} player
+   * @description Helper to send a packet and expect an Accept response.
+   * @param {MCCommPacket} packet
+   * @param {String} actionName
    * @returns {Promise<void>}
    */
-  async DisconnectPlayer(player) {
+  async SendSimplePacket(packet, actionName) {
     if (!this.IsConnected)
-      throw "Could not disconnect player, Server not connected/linked!";
+      throw `Could not ${actionName}, Server not connected/linked!`;
 
-    const packet = new DisconnectParticipant();
-    packet.PlayerId = player.id;
     packet.Token = this.Token;
 
     try {
@@ -481,11 +480,22 @@ class Network {
       } else {
         /** @type {Deny} */
         const packetData = response;
-        throw `Could not disconnect player, Reason: ${packetData.Reason}`;
+        throw `Could not ${actionName}, Reason: ${packetData.Reason}`;
       }
     } catch (ex) {
-      throw `Could not disconnect player, ERROR: ${ex}`;
+      throw `Could not ${actionName}, ERROR: ${ex}`;
     }
+  }
+
+  /**
+   * @description Disconnects a player from the VoiceCraft server.
+   * @param {Player} player
+   * @returns {Promise<void>}
+   */
+  async DisconnectPlayer(player) {
+    const packet = new DisconnectParticipant();
+    packet.PlayerId = player.id;
+    await this.SendSimplePacket(packet, "disconnect player");
   }
 
   /**
@@ -525,27 +535,11 @@ class Network {
    * @returns {Promise<void>}
    */
   async SetPlayerBitmask(player, bitmask, ignoreDataBitmask) {
-    if (!this.IsConnected)
-      throw "Could not set player bitmask, Server not connected/linked!";
-
     const packet = new SetParticipantBitmask();
     packet.PlayerId = player.id;
     packet.IgnoreDataBitmask = ignoreDataBitmask;
-    packet.Bitmask = new Uint32Array([bitmask])[0]; //I fucking hate JS.
-    packet.Token = this.Token;
-
-    try {
-      const response = await this.SendPacket(packet);
-      if (response.PacketId == PacketType.Accept) {
-        return;
-      } else {
-        /** @type {Deny} */
-        const packetData = response;
-        throw `Could not set player bitmask, Reason: ${packetData.Reason}`;
-      }
-    } catch (ex) {
-      throw `Could not set player bitmask, ERROR: ${ex}`;
-    }
+    packet.Bitmask = new Uint32Array([bitmask])[0];
+    await this.SendSimplePacket(packet, "set player bitmask");
   }
 
   /**
@@ -554,25 +548,9 @@ class Network {
    * @returns {Promise<void>}
    */
   async MutePlayer(player) {
-    if (!this.IsConnected)
-      throw "Could not mute player, Server not connected/linked!";
-
     const packet = new MuteParticipant();
     packet.PlayerId = player.id;
-    packet.Token = this.Token;
-
-    try {
-      const response = await this.SendPacket(packet);
-      if (response.PacketId == PacketType.Accept) {
-        return;
-      } else {
-        /** @type {Deny} */
-        const packetData = response;
-        throw `Could not mute player, Reason: ${packetData.Reason}`;
-      }
-    } catch (ex) {
-      throw `Could not mute player, ERROR: ${ex}`;
-    }
+    await this.SendSimplePacket(packet, "mute player");
   }
 
   /**
@@ -581,25 +559,9 @@ class Network {
    * @returns {Promise<void>}
    */
   async UnmutePlayer(player) {
-    if (!this.IsConnected)
-      throw "Could not unmute player, Server not connected/linked!";
-
     const packet = new UnmuteParticipant();
     packet.PlayerId = player.id;
-    packet.Token = this.Token;
-
-    try {
-      const response = await this.SendPacket(packet);
-      if (response.PacketId == PacketType.Accept) {
-        return;
-      } else {
-        /** @type {Deny} */
-        const packetData = response;
-        throw `Could not unmute player, Reason: ${packetData.Reason}`;
-      }
-    } catch (ex) {
-      throw `Could not unmute player, ERROR: ${ex}`;
-    }
+    await this.SendSimplePacket(packet, "unmute player");
   }
 
   /**
@@ -608,25 +570,9 @@ class Network {
    * @returns {Promise<void>}
    */
   async DeafenPlayer(player) {
-    if (!this.IsConnected)
-      throw "Could not deafen player, Server not connected/linked!";
-
     const packet = new DeafenParticipant();
     packet.PlayerId = player.id;
-    packet.Token = this.Token;
-
-    try {
-      const response = await this.SendPacket(packet);
-      if (response.PacketId == PacketType.Accept) {
-        return;
-      } else {
-        /** @type {Deny} */
-        const packetData = response;
-        throw `Could not deafen player, Reason: ${packetData.Reason}`;
-      }
-    } catch (ex) {
-      throw `Could not deafen player, ERROR: ${ex}`;
-    }
+    await this.SendSimplePacket(packet, "deafen player");
   }
 
   /**
@@ -635,25 +581,9 @@ class Network {
    * @returns {Promise<void>}
    */
   async UndeafenPlayer(player) {
-    if (!this.IsConnected)
-      throw "Could not undeafen player, Server not connected/linked!";
-
     const packet = new UndeafenParticipant();
     packet.PlayerId = player.id;
-    packet.Token = this.Token;
-
-    try {
-      const response = await this.SendPacket(packet);
-      if (response.PacketId == PacketType.Accept) {
-        return;
-      } else {
-        /** @type {Deny} */
-        const packetData = response;
-        throw `Could not undeafen player, Reason: ${packetData.Reason}`;
-      }
-    } catch (ex) {
-      throw `Could not undeafen player, ERROR: ${ex}`;
-    }
+    await this.SendSimplePacket(packet, "undeafen player");
   }
 
   /**
@@ -663,26 +593,10 @@ class Network {
    * @returns {Promise<void>}
    */
   async ANDModPlayerBitmask(player, bitmask) {
-    if (!this.IsConnected)
-      throw "Could AND mod player bitmask, Server not connected/linked!";
-
     const packet = new ANDModParticipantBitmask();
     packet.PlayerId = player.id;
-    packet.Bitmask = new Uint32Array([bitmask])[0]; //I fucking hate JS.
-    packet.Token = this.Token;
-
-    try {
-      const response = await this.SendPacket(packet);
-      if (response.PacketId == PacketType.Accept) {
-        return;
-      } else {
-        /** @type {Deny} */
-        const packetData = response;
-        throw `Could not AND mod player bitmask, Reason: ${packetData.Reason}`;
-      }
-    } catch (ex) {
-      throw `Could not AND mod player bitmask, ERROR: ${ex}`;
-    }
+    packet.Bitmask = new Uint32Array([bitmask])[0];
+    await this.SendSimplePacket(packet, "AND mod player bitmask");
   }
 
   /**
@@ -692,26 +606,10 @@ class Network {
    * @returns {Promise<void>}
    */
   async ORModPlayerBitmask(player, bitmask) {
-    if (!this.IsConnected)
-      throw "Could not OR mod player bitmask, Server not connected/linked!";
-
     const packet = new ORModParticipantBitmask();
     packet.PlayerId = player.id;
-    packet.Bitmask = new Uint32Array([bitmask])[0]; //I fucking hate JS.
-    packet.Token = this.Token;
-
-    try {
-      const response = await this.SendPacket(packet);
-      if (response.PacketId == PacketType.Accept) {
-        return;
-      } else {
-        /** @type {Deny} */
-        const packetData = response;
-        throw `Could not OR mod player bitmask, Reason: ${packetData.Reason}`;
-      }
-    } catch (ex) {
-      throw `Could not OR mod player bitmask, ERROR: ${ex}`;
-    }
+    packet.Bitmask = new Uint32Array([bitmask])[0];
+    await this.SendSimplePacket(packet, "OR mod player bitmask");
   }
 
   /**
@@ -721,26 +619,10 @@ class Network {
    * @returns {Promise<void>}
    */
   async XORModPlayerBitmask(player, bitmask) {
-    if (!this.IsConnected)
-      throw "Could not XOR mod player bitmask, Server not connected/linked!";
-
     const packet = new XORModParticipantBitmask();
     packet.PlayerId = player.id;
-    packet.Bitmask = new Uint32Array([bitmask])[0]; //I fucking hate JS.
-    packet.Token = this.Token;
-
-    try {
-      const response = await this.SendPacket(packet);
-      if (response.PacketId == PacketType.Accept) {
-        return;
-      } else {
-        /** @type {Deny} */
-        const packetData = response;
-        throw `Could not XOR mod player bitmask, Reason: ${packetData.Reason}`;
-      }
-    } catch (ex) {
-      throw `Could not XOR mod player bitmask, ERROR: ${ex}`;
-    }
+    packet.Bitmask = new Uint32Array([bitmask])[0];
+    await this.SendSimplePacket(packet, "XOR mod player bitmask");
   }
 
   /**
@@ -749,26 +631,10 @@ class Network {
    * @param {Number} channelId
    */
   async ChannelMovePlayer(player, channelId) {
-    if (!this.IsConnected)
-      throw "Could not move player to channel, Server not connected/linked!";
-
     const packet = new ChannelMove();
     packet.PlayerId = player.id;
     packet.ChannelId = channelId;
-    packet.Token = this.Token;
-
-    try {
-      const response = await this.SendPacket(packet);
-      if (response.PacketId == PacketType.Accept) {
-        return;
-      } else {
-        /** @type {Deny} */
-        const packetData = response;
-        throw `Could not move player to channel, Reason: ${packetData.Reason}`;
-      }
-    } catch (ex) {
-      throw `Could not move player to channel, ERROR: ${ex}`;
-    }
+    await this.SendSimplePacket(packet, "move player to channel");
   }
 
   /**
