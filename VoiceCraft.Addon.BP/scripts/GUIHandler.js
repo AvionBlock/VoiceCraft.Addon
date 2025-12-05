@@ -219,7 +219,7 @@ class GUIHandler {
    */
   ShowAutoConnect(player) {
     const IP = world.getDynamicProperty("autoConnectIP");
-    var Port = world.getDynamicProperty("autoConnectPort");
+    const Port = world.getDynamicProperty("autoConnectPort");
     const ServerKey = world.getDynamicProperty("autoConnectServerKey");
 
     new ModalFormData()

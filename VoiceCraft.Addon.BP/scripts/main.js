@@ -58,9 +58,7 @@ CommandSystem.RegisterCommand(
   "Gives you an item to access voicecraft settings panel/gui.",
   function (params) {
     try {
-      const component = params.source.getComponent(
-        EntityInventoryComponent.componentId
-      );
+      const component = params.source.getComponent("minecraft:inventory");
       const customItem = new ItemStack("minecraft:enchanted_book", 1);
       customItem.nameTag = "§bVoiceCraft Server Settings";
       customItem.setLore(["Open VoiceCraft Settings"]);
