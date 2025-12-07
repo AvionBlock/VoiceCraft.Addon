@@ -1,4 +1,4 @@
-import { Constants } from "../../Data/Constants";
+import { MaxStringLength } from "../../Data/Constants";
 import { McApiPacketType } from "../../Data/Enums";
 import { NetDataReader } from "../NetDataReader";
 import { NetDataWriter } from "../NetDataWriter";
@@ -30,14 +30,14 @@ export class McApiDenyPacket extends McApiPacket {
   private _reasonKey: string;
 
   public override Serialize(writer: NetDataWriter) {
-    writer.PutString(this.RequestId, Constants.MaxStringLength);
-    writer.PutString(this.Token, Constants.MaxStringLength);
-    writer.PutString(this.ReasonKey, Constants.MaxStringLength);
+    writer.PutString(this.RequestId, MaxStringLength);
+    writer.PutString(this.Token, MaxStringLength);
+    writer.PutString(this.ReasonKey, MaxStringLength);
   }
 
   public override Deserialize(reader: NetDataReader) {
-    this._requestId = reader.GetString(Constants.MaxStringLength);
-    this._token = reader.GetString(Constants.MaxStringLength);
-    this._reasonKey = reader.GetString(Constants.MaxStringLength);
+    this._requestId = reader.GetString(MaxStringLength);
+    this._token = reader.GetString(MaxStringLength);
+    this._reasonKey = reader.GetString(MaxStringLength);
   }
 }

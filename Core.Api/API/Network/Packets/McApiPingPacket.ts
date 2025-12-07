@@ -1,4 +1,4 @@
-import { Constants } from "../../Data/Constants";
+import { MaxStringLength } from "../../Data/Constants";
 import { McApiPacketType } from "../../Data/Enums";
 import { NetDataReader } from "../NetDataReader";
 import { NetDataWriter } from "../NetDataWriter";
@@ -20,10 +20,10 @@ export class McApiPingPacket extends McApiPacket {
   private _token: string;
 
   public override Serialize(writer: NetDataWriter) {
-    writer.PutString(this.Token, Constants.MaxStringLength);
+    writer.PutString(this.Token, MaxStringLength);
   }
 
   public override Deserialize(reader: NetDataReader) {
-    this._token = reader.GetString(Constants.MaxStringLength);
+    this._token = reader.GetString(MaxStringLength);
   }
 }

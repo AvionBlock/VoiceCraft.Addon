@@ -1,4 +1,4 @@
-import { Constants } from "../../Data/Constants";
+import { MaxStringLength } from "../../Data/Constants";
 import { McApiPacketType, PositioningType } from "../../Data/Enums";
 import { Guid } from "../../Data/Guid";
 import { Vector2 } from "../../Data/Vector2";
@@ -66,7 +66,7 @@ export class McApiNetworkEntityCreatedPacket extends McApiEntityCreatedPacket {
     super.Deserialize(reader);
     reader.SkipBytes(16); //Guid not implemented.
     reader.SkipBytes(16); //Guid not implemented.
-    this._locale = reader.GetString(Constants.MaxStringLength);
+    this._locale = reader.GetString(MaxStringLength);
     this._positioningType = reader.GetByte() as PositioningType;
   }
 }
