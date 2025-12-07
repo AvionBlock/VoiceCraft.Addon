@@ -41,7 +41,7 @@ export class VoiceCraft {
 
     this._reader.SetBufferSource(packetData);
     const packetType = this._reader.GetByte();
-    if (!(packetType in McApiPacketType)) return; //Not a valid packet.
+    if (packetType < McApiPacketType.Login || packetType > McApiPacketType.NetworkEntityCreated) return; //Not a valid packet.
     await this.HandlePacketAsync(packetType as McApiPacketType, this._reader);
   }
 

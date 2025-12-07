@@ -56,7 +56,7 @@ export class NetDataWriter {
    */
   CopyData(): Uint8Array {
     const dst = new Uint8Array(this._offset);
-    dst.set(this._data.slice(0, this._offset));
+    dst.set(this._data.subarray(0, this._offset));
     return dst;
   }
 

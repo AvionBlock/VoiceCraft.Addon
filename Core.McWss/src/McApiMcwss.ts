@@ -97,6 +97,14 @@ export class McApiMcwss {
         },
       ],
     });
+
+    // Attempt to stop all sounds on disconnect (feature detection for newer API versions)
+    const w = world as any;
+    if (typeof w.stopAllSounds === 'function') {
+      try {
+        w.stopAllSounds();
+      } catch { }
+    }
   }
 
   public SendPacket(packet: McApiPacket) {
@@ -112,7 +120,7 @@ export class McApiMcwss {
 
     this._reader.SetBufferSource(packetData);
     const packetType = this._reader.GetByte();
-    if (!(packetType in McApiPacketType)) return; //Not a valid packet.
+    if (packetType < McApiPacketType.Login || packetType > McApiPacketType.NetworkEntityCreated) return; //Not a valid packet.
     system.sendScriptEvent(`${VoiceCraft.Namespace}:onPacket`, packet);
     await this.HandlePacketAsync(packetType as McApiPacketType, this._reader);
   }
