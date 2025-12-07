@@ -98,13 +98,7 @@ export class McApiMcwss {
       ],
     });
 
-    // Attempt to stop all sounds on disconnect (feature detection for newer API versions)
-    const w = world as any;
-    if (typeof w.stopAllSounds === 'function') {
-      try {
-        w.stopAllSounds();
-      } catch { }
-    }
+
   }
 
   public SendPacket(packet: McApiPacket) {
