@@ -1,4 +1,4 @@
-export enum McApiPacketType {
+export const enum McApiPacketType {
   //Networking
   Login,
   Logout,
@@ -12,7 +12,7 @@ export enum McApiPacketType {
   NetworkEntityCreated
 }
 
-export enum PositioningType {
+export const enum PositioningType {
   Server,
   Client
 }

@@ -1,4 +1,4 @@
-import { Constants } from "../../Data/Constants";
+import { MaxStringLength } from "../../Data/Constants";
 import { McApiPacketType } from "../../Data/Enums";
 import { Vector2 } from "../../Data/Vector2";
 import { Vector3 } from "../../Data/Vector3";
@@ -106,8 +106,8 @@ export class McApiEntityCreatedPacket extends McApiPacket {
     writer.PutInt(this.Id);
     writer.PutFloat(this.Loudness);
     writer.PutLong(BigInt(this.LastSpoke));
-    writer.PutString(this.WorldId, Constants.MaxStringLength);
-    writer.PutString(this.Name, Constants.MaxStringLength);
+    writer.PutString(this.WorldId, MaxStringLength);
+    writer.PutString(this.Name, MaxStringLength);
     writer.PutBool(this.Muted);
     writer.PutBool(this.Deafened);
     writer.PutUshort(this.TalkBitmask);

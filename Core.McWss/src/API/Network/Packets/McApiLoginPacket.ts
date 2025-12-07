@@ -1,4 +1,4 @@
-import { Constants } from "../../Data/Constants";
+import { MaxStringLength } from "../../Data/Constants";
 import { McApiPacketType } from "../../Data/Enums";
 import { Version } from "../../Data/Version";
 import { NetDataReader } from "../NetDataReader";
@@ -31,16 +31,16 @@ export class McApiLoginPacket extends McApiPacket {
   private _version: Version;
 
   public override Serialize(writer: NetDataWriter) {
-    writer.PutString(this.RequestId, Constants.MaxStringLength)
-    writer.PutString(this.Token, Constants.MaxStringLength);
+    writer.PutString(this.RequestId, MaxStringLength)
+    writer.PutString(this.Token, MaxStringLength);
     writer.PutInt(this.Version.Major);
     writer.PutInt(this.Version.Minor);
     writer.PutInt(this.Version.Build);
   }
 
   public override Deserialize(reader: NetDataReader) {
-    this._requestId = reader.GetString(Constants.MaxStringLength);
-    this._token = reader.GetString(Constants.MaxStringLength);
+    this._requestId = reader.GetString(MaxStringLength);
+    this._token = reader.GetString(MaxStringLength);
     this._version = new Version(reader.GetInt(), reader.GetInt(), reader.GetInt());
   }
 }
