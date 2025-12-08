@@ -66,10 +66,7 @@ export class CommandManager {
             }
             if (data !== undefined) {
                 system.run(() => {
-                    const packets = data.split("|");
-                    for (const packet of packets) {
-                        this._mcapi.ReceivePacketAsync(packet);
-                    }
+                    this._mcapi.ReceivePacketAsync(data);
                 });
             }
             return { status: CustomCommandStatus.Success, message: stringData };

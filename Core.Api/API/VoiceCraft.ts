@@ -4,13 +4,14 @@ import { McApiPacketType } from "./Data/Enums";
 import { NetDataReader } from "./Network/NetDataReader";
 import { Event } from "./Event";
 import { NetDataWriter } from "./Network/NetDataWriter";
+import { IMcApiPacket } from "./Network/McApiPackets/IMcApiPacket";
 import { McApiAcceptResponsePacket } from "./Network/McApiPackets/Response/McApiAcceptResponsePacket";
 import { McApiDenyResponsePacket } from "./Network/McApiPackets/Response/McApiDenyResponsePacket";
 import { McApiPingResponsePacket } from "./Network/McApiPackets/Response/McApiPingResponsePacket";
 import { McApiLoginRequestPacket } from "./Network/McApiPackets/Request/McApiLoginRequestPacket";
 import { McApiPingRequestPacket } from "./Network/McApiPackets/Request/McApiPingRequestPacket";
 import { McApiLogoutRequestPacket } from "./Network/McApiPackets/Request/McApiLogoutRequestPacket";
-import { IMcApiPacket } from "./Network/McApiPackets/IMcApiPacket";
+import { McApiOnEntityAudioReceivedPacket } from "./Network/McApiPackets/Event/McApiOnEntityAudioReceivedPacket";
 
 export class VoiceCraft {
   public static readonly Namespace: string = "voicecraft";
@@ -33,6 +34,9 @@ export class VoiceCraft {
   public readonly OnAcceptResponsePacket: Event<McApiAcceptResponsePacket> = new Event<McApiAcceptResponsePacket>();
   public readonly OnDenyResponsePacket: Event<McApiDenyResponsePacket> = new Event<McApiDenyResponsePacket>();
   public readonly OnPingResponsePacket: Event<McApiPingResponsePacket> = new Event<McApiPingResponsePacket>();
+  //Events
+  public readonly OnEntityAudioReceivedPacket: Event<McApiOnEntityAudioReceivedPacket> =
+    new Event<McApiOnEntityAudioReceivedPacket>();
 
   private async HandleScriptEventAsync(ev: ScriptEventCommandMessageAfterEvent) {
     switch (ev.id) {
@@ -48,7 +52,7 @@ export class VoiceCraft {
 
     this._reader.SetBufferSource(packetData);
     const packetType = this._reader.GetByte();
-    if (packetType < McApiPacketType.LoginRequest || packetType > McApiPacketType.OnEntityMuffleFactorUpdated) return; //Not a valid packet.
+    if (packetType < McApiPacketType.LoginRequest || packetType > McApiPacketType.OnEntityAudioReceived) return; //Not a valid packet.
     await this.HandlePacketAsync(packetType as McApiPacketType, this._reader);
   }
 
@@ -115,6 +119,9 @@ export class VoiceCraft {
       case McApiPacketType.OnEntityMuffleFactorUpdated:
         break;
       case McApiPacketType.OnEntityAudioReceived:
+        const onEntityAudioReceived = new McApiOnEntityAudioReceivedPacket();
+        onEntityAudioReceived.Deserialize(reader);
+        this.HandleOnEntityAudioReceivedPacket(onEntityAudioReceived);
         break;
     }
   }
@@ -147,5 +154,10 @@ export class VoiceCraft {
   private HandlePingResponsePacket(packet: McApiPingResponsePacket) {
     this.OnPacket.Invoke(packet);
     this.OnPingResponsePacket.Invoke(packet);
+  }
+
+  private HandleOnEntityAudioReceivedPacket(packet: McApiOnEntityAudioReceivedPacket) {
+    this.OnPacket.Invoke(packet);
+    this.OnEntityAudioReceivedPacket.Invoke(packet);
   }
 }

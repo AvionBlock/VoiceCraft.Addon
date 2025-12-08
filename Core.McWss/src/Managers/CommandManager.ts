@@ -79,24 +79,23 @@ export class CommandManager {
       while (this._mcapi.OutboundQueue.size > 0) {
         const packetData = this._mcapi.OutboundQueue.dequeue();
         if (packetData === undefined) break;
-
+      
         const data = Z85.GetStringWithPadding(packetData);
-        stringData = stringData.concat(`${!first ? "|" : ""}${data.replaceAll("%", "%%")}`); //Issue workaround.
+        stringData = stringData.concat(
+          `${!first ? "|" : ""}${data.replaceAll("%", "%%")}`
+        ); //Issue workaround.
         if (first) {
           first = false;
           continue;
         }
       }
-
+      
       if (data !== undefined) {
         system.run(() => {
-          const packets = data.split("|");
-          for (const packet of packets) {
-            this._mcapi.ReceivePacketAsync(packet);
-          }
+          this._mcapi.ReceivePacketAsync(data);
         });
       }
-
+      
       return { status: CustomCommandStatus.Success, message: stringData };
     } catch {
       return { status: CustomCommandStatus.Failure };

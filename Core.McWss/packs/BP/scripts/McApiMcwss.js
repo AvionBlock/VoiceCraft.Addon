@@ -5,18 +5,18 @@ import { NetDataWriter } from "./API/Network/NetDataWriter";
 import { NetDataReader } from "./API/Network/NetDataReader";
 import { CommandManager } from "./Managers/CommandManager";
 import { Guid } from "./API/Data/Guid";
-import { McApiPacketType } from "./API/Data/Enums";
 import { Event } from "./API/Event";
 import { Queue } from "./API/Data/Queue";
-import { McApiPacket } from "./API/Network/Packets/McApiPacket";
-import { McApiPingPacket } from "./API/Network/Packets/McApiPingPacket";
-import { McApiAcceptPacket } from "./API/Network/Packets/McApiAcceptPacket";
-import { McApiLoginPacket } from "./API/Network/Packets/McApiLoginPacket";
-import { McApiDenyPacket } from "./API/Network/Packets/McApiDenyPacket";
 import { Locales } from "./API/Locales";
-import { McApiLogoutPacket } from "./API/Network/Packets/McApiLogoutPacket";
 import { Z85 } from "./API/Encoders/Z85";
 import "./Extensions";
+import { McApiLoginRequestPacket } from "./API/Network/McApiPackets/Request/McApiLoginRequestPacket";
+import { McApiAcceptResponsePacket } from "./API/Network/McApiPackets/Response/McApiAcceptResponsePacket";
+import { McApiDenyResponsePacket } from "./API/Network/McApiPackets/Response/McApiDenyResponsePacket";
+import { McApiLogoutRequestPacket } from "./API/Network/McApiPackets/Request/McApiLogoutRequestPacket";
+import { IsIMcApiRIdPacket } from "./API/Network/McApiPackets/IMcApiRIdPacket";
+import { McApiPingRequestPacket } from "./API/Network/McApiPackets/Request/McApiPingRequestPacket";
+import { McApiPingResponsePacket } from "./API/Network/McApiPackets/Response/McApiPingResponsePacket";
 export class McApiMcwss {
     _version = new Version(1, 1, 0);
     _commands = new CommandManager(this);
@@ -31,8 +31,7 @@ export class McApiMcwss {
     _requestIds = new Set();
     //Queue
     OutboundQueue = new Queue();
-    //Events
-    OnConnected = new Event();
+    //McApi
     OnPacket = new Event();
     async ConnectAsync(token) {
         if (this._connectionState !== 0)
@@ -41,16 +40,16 @@ export class McApiMcwss {
             this._connectionState = 1;
             this._requestIds.clear();
             this.OutboundQueue.clear();
-            const packet = new McApiLoginPacket(Guid.Create().toString(), token, this._version);
+            const packet = new McApiLoginRequestPacket(Guid.Create().toString(), token, this._version);
             if (this.RegisterRequestId(packet.RequestId)) {
                 this.SendPacket(packet);
                 const response = await this.GetResponseAsync(packet.RequestId);
-                if (response instanceof McApiAcceptPacket) {
+                if (response instanceof McApiAcceptResponsePacket) {
                     this._token = response.Token;
                     this._lastPing = Date.now();
                 }
-                else if (response instanceof McApiDenyPacket) {
-                    throw new Error(response.ReasonKey);
+                else if (response instanceof McApiDenyResponsePacket) {
+                    throw new Error(response.Reason);
                 }
                 if (this._pinger !== undefined) {
                     system.clearRun(this._pinger);
@@ -73,7 +72,7 @@ export class McApiMcwss {
         if (this._pinger !== undefined)
             system.clearRun(this._pinger);
         this.OutboundQueue.clear();
-        this.SendPacket(new McApiLogoutPacket(this._token));
+        this.SendPacket(new McApiLogoutRequestPacket(this._token));
         this._connectionState = 0;
         world.translateMessage(Locales.VcMcApi.Status.Disconnected, {
             rawtext: [
@@ -97,9 +96,15 @@ export class McApiMcwss {
             return;
         this._reader.SetBufferSource(packetData);
         const packetType = this._reader.GetByte();
-        if (!(packetType in McApiPacketType))
+        if (packetType < 0 /* McApiPacketType.LoginRequest */ ||
+            packetType > 21 /* McApiPacketType.OnEntityAudioReceived */)
             return; //Not a valid packet.
-        system.sendScriptEvent(`${VoiceCraft.Namespace}:onPacket`, packet);
+        try {
+            system.sendScriptEvent(`${VoiceCraft.Namespace}:onPacket`, packet);
+        }
+        catch (ex) {
+            console.error(ex);
+        }
         await this.HandlePacketAsync(packetType, this._reader);
     }
     RegisterRequestId(requestId) {
@@ -114,34 +119,7 @@ export class McApiMcwss {
     async GetResponseAsync(requestId, timeout = this._defaultTimeoutMs) {
         let callbackData = undefined;
         const callback = this.OnPacket.Subscribe((data) => {
-            if ("RequestId" in data &&
-                typeof data.RequestId === "string" &&
-                data.RequestId === requestId) {
-                this.DeregisterRequestId(requestId);
-                callbackData = data;
-            }
-        });
-        try {
-            const expiryTime = Date.now() + timeout;
-            while (expiryTime > Date.now()) {
-                if (callbackData !== undefined)
-                    return callbackData;
-                await system.waitTicks(1);
-            }
-            throw new Error(Locales.VcMcApi.DisconnectReason.Timeout);
-        }
-        finally {
-            this.DeregisterRequestId(requestId);
-            this.OnPacket.Unsubscribe(callback);
-        }
-    }
-    async GetTypeResponseAsync(requestId, type = McApiPacket, timeout = this._defaultTimeoutMs) {
-        let callbackData = undefined;
-        const callback = this.OnPacket.Subscribe((data) => {
-            if ("RequestId" in data &&
-                typeof data.RequestId === "string" &&
-                data.RequestId === requestId &&
-                data instanceof type) {
+            if (IsIMcApiRIdPacket(data) && data.RequestId === requestId) {
                 this.DeregisterRequestId(requestId);
                 callbackData = data;
             }
@@ -165,34 +143,34 @@ export class McApiMcwss {
             return; //Will have to do something here.
         if (Date.now() - this._lastPing >= this._defaultTimeoutMs)
             this.Disconnect(Locales.VcMcApi.DisconnectReason.Timeout);
-        this.SendPacket(new McApiPingPacket(this._token));
+        this.SendPacket(new McApiPingRequestPacket(this._token));
     }
     async HandlePacketAsync(packetType, reader) {
         switch (packetType) {
-            case McApiPacketType.Accept:
-                const acceptPacket = new McApiAcceptPacket();
-                acceptPacket.Deserialize(reader);
-                this.HandleAcceptPacket(acceptPacket);
+            case 3 /* McApiPacketType.AcceptResponse */:
+                const acceptResponsePacket = new McApiAcceptResponsePacket();
+                acceptResponsePacket.Deserialize(reader);
+                this.HandleAcceptResponsePacket(acceptResponsePacket);
                 break;
-            case McApiPacketType.Deny:
-                const denyPacket = new McApiDenyPacket();
-                denyPacket.Deserialize(reader);
-                this.HandleDenyPacket(denyPacket);
+            case 4 /* McApiPacketType.DenyResponse */:
+                const denyResponsePacket = new McApiDenyResponsePacket();
+                denyResponsePacket.Deserialize(reader);
+                this.HandleDenyResponsePacket(denyResponsePacket);
                 break;
-            case McApiPacketType.Ping:
-                const pingPacket = new McApiPingPacket();
-                pingPacket.Deserialize(reader);
-                this.HandlePingPacket(pingPacket);
+            case 5 /* McApiPacketType.PingResponse */:
+                const pingResponsePacket = new McApiPingResponsePacket();
+                pingResponsePacket.Deserialize(reader);
+                this.HandlePingResponsePacket(pingResponsePacket);
                 break;
         }
     }
-    HandleAcceptPacket(packet) {
+    HandleAcceptResponsePacket(packet) {
         this.OnPacket.Invoke(packet);
     }
-    HandleDenyPacket(packet) {
+    HandleDenyResponsePacket(packet) {
         this.OnPacket.Invoke(packet);
     }
-    HandlePingPacket(packet) {
+    HandlePingResponsePacket(packet) {
         this.OnPacket.Invoke(packet);
         this._lastPing = Date.now();
     }
