@@ -50,7 +50,7 @@ export class NetDataWriter {
      */
     CopyData() {
         const dst = new Uint8Array(this._offset);
-        dst.set(this._data.slice(0, this._offset));
+        dst.set(this._data.subarray(0, this._offset));
         return dst;
     }
     /**
@@ -168,7 +168,7 @@ export class NetDataWriter {
      */
     PutBytes(value, offset, length) {
         this.ResizeIfNeeded(this._offset + length);
-        this._data.set(value.slice(offset, offset + length), this._offset);
+        this._data.set(value.subarray(offset, offset + length), this._offset);
         this._offset += length;
     }
 }

@@ -1,8 +1,3 @@
-export class Constants {
-  public static get MaxStringLength(): number {
-    return 100;
-  }
-  public static get MaxDescriptionStringLength(): number {
-    return 500;
-  }
-}
+export const MaximumEncodedBytes = 1000;
+export const MaxStringLength = 100;
+export const MaxDescriptionStringLength = 500;

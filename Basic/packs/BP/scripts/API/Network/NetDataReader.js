@@ -211,7 +211,7 @@ export class NetDataReader {
     GetBytes(destination, length) {
         if (this._dataView === undefined || this._data === undefined)
             throw new Error("Data is null! No data to read from!");
-        destination.set(this._data.slice(this._offset, this._offset + length));
+        destination.set(this._data.subarray(this._offset, this._offset + length));
         this._offset += length;
     }
 }

@@ -119,7 +119,11 @@ export class McApiMcwss {
       packetType > McApiPacketType.OnEntityAudioReceived
     )
       return; //Not a valid packet.
-    system.sendScriptEvent(`${VoiceCraft.Namespace}:onPacket`, packet);
+    try {
+      system.sendScriptEvent(`${VoiceCraft.Namespace}:onPacket`, packet);
+    } catch (ex) {
+      console.error(ex);
+    }
     await this.HandlePacketAsync(packetType as McApiPacketType, this._reader);
   }
 
