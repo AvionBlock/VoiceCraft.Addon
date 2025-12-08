@@ -188,7 +188,7 @@ export class NetDataWriter {
    */
   public PutBytes(value: Uint8Array, offset: number, length: number) {
     this.ResizeIfNeeded(this._offset + length);
-    this._data.set(value.slice(offset, offset + length), this._offset);
+    this._data.set(value.subarray(offset, offset + length), this._offset);
     this._offset += length;
   }
 }

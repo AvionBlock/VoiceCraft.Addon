@@ -1,0 +1,1 @@
+cp -R ./Core.Api/API ./Core.McWss/src
