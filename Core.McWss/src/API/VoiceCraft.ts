@@ -2,13 +2,15 @@ import { ScriptEventCommandMessageAfterEvent, system } from "@minecraft/server";
 import { Z85 } from "./Encoders/Z85";
 import { McApiPacketType } from "./Data/Enums";
 import { NetDataReader } from "./Network/NetDataReader";
-import { McApiAcceptPacket } from "./Network/Packets/McApiAcceptPacket";
-import { McApiDenyPacket } from "./Network/Packets/McApiDenyPacket";
-import { McApiPingPacket } from "./Network/Packets/McApiPingPacket";
 import { Event } from "./Event";
 import { NetDataWriter } from "./Network/NetDataWriter";
-import { McApiEntityCreatedPacket } from "./Network/Packets/McApiEntityCreatedPacket";
-import { McApiNetworkEntityCreatedPacket } from "./Network/Packets/McApiNetworkEntityCreatedPacket";
+import { McApiAcceptResponsePacket } from "./Network/McApiPackets/Response/McApiAcceptResponsePacket";
+import { McApiDenyResponsePacket } from "./Network/McApiPackets/Response/McApiDenyResponsePacket";
+import { McApiPingResponsePacket } from "./Network/McApiPackets/Response/McApiPingResponsePacket";
+import { McApiLoginRequestPacket } from "./Network/McApiPackets/Request/McApiLoginRequestPacket";
+import { McApiPingRequestPacket } from "./Network/McApiPackets/Request/McApiPingRequestPacket";
+import { McApiLogoutRequestPacket } from "./Network/McApiPackets/Request/McApiLogoutRequestPacket";
+import { IMcApiPacket } from "./Network/McApiPackets/IMcApiPacket";
 
 export class VoiceCraft {
   public static readonly Namespace: string = "voicecraft";
@@ -21,11 +23,16 @@ export class VoiceCraft {
   }
 
   //Events
-  public readonly OnAcceptPacket: Event<McApiAcceptPacket> = new Event<McApiAcceptPacket>();
-  public readonly OnDenyPacket: Event<McApiDenyPacket> = new Event<McApiDenyPacket>();
-  public readonly OnPingPacket: Event<McApiPingPacket> = new Event<McApiPingPacket>();
-
   //McApi
+  public readonly OnPacket: Event<IMcApiPacket> = new Event<IMcApiPacket>();
+  //Requests
+  public readonly OnLoginRequestPacket: Event<McApiLoginRequestPacket> = new Event<McApiLoginRequestPacket>();
+  public readonly OnLogoutRequestPacket: Event<McApiLogoutRequestPacket> = new Event<McApiLogoutRequestPacket>();
+  public readonly OnPingRequestPacket: Event<McApiPingRequestPacket> = new Event<McApiPingRequestPacket>();
+  //Response
+  public readonly OnAcceptResponsePacket: Event<McApiAcceptResponsePacket> = new Event<McApiAcceptResponsePacket>();
+  public readonly OnDenyResponsePacket: Event<McApiDenyResponsePacket> = new Event<McApiDenyResponsePacket>();
+  public readonly OnPingResponsePacket: Event<McApiPingResponsePacket> = new Event<McApiPingResponsePacket>();
 
   private async HandleScriptEventAsync(ev: ScriptEventCommandMessageAfterEvent) {
     switch (ev.id) {
@@ -41,57 +48,104 @@ export class VoiceCraft {
 
     this._reader.SetBufferSource(packetData);
     const packetType = this._reader.GetByte();
-    if (!(packetType in McApiPacketType)) return; //Not a valid packet.
+    if (packetType < McApiPacketType.LoginRequest || packetType > McApiPacketType.OnEntityMuffleFactorUpdated) return; //Not a valid packet.
     await this.HandlePacketAsync(packetType as McApiPacketType, this._reader);
   }
 
   private async HandlePacketAsync(packetType: McApiPacketType, reader: NetDataReader) {
     switch (packetType) {
-      case McApiPacketType.Accept:
-        const acceptPacket = new McApiAcceptPacket();
-        acceptPacket.Deserialize(reader);
-        this.HandleAcceptPacket(acceptPacket);
+      case McApiPacketType.LoginRequest:
+        const loginRequestPacket = new McApiLoginRequestPacket();
+        loginRequestPacket.Deserialize(reader);
+        this.HandleLoginRequestPacket(loginRequestPacket);
         break;
-      case McApiPacketType.Deny:
-        const denyPacket = new McApiDenyPacket();
-        denyPacket.Deserialize(reader);
-        this.HandleDenyPacket(denyPacket);
+      case McApiPacketType.LogoutRequest:
+        const logoutRequestPacket = new McApiLogoutRequestPacket();
+        logoutRequestPacket.Deserialize(reader);
+        this.HandleLogoutRequestPacket(logoutRequestPacket);
         break;
-      case McApiPacketType.Ping:
-        const pingPacket = new McApiPingPacket();
-        pingPacket.Deserialize(reader);
-        this.HandlePingPacket(pingPacket);
+      case McApiPacketType.PingRequest:
+        const pingRequestPacket = new McApiPingRequestPacket();
+        pingRequestPacket.Deserialize(reader);
+        this.HandlePingRequestPacket(pingRequestPacket);
         break;
-      case McApiPacketType.EntityCreated:
-        const entityCreatedPacket = new McApiEntityCreatedPacket();
-        entityCreatedPacket.Deserialize(reader);
-        this.HandleEntityCreatedPacket(entityCreatedPacket);
+      case McApiPacketType.AcceptResponse:
+        const acceptResponsePacket = new McApiAcceptResponsePacket();
+        acceptResponsePacket.Deserialize(reader);
+        this.HandleAcceptResponsePacket(acceptResponsePacket);
         break;
-      case McApiPacketType.NetworkEntityCreated:
-        const networkEntityCreatedPacket = new McApiNetworkEntityCreatedPacket();
-        networkEntityCreatedPacket.Deserialize(reader);
-        this.HandleNetworkEntityCreatedPacket(networkEntityCreatedPacket);
+      case McApiPacketType.DenyResponse:
+        const denyResponsePacket = new McApiDenyResponsePacket();
+        denyResponsePacket.Deserialize(reader);
+        this.HandleDenyResponsePacket(denyResponsePacket);
+        break;
+      case McApiPacketType.PingResponse:
+        const pingResponsePacket = new McApiPingResponsePacket();
+        pingResponsePacket.Deserialize(reader);
+        this.HandlePingResponsePacket(pingResponsePacket);
+        break;
+      case McApiPacketType.OnEntityCreated:
+        break;
+      case McApiPacketType.OnNetworkEntityCreated:
+        break;
+      case McApiPacketType.OnEntityDestroyed:
+        break;
+      case McApiPacketType.OnEntityVisibilityUpdated:
+        break;
+      case McApiPacketType.OnEntityWorldIdUpdated:
+        break;
+      case McApiPacketType.OnEntityNameUpdated:
+        break;
+      case McApiPacketType.OnEntityMuteUpdated:
+        break;
+      case McApiPacketType.OnEntityDeafenUpdated:
+        break;
+      case McApiPacketType.OnEntityTalkBitmaskUpdated:
+        break;
+      case McApiPacketType.OnEntityListenBitmaskUpdated:
+        break;
+      case McApiPacketType.OnEntityEffectBitmaskUpdated:
+        break;
+      case McApiPacketType.OnEntityPositionUpdated:
+        break;
+      case McApiPacketType.OnEntityRotationUpdated:
+        break;
+      case McApiPacketType.OnEntityCaveFactorUpdated:
+        break;
+      case McApiPacketType.OnEntityMuffleFactorUpdated:
+        break;
+      case McApiPacketType.OnEntityAudioReceived:
         break;
     }
   }
 
-  HandleAcceptPacket(packet: McApiAcceptPacket) {
-    this.OnAcceptPacket.Invoke(packet);
+  private HandleLoginRequestPacket(packet: McApiLoginRequestPacket) {
+    this.OnPacket.Invoke(packet);
+    this.OnLoginRequestPacket.Invoke(packet);
   }
 
-  HandleDenyPacket(packet: McApiDenyPacket) {
-    this.OnDenyPacket.Invoke(packet);
+  private HandleLogoutRequestPacket(packet: McApiLogoutRequestPacket) {
+    this.OnPacket.Invoke(packet);
+    this.OnLogoutRequestPacket.Invoke(packet);
   }
 
-  HandlePingPacket(packet: McApiPingPacket) {
-    this.OnPingPacket.Invoke(packet);
+  private HandlePingRequestPacket(packet: McApiPingRequestPacket) {
+    this.OnPacket.Invoke(packet);
+    this.OnPingRequestPacket.Invoke(packet);
   }
 
-  HandleEntityCreatedPacket(packet: McApiEntityCreatedPacket) {
-    console.log(JSON.stringify(packet, (_, v) => typeof v === 'bigint' ? v.toString() : v));
+  private HandleAcceptResponsePacket(packet: McApiAcceptResponsePacket) {
+    this.OnPacket.Invoke(packet);
+    this.OnAcceptResponsePacket.Invoke(packet);
   }
 
-  HandleNetworkEntityCreatedPacket(packet: McApiNetworkEntityCreatedPacket) {
-    console.log(JSON.stringify(packet, (_, v) => typeof v === 'bigint' ? v.toString() : v));
+  private HandleDenyResponsePacket(packet: McApiDenyResponsePacket) {
+    this.OnPacket.Invoke(packet);
+    this.OnDenyResponsePacket.Invoke(packet);
+  }
+
+  private HandlePingResponsePacket(packet: McApiPingResponsePacket) {
+    this.OnPacket.Invoke(packet);
+    this.OnPingResponsePacket.Invoke(packet);
   }
 }

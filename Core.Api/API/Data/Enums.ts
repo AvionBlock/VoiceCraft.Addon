@@ -1,18 +1,34 @@
 export const enum McApiPacketType {
-  //Networking
-  Login,
-  Logout,
-  Ping,
-  Accept,
-  Deny,
+  //Requests
+  LoginRequest,
+  LogoutRequest,
+  PingRequest,
 
+  //Responses
+  AcceptResponse,
+  DenyResponse,
+  PingResponse,
 
-  //Entity stuff
-  EntityCreated,
-  NetworkEntityCreated
+  //Events
+  OnEntityCreated,
+  OnNetworkEntityCreated,
+  OnEntityDestroyed,
+  OnEntityVisibilityUpdated,
+  OnEntityWorldIdUpdated,
+  OnEntityNameUpdated,
+  OnEntityMuteUpdated,
+  OnEntityDeafenUpdated,
+  OnEntityTalkBitmaskUpdated,
+  OnEntityListenBitmaskUpdated,
+  OnEntityEffectBitmaskUpdated,
+  OnEntityPositionUpdated,
+  OnEntityRotationUpdated,
+  OnEntityCaveFactorUpdated,
+  OnEntityMuffleFactorUpdated,
+  OnEntityAudioReceived,
 }
 
 export const enum PositioningType {
   Server,
-  Client
+  Client,
 }
