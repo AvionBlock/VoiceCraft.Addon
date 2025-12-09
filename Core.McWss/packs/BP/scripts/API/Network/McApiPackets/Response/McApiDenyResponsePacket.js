@@ -6,7 +6,7 @@ export class McApiDenyResponsePacket {
         this._reason = reason;
     }
     get PacketType() {
-        return 4 /* McApiPacketType.DenyResponse */;
+        return 6 /* McApiPacketType.DenyResponse */;
     }
     get RequestId() {
         return this._requestId;

@@ -45,6 +45,11 @@ export declare class NetDataReader {
      */
     Clear(): void;
     /**
+     * @description Copies the data into a new Uint8Array
+     * @returns The copied data.
+     */
+    CopyData(): Uint8Array;
+    /**
      * @description Skips a certain amount of bytes.
      * @param count The number of bytes to skip.
      */

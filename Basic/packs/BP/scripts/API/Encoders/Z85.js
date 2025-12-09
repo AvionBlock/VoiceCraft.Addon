@@ -105,7 +105,7 @@ export class Z85 {
         }
         let z85String = this.GetString(bytesToEncode);
         if (paddingRequired) {
-            z85String.concat(bytesToPad.toString());
+            z85String = z85String.concat(bytesToPad.toString());
         }
         return z85String;
     }

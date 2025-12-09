@@ -3,6 +3,8 @@ export const enum McApiPacketType {
   LoginRequest,
   LogoutRequest,
   PingRequest,
+  SetEntityTitleRequest,
+  SetEntityDescriptionRequest,
 
   //Responses
   AcceptResponse,
