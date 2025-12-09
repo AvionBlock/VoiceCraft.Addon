@@ -83,6 +83,19 @@ export class NetDataReader {
   }
 
   /**
+   * @description Copies the data into a new Uint8Array
+   * @returns The copied data.
+   */
+  CopyData(): Uint8Array {
+    if(this._data === undefined)
+      throw new Error("No data to copy!");
+
+    const dst = new Uint8Array(this._dataSize);
+    dst.set(this._data.subarray(0, this._dataSize));
+    return dst;
+  }
+
+  /**
    * @description Skips a certain amount of bytes.
    * @param count The number of bytes to skip.
    */

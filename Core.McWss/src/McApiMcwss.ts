@@ -1,4 +1,8 @@
-import { system, world } from "@minecraft/server";
+import {
+  ScriptEventCommandMessageAfterEvent,
+  system,
+  world,
+} from "@minecraft/server";
 import { Version } from "./API/Data/Version";
 import { VoiceCraft } from "./API/VoiceCraft";
 import { NetDataWriter } from "./API/Network/NetDataWriter";
@@ -22,7 +26,7 @@ import { McApiPingResponsePacket } from "./API/Network/McApiPackets/Response/McA
 
 export class McApiMcwss {
   private _version: Version = new Version(1, 1, 0);
-  private _commands: CommandManager = new CommandManager(this);
+  private _cm: CommandManager = new CommandManager(this);
   private _defaultTimeoutMs: number = 10000;
 
   //Connection state objects.
@@ -39,6 +43,38 @@ export class McApiMcwss {
 
   //McApi
   public OnPacket: Event<IMcApiPacket> = new Event<IMcApiPacket>();
+
+  constructor() {
+    system.afterEvents.scriptEventReceive.subscribe((ev) =>
+      this.HandleScriptEventAsync(ev)
+    );
+  }
+
+  private async HandleScriptEventAsync(
+    ev: ScriptEventCommandMessageAfterEvent
+  ) {
+    switch (ev.id) {
+      case `${VoiceCraft.Namespace}:sendPacket`:
+        await this.HandleSendPacketEventAsync(ev.message);
+        break;
+    }
+  }
+
+  private async HandleSendPacketEventAsync(packet: string) {
+    if (this._connectionState !== 2) return; //Not connected. Do not send.
+    const packetData = Z85.GetBytesWithPadding(packet);
+    if (packetData.length <= 0) return;
+
+    this._reader.SetBufferSource(packetData);
+    const packetType = this._reader.GetByte();
+    if (
+      packetType < McApiPacketType.LoginRequest ||
+      packetType > McApiPacketType.OnEntityAudioReceived
+    )
+      return; //Not a valid packet
+
+    this.OutboundQueue.enqueue(this._reader.CopyData());
+  }
 
   public async ConnectAsync(token: string) {
     if (this._connectionState !== 0)
@@ -59,6 +95,14 @@ export class McApiMcwss {
         if (response instanceof McApiAcceptResponsePacket) {
           this._token = response.Token;
           this._lastPing = Date.now();
+          try {
+            system.sendScriptEvent(
+              `${VoiceCraft.Namespace}:onConnected`,
+              response.Token
+            );
+          } catch {
+            //Do Nothing
+          }
         } else if (response instanceof McApiDenyResponsePacket) {
           throw new Error(response.Reason);
         }
@@ -92,13 +136,14 @@ export class McApiMcwss {
     world.translateMessage(Locales.VcMcApi.Status.Disconnected, {
       rawtext: [
         {
-          translate:
-            reason === undefined
-              ? Locales.VcMcApi.DisconnectReason.None
-              : reason,
+          translate: reason ?? Locales.VcMcApi.DisconnectReason.None,
         },
       ],
     });
+    system.sendScriptEvent(
+      `${VoiceCraft.Namespace}:onDisconnected`,
+      reason ?? Locales.VcMcApi.DisconnectReason.None
+    );
   }
 
   public SendPacket(packet: IMcApiPacket) {

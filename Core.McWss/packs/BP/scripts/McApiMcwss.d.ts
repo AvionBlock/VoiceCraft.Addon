@@ -4,7 +4,7 @@ import "./Extensions";
 import { IMcApiPacket } from "./API/Network/McApiPackets/IMcApiPacket";
 export declare class McApiMcwss {
     private _version;
-    private _commands;
+    private _cm;
     private _defaultTimeoutMs;
     private _token?;
     private _pinger?;
@@ -15,6 +15,9 @@ export declare class McApiMcwss {
     private _requestIds;
     OutboundQueue: Queue<Uint8Array>;
     OnPacket: Event<IMcApiPacket>;
+    constructor();
+    private HandleScriptEventAsync;
+    private HandleSendPacketEventAsync;
     ConnectAsync(token: string): Promise<void>;
     Disconnect(reason?: string): void;
     SendPacket(packet: IMcApiPacket): void;

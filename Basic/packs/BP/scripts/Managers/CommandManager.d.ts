@@ -1,9 +1,9 @@
-import { McApiMcwss } from "../McApiMcwss";
+import { VoiceCraft } from "../API/VoiceCraft";
 import "../Extensions";
 export declare class CommandManager {
-    private _mcapi;
-    constructor(_mcapi: McApiMcwss);
+    private _vc;
+    constructor(_vc: VoiceCraft);
     private RegisterCommands;
-    private ConnectCommand;
-    private DataTunnelCommand;
+    private SetTitleCommand;
+    private SetDescriptionCommand;
 }
