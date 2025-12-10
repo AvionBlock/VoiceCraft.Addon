@@ -5,6 +5,15 @@ export const enum McApiPacketType {
   PingRequest,
   SetEntityTitleRequest,
   SetEntityDescriptionRequest,
+  SetEntityWorldIdRequest,
+  SetEntityNameRequest,
+  SetEntityTalkBitmaskRequest,
+  SetEntityListenBitmaskRequest,
+  SetEntityEffectBitmaskRequest,
+  SetEntityPositionRequest,
+  SetEntityRotationRequest,
+  SetEntityCaveFactorRequest,
+  SetEntityMuffleFactorRequest,
 
   //Responses
   AcceptResponse,

@@ -61,10 +61,10 @@ export class McApiMcwss {
   }
 
   private async HandleSendPacketEventAsync(packet: string) {
-    if (this._connectionState !== 2) return; //Not connected. Do not send.
+    if (this._connectionState !== 2 || this.OutboundQueue.size >= 255) return; //Not connected or we've got too many packets.
+
     const packetData = Z85.GetBytesWithPadding(packet);
     if (packetData.length <= 0) return;
-
     this._reader.SetBufferSource(packetData);
     const packetType = this._reader.GetByte();
     if (
