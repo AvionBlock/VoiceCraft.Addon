@@ -9,4 +9,5 @@ export declare class McApiOnEntityDestroyedPacket implements IMcApiPacket {
     private _id;
     Serialize(writer: NetDataWriter): void;
     Deserialize(reader: NetDataReader): void;
+    Set(id?: number): McApiOnEntityDestroyedPacket;
 }

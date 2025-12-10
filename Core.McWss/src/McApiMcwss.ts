@@ -154,22 +154,22 @@ export class McApiMcwss {
   }
 
   public async ReceivePacketAsync(packet: string) {
-    const packetData = Z85.GetBytesWithPadding(packet);
-    if (packetData.length <= 0) return;
-
-    this._reader.SetBufferSource(packetData);
-    const packetType = this._reader.GetByte();
-    if (
-      packetType < McApiPacketType.LoginRequest ||
-      packetType > McApiPacketType.OnEntityAudioReceived
-    )
-      return; //Not a valid packet.
     try {
+      const packetData = Z85.GetBytesWithPadding(packet);
+      if (packetData.length <= 0) return;
+
+      this._reader.SetBufferSource(packetData);
+      const packetType = this._reader.GetByte();
+      if (
+        packetType < McApiPacketType.LoginRequest ||
+        packetType > McApiPacketType.OnEntityAudioReceived
+      )
+        return; //Not a valid packet.
       system.sendScriptEvent(`${VoiceCraft.Namespace}:onPacket`, packet);
+      await this.HandlePacketAsync(packetType as McApiPacketType, this._reader);
     } catch (ex) {
       console.error(ex);
     }
-    await this.HandlePacketAsync(packetType as McApiPacketType, this._reader);
   }
 
   private RegisterRequestId(requestId: string): boolean {

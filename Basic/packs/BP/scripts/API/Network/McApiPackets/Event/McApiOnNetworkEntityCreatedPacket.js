@@ -12,7 +12,7 @@ export class McApiOnNetworkEntityCreatedPacket extends McApiOnEntityCreatedPacke
         this._positioningType = positioningType;
     }
     get PacketType() {
-        return 9 /* McApiPacketType.OnNetworkEntityCreated */;
+        return 18 /* McApiPacketType.OnNetworkEntityCreated */;
     }
     get UserGuid() {
         return this._userGuid;
@@ -43,5 +43,13 @@ export class McApiOnNetworkEntityCreatedPacket extends McApiOnEntityCreatedPacke
         this._serverUserGuid = Guid.Parse(reader.GetString(MaxStringLength));
         this._locale = reader.GetString(MaxStringLength);
         this._positioningType = reader.GetByte();
+    }
+    Set(id = 0, loudness = 0, lastSpoke = 0n, worldId = "", name = "", muted = false, deafened = false, talkBitmask = 0, listenBitmask = 0, effectBitmask = 0, position = new Vector3(), rotation = new Vector2(), caveFactor = 0, muffleFactor = 0, userGuid = Guid.CreateEmpty(), serverUserGuid = Guid.CreateEmpty(), locale = "", positioningType = 0 /* PositioningType.Server */) {
+        super.Set(id, loudness, lastSpoke, worldId, name, muted, deafened, talkBitmask, listenBitmask, effectBitmask, position, rotation, caveFactor, muffleFactor);
+        this._userGuid = userGuid;
+        this._serverUserGuid = serverUserGuid;
+        this._locale = locale;
+        this._positioningType = positioningType;
+        return this;
     }
 }

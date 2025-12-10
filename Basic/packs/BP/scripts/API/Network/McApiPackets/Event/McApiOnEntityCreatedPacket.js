@@ -19,7 +19,7 @@ export class McApiOnEntityCreatedPacket {
         this._muffleFactor = muffleFactor;
     }
     get PacketType() {
-        return 8 /* McApiPacketType.OnEntityCreated */;
+        return 17 /* McApiPacketType.OnEntityCreated */;
     }
     get Id() {
         return this._id;
@@ -111,5 +111,22 @@ export class McApiOnEntityCreatedPacket {
         this._rotation = new Vector2(reader.GetFloat(), reader.GetFloat());
         this._caveFactor = reader.GetFloat();
         this._muffleFactor = reader.GetFloat();
+    }
+    Set(id = 0, loudness = 0, lastSpoke = 0n, worldId = "", name = "", muted = false, deafened = false, talkBitmask = 0, listenBitmask = 0, effectBitmask = 0, position = new Vector3(), rotation = new Vector2(), caveFactor = 0, muffleFactor = 0) {
+        this._id = id;
+        this._loudness = loudness;
+        this._lastSpoke = lastSpoke;
+        this._worldId = worldId;
+        this._name = name;
+        this._muted = muted;
+        this._deafened = deafened;
+        this._talkBitmask = talkBitmask;
+        this._listenBitmask = listenBitmask;
+        this._effectBitmask = effectBitmask;
+        this._position = position;
+        this._rotation = rotation;
+        this._caveFactor = caveFactor;
+        this._muffleFactor = muffleFactor;
+        return this;
     }
 }

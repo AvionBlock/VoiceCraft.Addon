@@ -44,15 +44,15 @@ export class McApiMcwss {
         }
     }
     async HandleSendPacketEventAsync(packet) {
-        if (this._connectionState !== 2)
-            return; //Not connected. Do not send.
+        if (this._connectionState !== 2 || this.OutboundQueue.size >= 255)
+            return; //Not connected or we've got too many packets.
         const packetData = Z85.GetBytesWithPadding(packet);
         if (packetData.length <= 0)
             return;
         this._reader.SetBufferSource(packetData);
         const packetType = this._reader.GetByte();
         if (packetType < 0 /* McApiPacketType.LoginRequest */ ||
-            packetType > 23 /* McApiPacketType.OnEntityAudioReceived */)
+            packetType > 32 /* McApiPacketType.OnEntityAudioReceived */)
             return; //Not a valid packet
         this.OutboundQueue.enqueue(this._reader.CopyData());
     }
@@ -119,21 +119,21 @@ export class McApiMcwss {
         this.OutboundQueue.enqueue(this._writer.CopyData());
     }
     async ReceivePacketAsync(packet) {
-        const packetData = Z85.GetBytesWithPadding(packet);
-        if (packetData.length <= 0)
-            return;
-        this._reader.SetBufferSource(packetData);
-        const packetType = this._reader.GetByte();
-        if (packetType < 0 /* McApiPacketType.LoginRequest */ ||
-            packetType > 23 /* McApiPacketType.OnEntityAudioReceived */)
-            return; //Not a valid packet.
         try {
+            const packetData = Z85.GetBytesWithPadding(packet);
+            if (packetData.length <= 0)
+                return;
+            this._reader.SetBufferSource(packetData);
+            const packetType = this._reader.GetByte();
+            if (packetType < 0 /* McApiPacketType.LoginRequest */ ||
+                packetType > 32 /* McApiPacketType.OnEntityAudioReceived */)
+                return; //Not a valid packet.
             system.sendScriptEvent(`${VoiceCraft.Namespace}:onPacket`, packet);
+            await this.HandlePacketAsync(packetType, this._reader);
         }
         catch (ex) {
             console.error(ex);
         }
-        await this.HandlePacketAsync(packetType, this._reader);
     }
     RegisterRequestId(requestId) {
         if (this._requestIds.has(requestId))
@@ -175,17 +175,17 @@ export class McApiMcwss {
     }
     async HandlePacketAsync(packetType, reader) {
         switch (packetType) {
-            case 5 /* McApiPacketType.AcceptResponse */:
+            case 14 /* McApiPacketType.AcceptResponse */:
                 const acceptResponsePacket = new McApiAcceptResponsePacket();
                 acceptResponsePacket.Deserialize(reader);
                 this.HandleAcceptResponsePacket(acceptResponsePacket);
                 break;
-            case 6 /* McApiPacketType.DenyResponse */:
+            case 15 /* McApiPacketType.DenyResponse */:
                 const denyResponsePacket = new McApiDenyResponsePacket();
                 denyResponsePacket.Deserialize(reader);
                 this.HandleDenyResponsePacket(denyResponsePacket);
                 break;
-            case 7 /* McApiPacketType.PingResponse */:
+            case 16 /* McApiPacketType.PingResponse */:
                 const pingResponsePacket = new McApiPingResponsePacket();
                 pingResponsePacket.Deserialize(reader);
                 this.HandlePingResponsePacket(pingResponsePacket);

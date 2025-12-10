@@ -3,7 +3,7 @@ export class McApiOnEntityDestroyedPacket {
         this._id = id;
     }
     get PacketType() {
-        return 10 /* McApiPacketType.OnEntityDestroyed */;
+        return 19 /* McApiPacketType.OnEntityDestroyed */;
     }
     get Id() {
         return this._id;
@@ -14,5 +14,9 @@ export class McApiOnEntityDestroyedPacket {
     }
     Deserialize(reader) {
         this._id = reader.GetInt();
+    }
+    Set(id = 0) {
+        this._id = id;
+        return this;
     }
 }

@@ -18,4 +18,5 @@ export declare class McApiOnNetworkEntityCreatedPacket extends McApiOnEntityCrea
     private _positioningType;
     Serialize(writer: NetDataWriter): void;
     Deserialize(reader: NetDataReader): void;
+    Set(id?: number, loudness?: number, lastSpoke?: bigint, worldId?: string, name?: string, muted?: boolean, deafened?: boolean, talkBitmask?: number, listenBitmask?: number, effectBitmask?: number, position?: Vector3, rotation?: Vector2, caveFactor?: number, muffleFactor?: number, userGuid?: Guid, serverUserGuid?: Guid, locale?: string, positioningType?: PositioningType): McApiOnNetworkEntityCreatedPacket;
 }
