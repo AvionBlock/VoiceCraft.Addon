@@ -37,4 +37,5 @@ export declare class McApiOnEntityCreatedPacket implements IMcApiPacket {
     private _muffleFactor;
     Serialize(writer: NetDataWriter): void;
     Deserialize(reader: NetDataReader): void;
+    Set(id?: number, loudness?: number, lastSpoke?: bigint, worldId?: string, name?: string, muted?: boolean, deafened?: boolean, talkBitmask?: number, listenBitmask?: number, effectBitmask?: number, position?: Vector3, rotation?: Vector2, caveFactor?: number, muffleFactor?: number): McApiOnEntityCreatedPacket;
 }

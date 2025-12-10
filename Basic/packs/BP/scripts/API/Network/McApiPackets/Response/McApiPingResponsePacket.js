@@ -4,7 +4,7 @@ export class McApiPingResponsePacket {
         this._token = token;
     }
     get PacketType() {
-        return 7 /* McApiPacketType.PingResponse */;
+        return 16 /* McApiPacketType.PingResponse */;
     }
     get Token() {
         return this._token;
