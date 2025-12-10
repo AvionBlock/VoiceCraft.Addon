@@ -9,4 +9,5 @@ export declare class CommandManager {
     private SetTitleCommand;
     private SetDescriptionCommand;
     private BindEntityCommand;
+    private TestCommand;
 }
