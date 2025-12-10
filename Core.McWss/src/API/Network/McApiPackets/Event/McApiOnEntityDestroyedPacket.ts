@@ -24,4 +24,9 @@ export class McApiOnEntityDestroyedPacket implements IMcApiPacket {
   public Deserialize(reader: NetDataReader) {
     this._id = reader.GetInt();
   }
+
+  public Set(id: number = 0): McApiOnEntityDestroyedPacket {
+    this._id = id;
+    return this;
+  }
 }
