@@ -136,4 +136,37 @@ export class McApiOnEntityCreatedPacket implements IMcApiPacket {
     this._caveFactor = reader.GetFloat();
     this._muffleFactor = reader.GetFloat();
   }
+
+  public Set(
+    id: number = 0,
+    loudness: number = 0,
+    lastSpoke: bigint = 0n,
+    worldId: string = "",
+    name: string = "",
+    muted: boolean = false,
+    deafened: boolean = false,
+    talkBitmask: number = 0,
+    listenBitmask: number = 0,
+    effectBitmask: number = 0,
+    position: Vector3 = new Vector3(),
+    rotation: Vector2 = new Vector2(),
+    caveFactor: number = 0,
+    muffleFactor: number = 0
+  ): McApiOnEntityCreatedPacket {
+    this._id = id;
+    this._loudness = loudness;
+    this._lastSpoke = lastSpoke;
+    this._worldId = worldId;
+    this._name = name;
+    this._muted = muted;
+    this._deafened = deafened;
+    this._talkBitmask = talkBitmask;
+    this._listenBitmask = listenBitmask;
+    this._effectBitmask = effectBitmask;
+    this._position = position;
+    this._rotation = rotation;
+    this._caveFactor = caveFactor;
+    this._muffleFactor = muffleFactor;
+    return this;
+  }
 }

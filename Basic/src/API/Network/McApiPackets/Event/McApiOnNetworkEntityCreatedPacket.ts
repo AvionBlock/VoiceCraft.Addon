@@ -86,4 +86,47 @@ export class McApiOnNetworkEntityCreatedPacket extends McApiOnEntityCreatedPacke
     this._locale = reader.GetString(MaxStringLength);
     this._positioningType = reader.GetByte() as PositioningType;
   }
+
+  public Set(
+    id: number = 0,
+    loudness: number = 0,
+    lastSpoke: bigint = 0n,
+    worldId: string = "",
+    name: string = "",
+    muted: boolean = false,
+    deafened: boolean = false,
+    talkBitmask: number = 0,
+    listenBitmask: number = 0,
+    effectBitmask: number = 0,
+    position: Vector3 = new Vector3(),
+    rotation: Vector2 = new Vector2(),
+    caveFactor: number = 0,
+    muffleFactor: number = 0,
+    userGuid: Guid = Guid.CreateEmpty(),
+    serverUserGuid: Guid = Guid.CreateEmpty(),
+    locale: string = "",
+    positioningType: PositioningType = PositioningType.Server
+  ): McApiOnNetworkEntityCreatedPacket {
+    super.Set(
+      id,
+      loudness,
+      lastSpoke,
+      worldId,
+      name,
+      muted,
+      deafened,
+      talkBitmask,
+      listenBitmask,
+      effectBitmask,
+      position,
+      rotation,
+      caveFactor,
+      muffleFactor
+    );
+    this._userGuid = userGuid;
+    this._serverUserGuid = serverUserGuid;
+    this._locale = locale;
+    this._positioningType = positioningType;
+    return this;
+  }
 }
