@@ -8,14 +8,21 @@ export class BindingManager {
         this._vc = _vc;
         _vc.OnNetworkEntityCreatedPacket.Subscribe((ev) => this.OnNetworkEntityCreatedPacketEvent(ev));
         _vc.OnEntityDestroyedPacket.Subscribe((ev) => this.OnEntityDestroyedPacketEvent(ev));
+        _vc.OnDisconnected.Subscribe((reason) => this.OnDisconnectedEvent(reason));
     }
-    BindEntity(bindingKey, value) {
+    BindPlayer(bindingKey, value) {
         const entityId = this._unbindedEntities.valueGet(bindingKey);
         if (entityId === undefined)
             return false;
         this._unbindedEntities.delete(entityId);
         this._bindedEntities.set(entityId, value);
         return true;
+    }
+    UnbindPlayer(playerId) {
+        return this._bindedEntities.valueDelete(playerId);
+    }
+    GetEntityFromPlayerId(playerId) {
+        return this._bindedEntities.valueGet(playerId);
     }
     OnNetworkEntityCreatedPacketEvent(ev) {
         const bindingKey = this.GetRandomInt(0, 255).toString(); //Temporary.
@@ -27,6 +34,10 @@ export class BindingManager {
     OnEntityDestroyedPacketEvent(ev) {
         this._unbindedEntities.delete(ev.Id);
         this._bindedEntities.delete(ev.Id);
+    }
+    OnDisconnectedEvent(reason) {
+        this._unbindedEntities.clear();
+        this._bindedEntities.clear();
     }
     GetRandomInt(min, max) {
         min = Math.ceil(min);

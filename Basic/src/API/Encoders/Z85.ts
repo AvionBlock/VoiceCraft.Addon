@@ -119,14 +119,15 @@ export class Z85 {
     let encodedChars = new Array<string>(5);
 
     for (let i = 0; i < data.length; i += 4) {
-      let binaryFrame = (data[i + 0] << 24) | (data[i + 1] << 16) | (data[i + 2] << 8) | data[i + 3];
+      //>>> 0 converts to uint. fsr this is a JS thing.
+      let binaryFrame = ((data[i + 0] << 24) | (data[i + 1] << 16) | (data[i + 2] << 8) | data[i + 3]) >>> 0;
 
       let divisor = this.Base85 * this.Base85 * this.Base85 * this.Base85;
       for (let j = 0; j < 5; j++) {
-        let divisible = Math.floor((binaryFrame / divisor) % 85);
+        let divisible = Math.trunc((binaryFrame / divisor) % 85);
         encodedChars[j] = this.EncodingTable[divisible];
         binaryFrame -= divisible * divisor;
-        divisor /= this.Base85;
+        divisor = Math.trunc(divisor / this.Base85);
       }
 
       stringBuilder = stringBuilder.concat(encodedChars.join(""));

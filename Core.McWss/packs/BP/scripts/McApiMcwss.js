@@ -44,7 +44,7 @@ export class McApiMcwss {
         }
     }
     async HandleSendPacketEventAsync(packet) {
-        if (this._connectionState !== 2 || this.OutboundQueue.size >= 255)
+        if (this._connectionState !== 2 || this.OutboundQueue.size >= 32767)
             return; //Not connected or we've got too many packets.
         const packetData = Z85.GetBytesWithPadding(packet);
         if (packetData.length <= 0)
