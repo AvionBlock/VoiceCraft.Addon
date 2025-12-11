@@ -92,7 +92,10 @@ export class BindingManager {
         return this._bindedEntities.valueGet(playerId);
     }
     OnNetworkEntityCreatedPacketEvent(ev) {
-        const bindingKey = this.GenerateRandomId(5);
+        let bindingKey = this.GenerateRandomId(5);
+        while (this._unbindedEntities.valueHas(bindingKey)) {
+            bindingKey = this.GenerateRandomId(5);
+        }
         this._unbindedEntities.set(ev.Id, bindingKey);
         if (this._vc.Token === undefined)
             return;
