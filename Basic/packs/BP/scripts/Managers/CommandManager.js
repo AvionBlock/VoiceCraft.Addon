@@ -39,16 +39,6 @@ export class CommandManager {
                 { name: "binding_key", type: CustomCommandParamType.String },
             ],
         }, (origin, bindingKey) => this.BindEntityCommand(origin, bindingKey));
-        /*
-        registry.registerCommand(
-          {
-            name: `${VoiceCraft.Namespace}:test`,
-            description: "Test command",
-            permissionLevel: CommandPermissionLevel.Any,
-          },
-          (origin) => this.TestCommand(origin)
-        );
-        */
     }
     SetTitleCommand(origin, id, value) {
         if (origin.sourceEntity === undefined ||
@@ -76,7 +66,7 @@ export class CommandManager {
             throw new Error("Command origin must be of type player!");
         if (this._vc.ConnectionState !== 2)
             throw new Error("Not connected! Cannot bind!");
-        if (!this._bm.BindPlayer(bindingKey, origin.sourceEntity.id))
+        if (!this._bm.BindPlayer(bindingKey, origin.sourceEntity))
             throw new Error("Could not bind! Binding key does not exist!");
         return {
             status: CustomCommandStatus.Success,

@@ -58,17 +58,6 @@ export class CommandManager {
       },
       (origin, bindingKey) => this.BindEntityCommand(origin, bindingKey)
     );
-
-    /*
-    registry.registerCommand(
-      {
-        name: `${VoiceCraft.Namespace}:test`,
-        description: "Test command",
-        permissionLevel: CommandPermissionLevel.Any,
-      },
-      (origin) => this.TestCommand(origin)
-    );
-    */
   }
 
   private SetTitleCommand(
@@ -117,26 +106,11 @@ export class CommandManager {
 
     if (this._vc.ConnectionState !== 2)
       throw new Error("Not connected! Cannot bind!");
-    if (!this._bm.BindPlayer(bindingKey, origin.sourceEntity.id))
+    if (!this._bm.BindPlayer(bindingKey, origin.sourceEntity))
       throw new Error("Could not bind! Binding key does not exist!");
     return {
       status: CustomCommandStatus.Success,
       message: "Successfully binded!",
     };
   }
-
-  /*
-  private TestCommand(origin: CustomCommandOrigin) {
-    if (!(origin.sourceEntity instanceof Player))
-      throw new Error("Command origin must be of type player!");
-
-    system.run(() => {
-      const data = new Uint8Array(51);
-      const stringData = Z85.GetStringWithPadding(data);
-      Z85.GetBytesWithPadding(stringData);
-      console.log(stringData.length);
-    });
-    return undefined;
-  }
-  */
 }
