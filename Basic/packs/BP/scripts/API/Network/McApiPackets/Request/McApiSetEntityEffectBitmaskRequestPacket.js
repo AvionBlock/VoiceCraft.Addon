@@ -6,7 +6,7 @@ export class McApiSetEntityEffectBitmaskRequestPacket {
         this._value = value;
     }
     get PacketType() {
-        return 9 /* McApiPacketType.SetEntityEffectBitmaskRequest */;
+        return 11 /* McApiPacketType.SetEntityEffectBitmaskRequest */;
     }
     get Token() {
         return this._token;

@@ -1,9 +1,7 @@
 import { CommandPermissionLevel, CustomCommandParamType, CustomCommandStatus, Player, system, } from "@minecraft/server";
 import { VoiceCraft } from "../API/VoiceCraft";
-import "../Extensions";
 import { McApiSetEntityDescriptionRequestPacket } from "../API/Network/McApiPackets/Request/McApiSetEntityDescriptionRequestPacket";
 import { McApiSetEntityTitleRequestPacket } from "../API/Network/McApiPackets/Request/McApiSetEntityTitleRequestPacket";
-import { Z85 } from "../API/Encoders/Z85";
 export class CommandManager {
     _vc;
     _bm;
@@ -41,11 +39,16 @@ export class CommandManager {
                 { name: "binding_key", type: CustomCommandParamType.String },
             ],
         }, (origin, bindingKey) => this.BindEntityCommand(origin, bindingKey));
-        registry.registerCommand({
+        /*
+        registry.registerCommand(
+          {
             name: `${VoiceCraft.Namespace}:test`,
             description: "Test command",
             permissionLevel: CommandPermissionLevel.Any,
-        }, (origin) => this.TestCommand(origin));
+          },
+          (origin) => this.TestCommand(origin)
+        );
+        */
     }
     SetTitleCommand(origin, id, value) {
         if (origin.sourceEntity === undefined ||
@@ -79,16 +82,5 @@ export class CommandManager {
             status: CustomCommandStatus.Success,
             message: "Successfully binded!",
         };
-    }
-    TestCommand(origin) {
-        if (!(origin.sourceEntity instanceof Player))
-            throw new Error("Command origin must be of type player!");
-        system.run(() => {
-            const data = new Uint8Array(51);
-            const stringData = Z85.GetStringWithPadding(data);
-            Z85.GetBytesWithPadding(stringData);
-            console.log(stringData.length);
-        });
-        return undefined;
     }
 }

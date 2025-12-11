@@ -9,11 +9,9 @@ import {
   system,
 } from "@minecraft/server";
 import { VoiceCraft } from "../API/VoiceCraft";
-import "../Extensions";
 import { McApiSetEntityDescriptionRequestPacket } from "../API/Network/McApiPackets/Request/McApiSetEntityDescriptionRequestPacket";
 import { McApiSetEntityTitleRequestPacket } from "../API/Network/McApiPackets/Request/McApiSetEntityTitleRequestPacket";
 import { BindingManager } from "./BindingManager";
-import { Z85 } from "../API/Encoders/Z85";
 
 export class CommandManager {
   constructor(private _vc: VoiceCraft, private _bm: BindingManager) {
@@ -61,6 +59,7 @@ export class CommandManager {
       (origin, bindingKey) => this.BindEntityCommand(origin, bindingKey)
     );
 
+    /*
     registry.registerCommand(
       {
         name: `${VoiceCraft.Namespace}:test`,
@@ -69,6 +68,7 @@ export class CommandManager {
       },
       (origin) => this.TestCommand(origin)
     );
+    */
   }
 
   private SetTitleCommand(
@@ -125,6 +125,7 @@ export class CommandManager {
     };
   }
 
+  /*
   private TestCommand(origin: CustomCommandOrigin) {
     if (!(origin.sourceEntity instanceof Player))
       throw new Error("Command origin must be of type player!");
@@ -137,4 +138,5 @@ export class CommandManager {
     });
     return undefined;
   }
+  */
 }

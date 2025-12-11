@@ -12,7 +12,7 @@ export class McApiOnNetworkEntityCreatedPacket extends McApiOnEntityCreatedPacke
         this._positioningType = positioningType;
     }
     get PacketType() {
-        return 18 /* McApiPacketType.OnNetworkEntityCreated */;
+        return 21 /* McApiPacketType.OnNetworkEntityCreated */;
     }
     get UserGuid() {
         return this._userGuid;

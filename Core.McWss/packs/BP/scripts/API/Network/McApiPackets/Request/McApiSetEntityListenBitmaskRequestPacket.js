@@ -6,7 +6,7 @@ export class McApiSetEntityListenBitmaskRequestPacket {
         this._value = value;
     }
     get PacketType() {
-        return 8 /* McApiPacketType.SetEntityListenBitmaskRequest */;
+        return 10 /* McApiPacketType.SetEntityListenBitmaskRequest */;
     }
     get Token() {
         return this._token;

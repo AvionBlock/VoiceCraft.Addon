@@ -6,7 +6,7 @@ export class McApiSetEntityMuffleFactorRequestPacket {
         this._value = value;
     }
     get PacketType() {
-        return 13 /* McApiPacketType.SetEntityMuffleFactorRequest */;
+        return 15 /* McApiPacketType.SetEntityMuffleFactorRequest */;
     }
     get Token() {
         return this._token;

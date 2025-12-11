@@ -4,7 +4,7 @@ export class McApiOnEntityDeafenUpdatedPacket {
         this._value = value;
     }
     get PacketType() {
-        return 24 /* McApiPacketType.OnEntityDeafenUpdated */;
+        return 27 /* McApiPacketType.OnEntityDeafenUpdated */;
     }
     get Id() {
         return this._id;

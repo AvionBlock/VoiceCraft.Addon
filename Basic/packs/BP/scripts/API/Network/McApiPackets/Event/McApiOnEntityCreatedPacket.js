@@ -19,7 +19,7 @@ export class McApiOnEntityCreatedPacket {
         this._muffleFactor = muffleFactor;
     }
     get PacketType() {
-        return 17 /* McApiPacketType.OnEntityCreated */;
+        return 20 /* McApiPacketType.OnEntityCreated */;
     }
     get Id() {
         return this._id;

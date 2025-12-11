@@ -4,7 +4,7 @@ export class McApiOnEntityCaveFactorUpdatedPacket {
         this._value = value;
     }
     get PacketType() {
-        return 30 /* McApiPacketType.OnEntityCaveFactorUpdated */;
+        return 33 /* McApiPacketType.OnEntityCaveFactorUpdated */;
     }
     get Id() {
         return this._id;

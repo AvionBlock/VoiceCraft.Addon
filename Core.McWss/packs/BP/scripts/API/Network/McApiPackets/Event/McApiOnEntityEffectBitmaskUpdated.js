@@ -4,7 +4,7 @@ export class McApiOnEntityEffectBitmaskUpdatedPacket {
         this._value = value;
     }
     get PacketType() {
-        return 27 /* McApiPacketType.OnEntityEffectBitmaskUpdated */;
+        return 30 /* McApiPacketType.OnEntityEffectBitmaskUpdated */;
     }
     get Id() {
         return this._id;

@@ -4,7 +4,7 @@ export class McApiOnEntityListenBitmaskUpdatedPacket {
         this._value = value;
     }
     get PacketType() {
-        return 26 /* McApiPacketType.OnEntityListenBitmaskUpdated */;
+        return 29 /* McApiPacketType.OnEntityListenBitmaskUpdated */;
     }
     get Id() {
         return this._id;

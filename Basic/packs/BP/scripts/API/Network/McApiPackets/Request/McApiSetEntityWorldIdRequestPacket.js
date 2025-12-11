@@ -6,7 +6,7 @@ export class McApiSetEntityWorldIdRequestPacket {
         this._value = value;
     }
     get PacketType() {
-        return 5 /* McApiPacketType.SetEntityWorldIdRequest */;
+        return 7 /* McApiPacketType.SetEntityWorldIdRequest */;
     }
     get Token() {
         return this._token;

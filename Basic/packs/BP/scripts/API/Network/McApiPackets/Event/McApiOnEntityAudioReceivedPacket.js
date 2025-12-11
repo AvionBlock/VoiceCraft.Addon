@@ -5,7 +5,7 @@ export class McApiOnEntityAudioReceivedPacket {
         this._frameLoudness = loudness;
     }
     get PacketType() {
-        return 32 /* McApiPacketType.OnEntityAudioReceived */;
+        return 35 /* McApiPacketType.OnEntityAudioReceived */;
     }
     get Id() {
         return this._id;

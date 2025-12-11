@@ -5,7 +5,7 @@ export class McApiOnEntityVisibilityUpdatedPacket {
         this._value = value;
     }
     get PacketType() {
-        return 20 /* McApiPacketType.OnEntityVisibilityUpdated */;
+        return 23 /* McApiPacketType.OnEntityVisibilityUpdated */;
     }
     get Id() {
         return this._id;

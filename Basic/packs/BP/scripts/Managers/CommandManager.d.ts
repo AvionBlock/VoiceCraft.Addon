@@ -1,5 +1,4 @@
 import { VoiceCraft } from "../API/VoiceCraft";
-import "../Extensions";
 import { BindingManager } from "./BindingManager";
 export declare class CommandManager {
     private _vc;
@@ -9,5 +8,4 @@ export declare class CommandManager {
     private SetTitleCommand;
     private SetDescriptionCommand;
     private BindEntityCommand;
-    private TestCommand;
 }

@@ -52,7 +52,7 @@ export class McApiMcwss {
         this._reader.SetBufferSource(packetData);
         const packetType = this._reader.GetByte();
         if (packetType < 0 /* McApiPacketType.LoginRequest */ ||
-            packetType > 32 /* McApiPacketType.OnEntityAudioReceived */)
+            packetType > 35 /* McApiPacketType.OnEntityAudioReceived */)
             return; //Not a valid packet
         this.OutboundQueue.enqueue(this._reader.CopyData());
     }
@@ -126,7 +126,7 @@ export class McApiMcwss {
             this._reader.SetBufferSource(packetData);
             const packetType = this._reader.GetByte();
             if (packetType < 0 /* McApiPacketType.LoginRequest */ ||
-                packetType > 32 /* McApiPacketType.OnEntityAudioReceived */)
+                packetType > 35 /* McApiPacketType.OnEntityAudioReceived */)
                 return; //Not a valid packet.
             system.sendScriptEvent(`${VoiceCraft.Namespace}:onPacket`, packet);
             await this.HandlePacketAsync(packetType, this._reader);
@@ -175,17 +175,17 @@ export class McApiMcwss {
     }
     async HandlePacketAsync(packetType, reader) {
         switch (packetType) {
-            case 14 /* McApiPacketType.AcceptResponse */:
+            case 16 /* McApiPacketType.AcceptResponse */:
                 const acceptResponsePacket = new McApiAcceptResponsePacket();
                 acceptResponsePacket.Deserialize(reader);
                 this.HandleAcceptResponsePacket(acceptResponsePacket);
                 break;
-            case 15 /* McApiPacketType.DenyResponse */:
+            case 17 /* McApiPacketType.DenyResponse */:
                 const denyResponsePacket = new McApiDenyResponsePacket();
                 denyResponsePacket.Deserialize(reader);
                 this.HandleDenyResponsePacket(denyResponsePacket);
                 break;
-            case 16 /* McApiPacketType.PingResponse */:
+            case 18 /* McApiPacketType.PingResponse */:
                 const pingResponsePacket = new McApiPingResponsePacket();
                 pingResponsePacket.Deserialize(reader);
                 this.HandlePingResponsePacket(pingResponsePacket);

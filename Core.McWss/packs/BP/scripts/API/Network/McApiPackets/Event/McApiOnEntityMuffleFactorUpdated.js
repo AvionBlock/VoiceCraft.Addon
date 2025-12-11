@@ -4,7 +4,7 @@ export class McApiOnEntityMuffleFactorUpdatedPacket {
         this._value = value;
     }
     get PacketType() {
-        return 31 /* McApiPacketType.OnEntityMuffleFactorUpdated */;
+        return 34 /* McApiPacketType.OnEntityMuffleFactorUpdated */;
     }
     get Id() {
         return this._id;
