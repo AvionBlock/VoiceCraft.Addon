@@ -6,7 +6,7 @@ export class McApiSetEntityTitleRequestPacket {
         this._value = value;
     }
     get PacketType() {
-        return 3 /* McApiPacketType.SetEntityTitleRequest */;
+        return 5 /* McApiPacketType.SetEntityTitleRequest */;
     }
     get Token() {
         return this._token;

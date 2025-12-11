@@ -3,7 +3,7 @@ export class McApiOnEntityDestroyedPacket {
         this._id = id;
     }
     get PacketType() {
-        return 19 /* McApiPacketType.OnEntityDestroyed */;
+        return 22 /* McApiPacketType.OnEntityDestroyed */;
     }
     get Id() {
         return this._id;

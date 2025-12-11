@@ -7,7 +7,7 @@ export class McApiSetEntityRotationRequestPacket {
         this._value = value;
     }
     get PacketType() {
-        return 11 /* McApiPacketType.SetEntityRotationRequest */;
+        return 13 /* McApiPacketType.SetEntityRotationRequest */;
     }
     get Token() {
         return this._token;

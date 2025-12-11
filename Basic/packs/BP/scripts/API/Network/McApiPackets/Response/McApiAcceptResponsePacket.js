@@ -5,7 +5,7 @@ export class McApiAcceptResponsePacket {
         this._token = token;
     }
     get PacketType() {
-        return 14 /* McApiPacketType.AcceptResponse */;
+        return 16 /* McApiPacketType.AcceptResponse */;
     }
     get RequestId() {
         return this._requestId;

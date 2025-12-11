@@ -5,7 +5,7 @@ export class McApiOnEntityWorldIdUpdatedPacket {
         this._value = value;
     }
     get PacketType() {
-        return 21 /* McApiPacketType.OnEntityWorldIdUpdated */;
+        return 24 /* McApiPacketType.OnEntityWorldIdUpdated */;
     }
     get Id() {
         return this._id;

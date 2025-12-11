@@ -6,7 +6,7 @@ export class McApiSetEntityCaveFactorRequestPacket {
         this._value = value;
     }
     get PacketType() {
-        return 12 /* McApiPacketType.SetEntityCaveFactorRequest */;
+        return 14 /* McApiPacketType.SetEntityCaveFactorRequest */;
     }
     get Token() {
         return this._token;

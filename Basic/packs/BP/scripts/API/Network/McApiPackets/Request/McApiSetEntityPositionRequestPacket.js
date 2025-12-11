@@ -7,7 +7,7 @@ export class McApiSetEntityPositionRequestPacket {
         this._value = value;
     }
     get PacketType() {
-        return 10 /* McApiPacketType.SetEntityPositionRequest */;
+        return 12 /* McApiPacketType.SetEntityPositionRequest */;
     }
     get Token() {
         return this._token;

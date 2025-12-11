@@ -5,7 +5,7 @@ export class McApiOnEntityRotationUpdatedPacket {
         this._value = value;
     }
     get PacketType() {
-        return 29 /* McApiPacketType.OnEntityRotationUpdated */;
+        return 32 /* McApiPacketType.OnEntityRotationUpdated */;
     }
     get Id() {
         return this._id;
