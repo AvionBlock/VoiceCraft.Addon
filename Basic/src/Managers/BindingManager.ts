@@ -1,76 +1,166 @@
-import { VoiceCraft } from "../API/VoiceCraft";
-import { TwoWayMap } from "../API/Data/TwoWayMap";
-import { McApiOnNetworkEntityCreatedPacket } from "../API/Network/McApiPackets/Event/McApiOnNetworkEntityCreatedPacket";
-import { McApiSetEntityDescriptionRequestPacket } from "../API/Network/McApiPackets/Request/McApiSetEntityDescriptionRequestPacket";
-import { McApiOnEntityDestroyedPacket } from "../API/Network/McApiPackets/Event/McApiOnEntityDestroyedPacket";
+import {VoiceCraft} from "../API/VoiceCraft";
+import {TwoWayMap} from "../API/Data/TwoWayMap";
+import {McApiOnNetworkEntityCreatedPacket} from "../API/Network/McApiPackets/Event/McApiOnNetworkEntityCreatedPacket";
+import {
+    McApiSetEntityDescriptionRequestPacket
+} from "../API/Network/McApiPackets/Request/McApiSetEntityDescriptionRequestPacket";
+import {McApiOnEntityDestroyedPacket} from "../API/Network/McApiPackets/Event/McApiOnEntityDestroyedPacket";
+import {Player} from "@minecraft/server";
 
 export class BindingManager {
-  private readonly _unbindedEntities: TwoWayMap<number, string> = new TwoWayMap<
-    number,
-    string
-  >();
-  private readonly _bindedEntities: TwoWayMap<number, string> = new TwoWayMap<
-    number,
-    string
-  >();
+    private static readonly IdTable = [
+        "0",
+        "1",
+        "2",
+        "3",
+        "4",
+        "5",
+        "6",
+        "7",
+        "8",
+        "9",
+        "a",
+        "b",
+        "c",
+        "d",
+        "e",
+        "f",
+        "g",
+        "h",
+        "i",
+        "j",
+        "k",
+        "l",
+        "m",
+        "n",
+        "o",
+        "p",
+        "q",
+        "r",
+        "s",
+        "t",
+        "u",
+        "v",
+        "w",
+        "x",
+        "y",
+        "z",
+        "A",
+        "B",
+        "C",
+        "D",
+        "E",
+        "F",
+        "G",
+        "H",
+        "I",
+        "J",
+        "K",
+        "L",
+        "M",
+        "N",
+        "O",
+        "P",
+        "Q",
+        "R",
+        "S",
+        "T",
+        "U",
+        "V",
+        "W",
+        "X",
+        "Y",
+        "Z"
+    ];
 
-  constructor(private _vc: VoiceCraft) {
-    _vc.OnNetworkEntityCreatedPacket.Subscribe(
-      (ev: McApiOnNetworkEntityCreatedPacket) =>
-        this.OnNetworkEntityCreatedPacketEvent(ev)
-    );
+    private readonly _unbindedEntities: TwoWayMap<number, string> = new TwoWayMap<
+        number,
+        string
+    >();
+    private readonly _bindedEntities: TwoWayMap<number, string> = new TwoWayMap<
+        number,
+        string
+    >();
 
-    _vc.OnEntityDestroyedPacket.Subscribe((ev: McApiOnEntityDestroyedPacket) =>
-      this.OnEntityDestroyedPacketEvent(ev)
-    );
+    constructor(private _vc: VoiceCraft) {
+        _vc.OnNetworkEntityCreatedPacket.Subscribe(
+            (ev: McApiOnNetworkEntityCreatedPacket) =>
+                this.OnNetworkEntityCreatedPacketEvent(ev)
+        );
 
-    _vc.OnDisconnected.Subscribe((reason: string) => this.OnDisconnectedEvent(reason));
-  }
+        _vc.OnEntityDestroyedPacket.Subscribe((ev: McApiOnEntityDestroyedPacket) =>
+            this.OnEntityDestroyedPacketEvent(ev)
+        );
 
-  public BindPlayer(bindingKey: string, value: string): boolean {
-    const entityId = this._unbindedEntities.valueGet(bindingKey);
-    if(entityId === undefined) return false;
-    this._unbindedEntities.delete(entityId);
-    this._bindedEntities.set(entityId, value);
-    return true;
-  }
+        _vc.OnDisconnected.Subscribe((reason: string) => this.OnDisconnectedEvent(reason));
+    }
 
-  public UnbindPlayer(playerId: string): boolean {
-    return this._bindedEntities.valueDelete(playerId)
-  }
+    public BindPlayer(bindingKey: string, value: Player): boolean {
+        const entityId = this._unbindedEntities.valueGet(bindingKey);
+        if (entityId === undefined) return false;
+        this._unbindedEntities.delete(entityId);
+        this._bindedEntities.set(entityId, value.id);
 
-  public GetEntityFromPlayerId(playerId: string): number | undefined {
-    return this._bindedEntities.valueGet(playerId);
-  }
+        if (this._vc.Token === undefined) return true;
+        this._vc.SendPacket(
+            new McApiSetEntityDescriptionRequestPacket(
+                this._vc.Token,
+                entityId,
+                `Bound to player ${value.name}`
+            )
+        );
+        return true;
+    }
 
-  private OnNetworkEntityCreatedPacketEvent(
-    ev: McApiOnNetworkEntityCreatedPacket
-  ) {
-    const bindingKey = this.GetRandomInt(0, 255).toString(); //Temporary.
-    this._unbindedEntities.set(ev.Id, bindingKey);
-    if (this._vc.Token === undefined) return;
-    this._vc.SendPacket(
-      new McApiSetEntityDescriptionRequestPacket(
-        this._vc.Token,
-        ev.Id,
-        `Welcome! Your binding key is ${bindingKey}`
-      )
-    );
-  }
+    public UnbindPlayer(playerId: string): boolean {
+        return this._bindedEntities.valueDelete(playerId)
+    }
 
-  private OnEntityDestroyedPacketEvent(ev: McApiOnEntityDestroyedPacket) {
-    this._unbindedEntities.delete(ev.Id);
-    this._bindedEntities.delete(ev.Id);
-  }
+    public GetEntityFromPlayerId(playerId: string): number | undefined {
+        return this._bindedEntities.valueGet(playerId);
+    }
 
-  private OnDisconnectedEvent(reason: string) {
-    this._unbindedEntities.clear();
-    this._bindedEntities.clear();
-  }
+    private OnNetworkEntityCreatedPacketEvent(
+        ev: McApiOnNetworkEntityCreatedPacket
+    ) {
+        let bindingKey = this.GenerateRandomId(5);
+        while(this._unbindedEntities.valueHas(bindingKey))
+        {
+           bindingKey = this.GenerateRandomId(5);
+        }
 
-  private GetRandomInt(min: number, max: number) {
-    min = Math.ceil(min);
-    max = Math.floor(max);
-    return Math.floor(Math.random() * (max - min + 1)) + min;
-  }
+        this._unbindedEntities.set(ev.Id, bindingKey);
+        if (this._vc.Token === undefined) return;
+        this._vc.SendPacket(
+            new McApiSetEntityDescriptionRequestPacket(
+                this._vc.Token,
+                ev.Id,
+                `Welcome! Your binding key is ${bindingKey}`
+            )
+        );
+    }
+
+    private OnEntityDestroyedPacketEvent(ev: McApiOnEntityDestroyedPacket) {
+        this._unbindedEntities.delete(ev.Id);
+        this._bindedEntities.delete(ev.Id);
+    }
+
+    private OnDisconnectedEvent(reason: string) {
+        this._unbindedEntities.clear();
+        this._bindedEntities.clear();
+    }
+
+    private GetRandomInt(min: number, max: number) {
+        min = Math.ceil(min);
+        max = Math.floor(max);
+        return Math.floor(Math.random() * (max - min + 1)) + min;
+    }
+
+    private GenerateRandomId(length: number) {
+        let id = '';
+        for (let i = 0; i < length; i++) {
+            id += BindingManager.IdTable[this.GetRandomInt(0, BindingManager.IdTable.length - 1)];
+        }
+        return id;
+    }
 }

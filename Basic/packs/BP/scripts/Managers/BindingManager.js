@@ -2,6 +2,70 @@ import { TwoWayMap } from "../API/Data/TwoWayMap";
 import { McApiSetEntityDescriptionRequestPacket } from "../API/Network/McApiPackets/Request/McApiSetEntityDescriptionRequestPacket";
 export class BindingManager {
     _vc;
+    static IdTable = [
+        "0",
+        "1",
+        "2",
+        "3",
+        "4",
+        "5",
+        "6",
+        "7",
+        "8",
+        "9",
+        "a",
+        "b",
+        "c",
+        "d",
+        "e",
+        "f",
+        "g",
+        "h",
+        "i",
+        "j",
+        "k",
+        "l",
+        "m",
+        "n",
+        "o",
+        "p",
+        "q",
+        "r",
+        "s",
+        "t",
+        "u",
+        "v",
+        "w",
+        "x",
+        "y",
+        "z",
+        "A",
+        "B",
+        "C",
+        "D",
+        "E",
+        "F",
+        "G",
+        "H",
+        "I",
+        "J",
+        "K",
+        "L",
+        "M",
+        "N",
+        "O",
+        "P",
+        "Q",
+        "R",
+        "S",
+        "T",
+        "U",
+        "V",
+        "W",
+        "X",
+        "Y",
+        "Z"
+    ];
     _unbindedEntities = new TwoWayMap();
     _bindedEntities = new TwoWayMap();
     constructor(_vc) {
@@ -15,7 +79,10 @@ export class BindingManager {
         if (entityId === undefined)
             return false;
         this._unbindedEntities.delete(entityId);
-        this._bindedEntities.set(entityId, value);
+        this._bindedEntities.set(entityId, value.id);
+        if (this._vc.Token === undefined)
+            return true;
+        this._vc.SendPacket(new McApiSetEntityDescriptionRequestPacket(this._vc.Token, entityId, `Bound to player ${value.name}`));
         return true;
     }
     UnbindPlayer(playerId) {
@@ -25,7 +92,7 @@ export class BindingManager {
         return this._bindedEntities.valueGet(playerId);
     }
     OnNetworkEntityCreatedPacketEvent(ev) {
-        const bindingKey = this.GetRandomInt(0, 255).toString(); //Temporary.
+        const bindingKey = this.GenerateRandomId(5);
         this._unbindedEntities.set(ev.Id, bindingKey);
         if (this._vc.Token === undefined)
             return;
@@ -43,5 +110,12 @@ export class BindingManager {
         min = Math.ceil(min);
         max = Math.floor(max);
         return Math.floor(Math.random() * (max - min + 1)) + min;
+    }
+    GenerateRandomId(length) {
+        let id = '';
+        for (let i = 0; i < length; i++) {
+            id += BindingManager.IdTable[this.GetRandomInt(0, BindingManager.IdTable.length - 1)];
+        }
+        return id;
     }
 }
