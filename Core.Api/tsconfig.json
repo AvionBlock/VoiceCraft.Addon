@@ -1,0 +1,15 @@
+{
+    "compilerOptions": {
+        "target": "ESNext",
+        "module": "ES6",
+        "moduleResolution": "Node",
+        "esModuleInterop": false,
+        "forceConsistentCasingInFileNames": true,
+        // Generate d.ts files
+        "declaration": true,
+        "strict": true,
+        "skipLibCheck": true,
+        "rootDir": "./API",
+        "outDir": "./compiled"
+    }
+}

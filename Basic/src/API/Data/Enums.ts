@@ -1,0 +1,57 @@
+export const enum McApiPacketType {
+    //Requests
+    LoginRequest,
+    LogoutRequest,
+    PingRequest,
+    SetEffectRequest,
+    ClearEffectsRequest,
+    SetEntityTitleRequest,
+    SetEntityDescriptionRequest,
+    SetEntityWorldIdRequest,
+    SetEntityNameRequest,
+    SetEntityTalkBitmaskRequest,
+    SetEntityListenBitmaskRequest,
+    SetEntityEffectBitmaskRequest,
+    SetEntityPositionRequest,
+    SetEntityRotationRequest,
+    SetEntityCaveFactorRequest,
+    SetEntityMuffleFactorRequest,
+
+    //Responses
+    AcceptResponse,
+    DenyResponse,
+    PingResponse,
+
+    //Events
+    OnEffectUpdated,
+    OnEntityCreated,
+    OnNetworkEntityCreated,
+    OnEntityDestroyed,
+    OnEntityVisibilityUpdated,
+    OnEntityWorldIdUpdated,
+    OnEntityNameUpdated,
+    OnEntityMuteUpdated,
+    OnEntityDeafenUpdated,
+    OnEntityTalkBitmaskUpdated,
+    OnEntityListenBitmaskUpdated,
+    OnEntityEffectBitmaskUpdated,
+    OnEntityPositionUpdated,
+    OnEntityRotationUpdated,
+    OnEntityCaveFactorUpdated,
+    OnEntityMuffleFactorUpdated,
+    OnEntityAudioReceived,
+}
+
+export const enum PositioningType {
+    Server,
+    Client,
+}
+
+export const enum EffectType {
+    None,
+    Visibility,
+    Proximity,
+    Directional,
+    ProximityEcho,
+    Echo
+}
