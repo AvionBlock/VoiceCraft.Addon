@@ -11,8 +11,8 @@ const vc = new VoiceCraft();
 const bm = new BindingManager(vc);
 new CommandManager(vc, bm);
 
-system.runInterval(() => IntervalLogic(), 0)
-world.afterEvents.playerLeave.subscribe((ev) => HandlePlayerLeaveEvent(ev))
+system.runInterval(() => IntervalLogic(), 0);
+world.afterEvents.playerLeave.subscribe((ev) => HandlePlayerLeaveEvent(ev));
 
 function HandlePlayerLeaveEvent(ev: PlayerLeaveAfterEvent) {
     bm.UnbindPlayer(ev.playerId);
