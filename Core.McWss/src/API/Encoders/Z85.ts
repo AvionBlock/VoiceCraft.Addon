@@ -120,7 +120,7 @@ export class Z85 {
 
     for (let i = 0; i < data.length; i += 4) {
       //>>> 0 converts to uint. fsr this is a JS thing.
-      let binaryFrame = ((data[i + 0] << 24) | (data[i + 1] << 16) | (data[i + 2] << 8) | data[i + 3]) >>> 0;
+      let binaryFrame = ((data[i] << 24) | (data[i + 1] << 16) | (data[i + 2] << 8) | data[i + 3]) >>> 0;
 
       let divisor = this.Base85 * this.Base85 * this.Base85 * this.Base85;
       for (let j = 0; j < 5; j++) {
