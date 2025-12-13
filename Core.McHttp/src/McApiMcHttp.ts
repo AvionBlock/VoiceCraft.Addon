@@ -124,13 +124,15 @@ export class McApiMcHttp {
     }
 
     public Disconnect(reason?: string) {
-        if (this._token === undefined) return;
+        if (this._connectionState !== 2) return;
         this._connectionState = 3;
         if (this._pinger !== undefined) system.clearRun(this._pinger);
         this.OutboundQueue.clear();
-        this.SendPacket(new McApiLogoutRequestPacket(this._token));
+        if(this._token !== undefined)
+            this.SendPacket(new McApiLogoutRequestPacket(this._token));
         this._connectionState = 0;
         this._hostname = undefined;
+        this._token = undefined;
 
         world.translateMessage(Locales.VcMcApi.Status.Disconnected, {
             rawtext: [
@@ -235,13 +237,13 @@ export class McApiMcHttp {
     }
 
     private async PingIntervalLogic() {
-        if (this._connectionState !== 2 || this._token === undefined) {
+        if (this._connectionState !== 2) {
             this.StopPinger();
             return;
         }
         if (Date.now() - this._lastPing >= this._defaultTimeoutMs)
             this.Disconnect(Locales.VcMcApi.DisconnectReason.Timeout);
-        this.SendPacket(new McApiPingRequestPacket(this._token));
+        this.SendPacket(new McApiPingRequestPacket());
     }
 
     private async HttpUpdaterLogic() {
@@ -262,6 +264,7 @@ export class McApiMcHttp {
         request.method = HttpRequestMethod.POST;
         request.headers = [
             new HttpHeader('Content-Type', 'application/json'),
+            new HttpHeader('Authorization', `Bearer ${this._token}`)
         ];
         const response = await http.request(request);
 

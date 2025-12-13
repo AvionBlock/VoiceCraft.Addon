@@ -38,6 +38,9 @@ export class McApiMcwss {
     private _connectionState: 0 | 1 | 2 | 3 = 0; //0: Disconnected, 1: Connecting, 2: Connected, 3: Disconnecting
     private _requestIds: Set<string> = new Set<string>();
 
+    //Data
+    public get Token(): string | undefined { return this._token; }
+
     //Queue
     public OutboundQueue: Queue<Uint8Array> = new Queue<Uint8Array>();
 
@@ -117,12 +120,14 @@ export class McApiMcwss {
     }
 
     public Disconnect(reason?: string) {
-        if (this._token === undefined) return;
+        if (this._connectionState !== 2) return;
         this._connectionState = 3;
         if (this._pinger !== undefined) system.clearRun(this._pinger);
         this.OutboundQueue.clear();
-        this.SendPacket(new McApiLogoutRequestPacket(this._token));
+        if(this._token !== undefined)
+            this.SendPacket(new McApiLogoutRequestPacket(this._token));
         this._connectionState = 0;
+        this._token = undefined;
 
         world.translateMessage(Locales.VcMcApi.Status.Disconnected, {
             rawtext: [
@@ -215,13 +220,13 @@ export class McApiMcwss {
     }
 
     private async PingIntervalLogic() {
-        if (this._connectionState !== 2 || this._token === undefined) {
+        if (this._connectionState !== 2) {
             this.StopPinger();
             return;
         }
         if (Date.now() - this._lastPing >= this._defaultTimeoutMs)
             this.Disconnect(Locales.VcMcApi.DisconnectReason.Timeout);
-        this.SendPacket(new McApiPingRequestPacket(this._token));
+        this.SendPacket(new McApiPingRequestPacket());
     }
 
     private async HandlePacketAsync(

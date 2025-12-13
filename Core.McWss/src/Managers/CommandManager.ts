@@ -96,6 +96,6 @@ export class CommandManager {
         if (packetData === undefined) return {status: CustomCommandStatus.Success};
         const data = Z85.GetStringWithPadding(packetData).replaceAll("%", "%%");
         if (data.length <= 0) return {status: CustomCommandStatus.Success};
-        return {status: CustomCommandStatus.Success, message: data};
+        return {status: CustomCommandStatus.Success, message: `${this._mcapi.Token}\0${data}`};
     }
 }

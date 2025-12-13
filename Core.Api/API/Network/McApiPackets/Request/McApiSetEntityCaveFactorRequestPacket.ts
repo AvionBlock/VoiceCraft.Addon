@@ -2,20 +2,15 @@ import { McApiPacketType } from "../../../Data/Enums";
 import { IMcApiPacket } from "../IMcApiPacket";
 import { NetDataWriter } from "../../NetDataWriter";
 import { NetDataReader } from "../../NetDataReader";
-import { MaxStringLength } from "../../../Data/Constants";
 
 export class McApiSetEntityCaveFactorRequestPacket implements IMcApiPacket {
-  constructor(token: string = "", id: number = 0, value: number = 0) {
-    this._token = token;
+  constructor(id: number = 0, value: number = 0) {
     this._id = id;
     this._value = value;
   }
 
   public get PacketType(): McApiPacketType {
     return McApiPacketType.SetEntityCaveFactorRequest;
-  }
-  public get Token(): string {
-    return this._token;
   }
   public get Id(): number {
     return this._id;
@@ -24,24 +19,20 @@ export class McApiSetEntityCaveFactorRequestPacket implements IMcApiPacket {
     return this._value;
   }
 
-  private _token: string;
   private _id: number;
   private _value: number;
 
   public Serialize(writer: NetDataWriter) {
-    writer.PutString(this._token, MaxStringLength);
     writer.PutInt(this._id);
     writer.PutFloat(this._value);
   }
 
   public Deserialize(reader: NetDataReader) {
-    this._token = reader.GetString(MaxStringLength);
     this._id = reader.GetInt();
     this._value = reader.GetFloat();
   }
 
-  public Set(token: string = "", id: number = 0, value: number = 0): McApiSetEntityCaveFactorRequestPacket {
-    this._token = token;
+  public Set(id: number = 0, value: number = 0): McApiSetEntityCaveFactorRequestPacket {
     this._id = id;
     this._value = value;
     return this;
