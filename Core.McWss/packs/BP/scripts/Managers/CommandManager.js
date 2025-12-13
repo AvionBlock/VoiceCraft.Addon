@@ -21,13 +21,18 @@ export class CommandManager {
             ],
         }, (origin, token) => this.ConnectCommand(origin, token));
         registry.registerCommand({
-            name: `${VoiceCraft.Namespace}:data_tunnel`,
+            name: `${VoiceCraft.Namespace}:send_data_tunnel`,
             description: "Data transfer tunnel between servers",
             permissionLevel: CommandPermissionLevel.Host,
             optionalParameters: [
                 { name: "data", type: CustomCommandParamType.String },
             ],
-        }, (origin, data) => this.DataTunnelCommand(origin, data));
+        }, (origin, data) => this.SendCommandTunnel(origin, data));
+        registry.registerCommand({
+            name: `${VoiceCraft.Namespace}:receive_data_tunnel`,
+            description: "Data transfer tunnel between servers",
+            permissionLevel: CommandPermissionLevel.Host
+        }, (origin) => this.ReceiveCommandTunnel(origin));
     }
     ConnectCommand(origin, token) {
         if (origin.sourceEntity === undefined ||
@@ -49,30 +54,24 @@ export class CommandManager {
         });
         return undefined;
     }
-    DataTunnelCommand(origin, data) {
-        try {
-            let stringData = "";
-            let first = true;
-            while (this._mcapi.OutboundQueue.size > 0) {
-                const packetData = this._mcapi.OutboundQueue.dequeue();
-                if (packetData === undefined)
-                    break;
-                const data = Z85.GetStringWithPadding(packetData);
-                stringData = stringData.concat(`${!first ? "|" : ""}${data.replaceAll("%", "%%")}`); //Issue workaround.
-                if (first) {
-                    first = false;
-                    continue;
-                }
-            }
-            if (data !== undefined) {
-                system.run(() => {
-                    this._mcapi.ReceivePacketAsync(data);
-                });
-            }
-            return { status: CustomCommandStatus.Success, message: stringData };
-        }
-        catch {
-            return { status: CustomCommandStatus.Failure };
-        }
+    SendCommandTunnel(_, data) {
+        if (data.length <= 0)
+            return {
+                status: CustomCommandStatus.Success,
+                message: this._mcapi.OutboundQueue.size.toString()
+            };
+        system.run(async () => {
+            await this._mcapi.ReceivePacketAsync(data);
+        });
+        return { status: CustomCommandStatus.Success, message: this._mcapi.OutboundQueue.size.toString() };
+    }
+    ReceiveCommandTunnel(_) {
+        const packetData = this._mcapi.OutboundQueue.dequeue();
+        if (packetData === undefined)
+            return { status: CustomCommandStatus.Success };
+        const data = Z85.GetStringWithPadding(packetData).replaceAll("%", "%%");
+        if (data.length <= 0)
+            return { status: CustomCommandStatus.Success };
+        return { status: CustomCommandStatus.Success, message: data };
     }
 }
