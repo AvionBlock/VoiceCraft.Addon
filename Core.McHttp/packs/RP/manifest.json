@@ -1,0 +1,21 @@
+{
+  "format_version": 2,
+  "metadata": {
+    "authors": ["SineVector241"]
+  },
+  "header": {
+    "name": "pack.name",
+    "description": "pack.description",
+    "min_engine_version": [1, 21, 20],
+    "uuid": "30b512be-77d1-4a61-bdb7-6c2f4062f889",
+    "version": [1, 1, 0]
+  },
+  "modules": [
+   {
+     "description": "pack.description",
+     "type": "resources",
+     "uuid": "eaa38688-0e9e-4f5a-8509-bf5b1cace25a",
+     "version": [1, 1, 0]
+   }
+ ]
+}

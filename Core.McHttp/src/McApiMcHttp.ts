@@ -3,6 +3,7 @@ import {
     system,
     world,
 } from "@minecraft/server";
+import {http, HttpHeader, HttpRequest, HttpRequestMethod} from "@minecraft/server-net";
 import {Version} from "./API/Data/Version";
 import {VoiceCraft} from "./API/VoiceCraft";
 import {NetDataWriter} from "./API/Network/NetDataWriter";
@@ -23,15 +24,18 @@ import {McApiLogoutRequestPacket} from "./API/Network/McApiPackets/Request/McApi
 import {IsIMcApiRIdPacket} from "./API/Network/McApiPackets/IMcApiRIdPacket";
 import {McApiPingRequestPacket} from "./API/Network/McApiPackets/Request/McApiPingRequestPacket";
 import {McApiPingResponsePacket} from "./API/Network/McApiPackets/Response/McApiPingResponsePacket";
+import {McHttpUpdatePacket} from "./Packets/McHttpUpdatePacket";
 
-export class McApiMcwss {
+export class McApiMcHttp {
     private _version: Version = new Version(1, 1, 0);
     private _cm: CommandManager = new CommandManager(this);
     private _defaultTimeoutMs: number = 10000;
 
     //Connection state objects.
+    private _hostname?: string = undefined;
     private _token?: string = undefined;
     private _pinger?: number = undefined;
+    private _updater?: number = undefined;
     private _writer: NetDataWriter = new NetDataWriter();
     private _reader: NetDataReader = new NetDataReader();
     private _lastPing: number = 0;
@@ -75,14 +79,17 @@ export class McApiMcwss {
         this.OutboundQueue.enqueue(this._reader.CopyData());
     }
 
-    public async ConnectAsync(token: string) {
+    public async ConnectAsync(hostname: string, token: string) {
         if (this._connectionState !== 0)
             throw new Error("Already in connecting/connected state!");
 
         try {
+            this.StopHttpUpdater();
+            this._hostname = hostname;
             this._connectionState = 1;
             this._requestIds.clear();
             this.OutboundQueue.clear();
+            this.StartHttpUpdater();
             const packet = new McApiLoginRequestPacket(
                 Guid.Create().toString(),
                 token,
@@ -123,6 +130,7 @@ export class McApiMcwss {
         this.OutboundQueue.clear();
         this.SendPacket(new McApiLogoutRequestPacket(this._token));
         this._connectionState = 0;
+        this._hostname = undefined;
 
         world.translateMessage(Locales.VcMcApi.Status.Disconnected, {
             rawtext: [
@@ -163,12 +171,24 @@ export class McApiMcwss {
         }
     }
 
+    private StartHttpUpdater() {
+        this.StopHttpUpdater();
+        this._updater = system.runInterval(async () => this.HttpUpdaterLogic());
+    }
+
     private StartPinger() {
         this.StopPinger();
         this._pinger = system.runInterval(
             () => this.PingIntervalLogic(),
             Math.round(this._defaultTimeoutMs / 4 / 20)
         );
+    }
+
+    private StopHttpUpdater() {
+        if (this._updater !== undefined) {
+            system.clearRun(this._updater);
+            this._pinger = undefined;
+        }
     }
 
     private StopPinger() {
@@ -222,6 +242,34 @@ export class McApiMcwss {
         if (Date.now() - this._lastPing >= this._defaultTimeoutMs)
             this.Disconnect(Locales.VcMcApi.DisconnectReason.Timeout);
         this.SendPacket(new McApiPingRequestPacket(this._token));
+    }
+
+    private async HttpUpdaterLogic() {
+        if (this._hostname === undefined || this._connectionState === 0 || this._token === undefined) {
+            this.StopHttpUpdater();
+            return;
+        }
+
+        const requestPacket = new McHttpUpdatePacket();
+        let packet = this.OutboundQueue.dequeue();
+        while (packet !== undefined) {
+            requestPacket.Packets.push(Z85.GetStringWithPadding(packet));
+            packet = this.OutboundQueue.dequeue();
+        }
+
+        const request = new HttpRequest(this._hostname);
+        request.body = JSON.stringify(requestPacket);
+        request.method = HttpRequestMethod.POST;
+        request.headers = [
+            new HttpHeader('Content-Type', 'application/json'),
+        ];
+        const response = await http.request(request);
+
+        if (response.status !== 200) return;
+        const responsePacket = Object.assign(new McHttpUpdatePacket(), JSON.parse(response.body));
+        for (const packet of responsePacket.Packets) {
+            await this.ReceivePacketAsync(packet);
+        }
     }
 
     private async HandlePacketAsync(
