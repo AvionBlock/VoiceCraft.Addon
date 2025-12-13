@@ -245,7 +245,7 @@ export class McApiMcHttp {
     }
 
     private async HttpUpdaterLogic() {
-        if (this._hostname === undefined || this._connectionState === 0 || this._token === undefined) {
+        if (this._hostname === undefined || this._connectionState === 0) {
             this.StopHttpUpdater();
             return;
         }
