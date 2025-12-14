@@ -29,6 +29,8 @@ export class McApiMcwss {
     _lastPing = 0;
     _connectionState = 0; //0: Disconnected, 1: Connecting, 2: Connected, 3: Disconnecting
     _requestIds = new Set();
+    //Data
+    get Token() { return this._token; }
     //Queue
     OutboundQueue = new Queue();
     //McApi
@@ -44,7 +46,7 @@ export class McApiMcwss {
         }
     }
     async HandleSendPacketEventAsync(packet) {
-        if (this._connectionState !== 2 || this.OutboundQueue.size >= 32767)
+        if (this._connectionState !== 2)
             return; //Not connected or we've got too many packets.
         const packetData = Z85.GetBytesWithPadding(packet);
         if (packetData.length <= 0)
@@ -80,11 +82,7 @@ export class McApiMcwss {
                 else if (response instanceof McApiDenyResponsePacket) {
                     throw new Error(response.Reason);
                 }
-                if (this._pinger !== undefined) {
-                    system.clearRun(this._pinger);
-                    this._pinger = undefined;
-                }
-                this._pinger = system.runInterval(() => this.PingIntervalLogic(), Math.round(this._defaultTimeoutMs / 4 / 20));
+                this.StartPinger();
                 this._connectionState = 2;
             }
         }
@@ -95,14 +93,16 @@ export class McApiMcwss {
         }
     }
     Disconnect(reason) {
-        if (this._token === undefined)
+        if (this._connectionState !== 2)
             return;
         this._connectionState = 3;
         if (this._pinger !== undefined)
             system.clearRun(this._pinger);
         this.OutboundQueue.clear();
-        this.SendPacket(new McApiLogoutRequestPacket(this._token));
+        if (this._token !== undefined)
+            this.SendPacket(new McApiLogoutRequestPacket(this._token));
         this._connectionState = 0;
+        this._token = undefined;
         world.translateMessage(Locales.VcMcApi.Status.Disconnected, {
             rawtext: [
                 {
@@ -133,6 +133,16 @@ export class McApiMcwss {
         }
         catch (ex) {
             console.error(ex);
+        }
+    }
+    StartPinger() {
+        this.StopPinger();
+        this._pinger = system.runInterval(() => this.PingIntervalLogic(), Math.round(this._defaultTimeoutMs / 4 / 20));
+    }
+    StopPinger() {
+        if (this._pinger !== undefined) {
+            system.clearRun(this._pinger);
+            this._pinger = undefined;
         }
     }
     RegisterRequestId(requestId) {
@@ -167,11 +177,13 @@ export class McApiMcwss {
         }
     }
     async PingIntervalLogic() {
-        if (this._connectionState !== 2 || this._token === undefined)
-            return; //Will have to do something here.
+        if (this._connectionState !== 2) {
+            this.StopPinger();
+            return;
+        }
         if (Date.now() - this._lastPing >= this._defaultTimeoutMs)
             this.Disconnect(Locales.VcMcApi.DisconnectReason.Timeout);
-        this.SendPacket(new McApiPingRequestPacket(this._token));
+        this.SendPacket(new McApiPingRequestPacket());
     }
     async HandlePacketAsync(packetType, reader) {
         switch (packetType) {

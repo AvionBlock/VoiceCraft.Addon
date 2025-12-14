@@ -73,7 +73,7 @@ export class CommandManager {
     system.run(async () => {
       if (this._vc.Token !== undefined) {
         this._vc.SendPacket(
-          new McApiSetEntityTitleRequestPacket(this._vc.Token, id, value)
+          new McApiSetEntityTitleRequestPacket(id, value)
         );
       }
     });
@@ -90,7 +90,7 @@ export class CommandManager {
     system.run(async () => {
       if (this._vc.Token !== undefined) {
         this._vc.SendPacket(
-          new McApiSetEntityDescriptionRequestPacket(this._vc.Token, id, value)
+          new McApiSetEntityDescriptionRequestPacket(id, value)
         );
       }
     });

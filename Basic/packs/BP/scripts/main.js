@@ -26,8 +26,8 @@ function IntervalLogic() {
         const worldId = player.dimension.id;
         const location = player.location;
         const rotation = player.getRotation();
-        vc.SendPacket(new McApiSetEntityWorldIdRequestPacket(vc.Token, entityId, worldId));
-        vc.SendPacket(new McApiSetEntityPositionRequestPacket(vc.Token, entityId, new Vector3(location.x, location.y, location.z)));
-        vc.SendPacket(new McApiSetEntityRotationRequestPacket(vc.Token, entityId, new Vector2(rotation.x, rotation.y)));
+        vc.SendPacket(new McApiSetEntityWorldIdRequestPacket(entityId, worldId));
+        vc.SendPacket(new McApiSetEntityPositionRequestPacket(entityId, new Vector3(location.x, location.y, location.z)));
+        vc.SendPacket(new McApiSetEntityRotationRequestPacket(entityId, new Vector2(rotation.x, rotation.y)));
     }
 }

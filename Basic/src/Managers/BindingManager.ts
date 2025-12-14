@@ -104,7 +104,6 @@ export class BindingManager {
         if (this._vc.Token === undefined) return true;
         this._vc.SendPacket(
             new McApiSetEntityDescriptionRequestPacket(
-                this._vc.Token,
                 entityId,
                 `Bound to player ${value.name}`
             )
@@ -133,7 +132,6 @@ export class BindingManager {
         if (this._vc.Token === undefined) return;
         this._vc.SendPacket(
             new McApiSetEntityDescriptionRequestPacket(
-                this._vc.Token,
                 ev.Id,
                 `Welcome! Your binding key is ${bindingKey}`
             )

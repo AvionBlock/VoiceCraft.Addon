@@ -13,6 +13,7 @@ export declare class McApiMcwss {
     private _lastPing;
     private _connectionState;
     private _requestIds;
+    get Token(): string | undefined;
     OutboundQueue: Queue<Uint8Array>;
     OnPacket: Event<IMcApiPacket>;
     constructor();
@@ -22,6 +23,8 @@ export declare class McApiMcwss {
     Disconnect(reason?: string): void;
     SendPacket(packet: IMcApiPacket): void;
     ReceivePacketAsync(packet: string): Promise<void>;
+    private StartPinger;
+    private StopPinger;
     private RegisterRequestId;
     private DeregisterRequestId;
     private GetResponseAsync;

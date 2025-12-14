@@ -6,5 +6,4 @@ export declare class CommandManager {
     private RegisterCommands;
     private ConnectCommand;
     private SendCommandTunnel;
-    private ReceiveCommandTunnel;
 }

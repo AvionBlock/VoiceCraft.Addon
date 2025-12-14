@@ -21,18 +21,13 @@ export class CommandManager {
             ],
         }, (origin, token) => this.ConnectCommand(origin, token));
         registry.registerCommand({
-            name: `${VoiceCraft.Namespace}:send_data_tunnel`,
+            name: `${VoiceCraft.Namespace}:data_tunnel`,
             description: "Data transfer tunnel between servers",
             permissionLevel: CommandPermissionLevel.Host,
             optionalParameters: [
                 { name: "data", type: CustomCommandParamType.String },
             ],
         }, (origin, data) => this.SendCommandTunnel(origin, data));
-        registry.registerCommand({
-            name: `${VoiceCraft.Namespace}:receive_data_tunnel`,
-            description: "Data transfer tunnel between servers",
-            permissionLevel: CommandPermissionLevel.Host
-        }, (origin) => this.ReceiveCommandTunnel(origin));
     }
     ConnectCommand(origin, token) {
         if (origin.sourceEntity === undefined ||
@@ -55,23 +50,31 @@ export class CommandManager {
         return undefined;
     }
     SendCommandTunnel(_, data) {
-        if (data.length <= 0)
+        if (data.length > 0) {
+            system.run(async () => {
+                let packets = data.split("|");
+                for (const packet of packets) {
+                    await this._mcapi.ReceivePacketAsync(packet);
+                }
+            });
+        }
+        let packetData = this._mcapi.OutboundQueue.dequeue();
+        if (packetData === undefined)
             return {
                 status: CustomCommandStatus.Success,
-                message: this._mcapi.OutboundQueue.size.toString()
+                message: ""
             };
-        system.run(async () => {
-            await this._mcapi.ReceivePacketAsync(data);
-        });
-        return { status: CustomCommandStatus.Success, message: this._mcapi.OutboundQueue.size.toString() };
-    }
-    ReceiveCommandTunnel(_) {
-        const packetData = this._mcapi.OutboundQueue.dequeue();
-        if (packetData === undefined)
-            return { status: CustomCommandStatus.Success };
-        const data = Z85.GetStringWithPadding(packetData).replaceAll("%", "%%");
-        if (data.length <= 0)
-            return { status: CustomCommandStatus.Success };
-        return { status: CustomCommandStatus.Success, message: data };
+        let stringData = Z85.GetStringWithPadding(packetData);
+        while (stringData.length < 1000) {
+            packetData = this._mcapi.OutboundQueue.dequeue();
+            if (packetData === undefined)
+                break;
+            stringData += `|${Z85.GetStringWithPadding(packetData)}`;
+        }
+        stringData = stringData.replaceAll("%", "%%");
+        return {
+            status: CustomCommandStatus.Success,
+            message: stringData,
+        };
     }
 }

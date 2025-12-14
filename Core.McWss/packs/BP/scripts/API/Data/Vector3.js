@@ -8,8 +8,6 @@ export class Vector3 {
     Y;
     Z;
     Equals(value) {
-        if (value.X !== this.X || value.Y !== this.Y || value.Z !== this.Z)
-            return false;
-        return true;
+        return !(value.X !== this.X || value.Y !== this.Y || value.Z !== this.Z);
     }
 }

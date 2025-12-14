@@ -46,7 +46,7 @@ export class CommandManager {
             throw new Error("Command origin must be of type player!");
         system.run(async () => {
             if (this._vc.Token !== undefined) {
-                this._vc.SendPacket(new McApiSetEntityTitleRequestPacket(this._vc.Token, id, value));
+                this._vc.SendPacket(new McApiSetEntityTitleRequestPacket(id, value));
             }
         });
         return undefined;
@@ -56,7 +56,7 @@ export class CommandManager {
             throw new Error("Command origin must be of type player!");
         system.run(async () => {
             if (this._vc.Token !== undefined) {
-                this._vc.SendPacket(new McApiSetEntityDescriptionRequestPacket(this._vc.Token, id, value));
+                this._vc.SendPacket(new McApiSetEntityDescriptionRequestPacket(id, value));
             }
         });
         return undefined;

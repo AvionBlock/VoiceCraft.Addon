@@ -9,7 +9,7 @@ export class Locales {
             None: "VcMcApi.DisconnectReason.None",
             Timeout: "VcMcApi.DisconnectReason.Timeout",
             InvalidLoginToken: "VcMcApi.DisconnectReason.InvalidLoginToken",
-            IncomaptibleVersion: "VcMcApi.DisconnectReason.IncompatibleVersion",
+            IncompatibleVersion: "VcMcApi.DisconnectReason.IncompatibleVersion",
         },
     });
 }

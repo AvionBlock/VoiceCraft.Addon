@@ -82,7 +82,7 @@ export class BindingManager {
         this._bindedEntities.set(entityId, value.id);
         if (this._vc.Token === undefined)
             return true;
-        this._vc.SendPacket(new McApiSetEntityDescriptionRequestPacket(this._vc.Token, entityId, `Bound to player ${value.name}`));
+        this._vc.SendPacket(new McApiSetEntityDescriptionRequestPacket(entityId, `Bound to player ${value.name}`));
         return true;
     }
     UnbindPlayer(playerId) {
@@ -99,7 +99,7 @@ export class BindingManager {
         this._unbindedEntities.set(ev.Id, bindingKey);
         if (this._vc.Token === undefined)
             return;
-        this._vc.SendPacket(new McApiSetEntityDescriptionRequestPacket(this._vc.Token, ev.Id, `Welcome! Your binding key is ${bindingKey}`));
+        this._vc.SendPacket(new McApiSetEntityDescriptionRequestPacket(ev.Id, `Welcome! Your binding key is ${bindingKey}`));
     }
     OnEntityDestroyedPacketEvent(ev) {
         this._unbindedEntities.delete(ev.Id);

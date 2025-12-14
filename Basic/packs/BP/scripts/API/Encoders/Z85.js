@@ -93,6 +93,15 @@ export class Z85 {
         67, 0, 0, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 21, 22, 23, 24, 25, 26, 27, 28, 29, 30, 31, 32, 33, 34, 35,
         79, 0, 80, 0, 0,
     ];
+    static GetPaddedEncodeSize(size) {
+        if (size == 0)
+            return 0;
+        size = this.GetEncodeSize(size);
+        return size + (5 - size % 5) % 5 + 1;
+    }
+    static GetEncodeSize(size) {
+        return size * 5 / 4;
+    }
     static GetStringWithPadding(data) {
         let lengthMod4 = data.length % 4;
         let paddingRequired = lengthMod4 !== 0;
@@ -114,7 +123,7 @@ export class Z85 {
         let encodedChars = new Array(5);
         for (let i = 0; i < data.length; i += 4) {
             //>>> 0 converts to uint. fsr this is a JS thing.
-            let binaryFrame = ((data[i + 0] << 24) | (data[i + 1] << 16) | (data[i + 2] << 8) | data[i + 3]) >>> 0;
+            let binaryFrame = ((data[i] << 24) | (data[i + 1] << 16) | (data[i + 2] << 8) | data[i + 3]) >>> 0;
             let divisor = this.Base85 * this.Base85 * this.Base85 * this.Base85;
             for (let j = 0; j < 5; j++) {
                 let divisible = Math.trunc((binaryFrame / divisor) % 85);

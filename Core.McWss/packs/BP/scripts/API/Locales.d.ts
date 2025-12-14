@@ -9,7 +9,7 @@ export declare class Locales {
             None: string;
             Timeout: string;
             InvalidLoginToken: string;
-            IncomaptibleVersion: string;
+            IncompatibleVersion: string;
         };
     }>;
 }
