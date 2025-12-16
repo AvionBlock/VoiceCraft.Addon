@@ -1,10 +1,11 @@
+import { McApiPacketType } from "../../../Data/Enums";
 export class McApiOnEntityDeafenUpdatedPacket {
     constructor(id = 0, value = false) {
         this._id = id;
         this._value = value;
     }
     get PacketType() {
-        return 27 /* McApiPacketType.OnEntityDeafenUpdated */;
+        return McApiPacketType.OnEntityDeafenUpdated;
     }
     get Id() {
         return this._id;

@@ -1,10 +1,11 @@
+import { McApiPacketType } from "../../../Data/Enums";
 export class McApiSetEntityEffectBitmaskRequestPacket {
     constructor(id = 0, value = 0) {
         this._id = id;
         this._value = value;
     }
     get PacketType() {
-        return 11 /* McApiPacketType.SetEntityEffectBitmaskRequest */;
+        return McApiPacketType.SetEntityEffectBitmaskRequest;
     }
     get Id() {
         return this._id;

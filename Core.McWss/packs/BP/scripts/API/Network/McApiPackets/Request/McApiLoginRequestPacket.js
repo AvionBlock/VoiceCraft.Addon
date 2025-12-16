@@ -1,3 +1,4 @@
+import { McApiPacketType } from "../../../Data/Enums";
 import { MaxStringLength } from "../../../Data/Constants";
 import { Version } from "../../../Data/Version";
 export class McApiLoginRequestPacket {
@@ -7,7 +8,7 @@ export class McApiLoginRequestPacket {
         this._version = version ?? new Version(0, 0, 0);
     }
     get PacketType() {
-        return 0 /* McApiPacketType.LoginRequest */;
+        return McApiPacketType.LoginRequest;
     }
     get RequestId() {
         return this._requestId;

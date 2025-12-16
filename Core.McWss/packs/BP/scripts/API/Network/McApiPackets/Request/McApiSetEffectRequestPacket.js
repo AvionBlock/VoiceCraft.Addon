@@ -1,11 +1,12 @@
+import { EffectType, McApiPacketType } from "../../../Data/Enums";
 export class McApiSetEffectRequestPacket {
     constructor(bitmask = 0, effect) {
         this._bitmask = bitmask;
-        this._effectType = effect?.EffectType ?? 0 /* EffectType.None */;
+        this._effectType = effect?.EffectType ?? EffectType.None;
         this._effect = effect;
     }
     get PacketType() {
-        return 3 /* McApiPacketType.SetEffectRequest */;
+        return McApiPacketType.SetEffectRequest;
     }
     get Bitmask() {
         return this._bitmask;
@@ -21,7 +22,7 @@ export class McApiSetEffectRequestPacket {
     _effect;
     Serialize(writer) {
         writer.PutUshort(this._bitmask);
-        writer.PutByte(this._effect?.EffectType ?? 0 /* EffectType.None */);
+        writer.PutByte(this._effect?.EffectType ?? EffectType.None);
         if (this._effect !== undefined)
             this._effect.Serialize(writer);
     }
@@ -31,7 +32,7 @@ export class McApiSetEffectRequestPacket {
     }
     Set(bitmask = 0, effect) {
         this._bitmask = bitmask;
-        this._effectType = effect?.EffectType ?? 0 /* EffectType.None */;
+        this._effectType = effect?.EffectType ?? EffectType.None;
         this._effect = effect;
         return this;
     }

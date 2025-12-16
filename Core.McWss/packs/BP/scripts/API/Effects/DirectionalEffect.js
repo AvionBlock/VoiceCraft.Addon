@@ -1,6 +1,7 @@
+import { EffectType } from "../Data/Enums";
 export class DirectionalEffect {
     get EffectType() {
-        return 3 /* EffectType.Directional */;
+        return EffectType.Directional;
     }
     Serialize(writer) {
         //Nothing to write.

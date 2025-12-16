@@ -1,0 +1,32 @@
+import { VoiceCraft } from "../API/VoiceCraft";
+import { BindingManager } from "./BindingManager";
+import { Player } from "@minecraft/server";
+import { EffectsManager } from "./EffectsManager";
+export declare class FormManager {
+    private _vc;
+    private _bm;
+    private _em;
+    private _mainMenuSettingsForm;
+    private _effectsMenuSettingsForm;
+    private _selectEffectMenuSettingsForm;
+    private _setVisibilityEffectMenuSettingsForm;
+    private _setProximityEffectMenuSettingsForm;
+    private _setDirectionalEffectMenuSettingsForm;
+    private _setProximityEchoEffectMenuSettingsForm;
+    private _setEchoEffectMenuSettingsForm;
+    private _deleteEffectMenuSettingsForm;
+    private _selectPlayerMenuSettingsForm;
+    private _selectPlayerActionMenuSettingsForm;
+    constructor(_vc: VoiceCraft, _bm: BindingManager, _em: EffectsManager);
+    ShowMainMenuSettingsFormAsync(player: Player): Promise<void>;
+    ShowEffectSettingsFormAsync(player: Player): Promise<void>;
+    ShowSelectEffectMenuSettingsFormAsync(player: Player): Promise<void>;
+    ShowSetVisibilityEffectMenuSettingsFormAsync(player: Player): Promise<void>;
+    ShowSetProximityEffectMenuSettingsFormAsync(player: Player): Promise<void>;
+    ShowSetDirectionalEffectMenuSettingsFormAsync(player: Player): Promise<void>;
+    ShowSetProximityEchoEffectMenuSettingsFormAsync(player: Player): Promise<void>;
+    ShowSetEchoEffectMenuSettingsFormAsync(player: Player): Promise<void>;
+    ShowDeleteEffectSettingsFormAsync(player: Player): Promise<void>;
+    ShowSelectPlayerSettingsFormAsync(player: Player): Promise<void>;
+    ShowPlayerActionsSettingsFormAsync(player: Player, selectedPlayer: Player): Promise<void>;
+}

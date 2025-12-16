@@ -1,9 +1,10 @@
+import { McApiPacketType } from "../../../Data/Enums";
 export class McApiOnEntityDestroyedPacket {
     constructor(id = 0) {
         this._id = id;
     }
     get PacketType() {
-        return 22 /* McApiPacketType.OnEntityDestroyed */;
+        return McApiPacketType.OnEntityDestroyed;
     }
     get Id() {
         return this._id;

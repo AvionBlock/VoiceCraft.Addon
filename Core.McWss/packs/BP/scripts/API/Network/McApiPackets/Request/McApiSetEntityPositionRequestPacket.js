@@ -1,3 +1,4 @@
+import { McApiPacketType } from "../../../Data/Enums";
 import { Vector3 } from "../../../Data/Vector3";
 export class McApiSetEntityPositionRequestPacket {
     constructor(id = 0, value = new Vector3(0, 0, 0)) {
@@ -5,7 +6,7 @@ export class McApiSetEntityPositionRequestPacket {
         this._value = value;
     }
     get PacketType() {
-        return 12 /* McApiPacketType.SetEntityPositionRequest */;
+        return McApiPacketType.SetEntityPositionRequest;
     }
     get Id() {
         return this._id;

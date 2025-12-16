@@ -1,10 +1,11 @@
+import { McApiPacketType } from "../../../Data/Enums";
 import { MaxStringLength } from "../../../Data/Constants";
 export class McApiLogoutRequestPacket {
     constructor(token = "") {
         this._token = token;
     }
     get PacketType() {
-        return 1 /* McApiPacketType.LogoutRequest */;
+        return McApiPacketType.LogoutRequest;
     }
     get Token() {
         return this._token;

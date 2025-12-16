@@ -1,10 +1,11 @@
+import { McApiPacketType } from "../../../Data/Enums";
 import { MaxStringLength } from "../../../Data/Constants";
 export class McApiPingResponsePacket {
     constructor(token = "") {
         this._token = token;
     }
     get PacketType() {
-        return 18 /* McApiPacketType.PingResponse */;
+        return McApiPacketType.PingResponse;
     }
     get Token() {
         return this._token;

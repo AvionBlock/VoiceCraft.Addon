@@ -1,7 +1,7 @@
 {
 	"$schema": "https://raw.githubusercontent.com/Bedrock-OSS/regolith-schemas/main/config/v1.4.json",
 	"author": "SineVector241",
-	"name": "VoiceCraft.Addon.Core.McWss",
+	"name": "VoiceCraft.Addon.Core.McHttp",
 	"packs": {
 		"behaviorPack": "./packs/BP",
 		"resourcePack": "./packs/RP"

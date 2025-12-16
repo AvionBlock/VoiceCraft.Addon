@@ -1,3 +1,4 @@
+import { McApiPacketType } from "../../../Data/Enums";
 export class McApiOnEntityVisibilityUpdatedPacket {
     constructor(id = 0, id2 = 0, value = false) {
         this._id = id;
@@ -5,7 +6,7 @@ export class McApiOnEntityVisibilityUpdatedPacket {
         this._value = value;
     }
     get PacketType() {
-        return 23 /* McApiPacketType.OnEntityVisibilityUpdated */;
+        return McApiPacketType.OnEntityVisibilityUpdated;
     }
     get Id() {
         return this._id;

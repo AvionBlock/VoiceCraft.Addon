@@ -1,3 +1,4 @@
+import { McApiPacketType } from "../../../Data/Enums";
 import { MaxDescriptionStringLength } from "../../../Data/Constants";
 export class McApiSetEntityDescriptionRequestPacket {
     constructor(id = 0, value = "") {
@@ -5,7 +6,7 @@ export class McApiSetEntityDescriptionRequestPacket {
         this._value = value;
     }
     get PacketType() {
-        return 6 /* McApiPacketType.SetEntityDescriptionRequest */;
+        return McApiPacketType.SetEntityDescriptionRequest;
     }
     get Id() {
         return this._id;

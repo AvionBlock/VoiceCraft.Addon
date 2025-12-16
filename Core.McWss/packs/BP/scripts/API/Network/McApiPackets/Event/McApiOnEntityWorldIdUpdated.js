@@ -1,11 +1,12 @@
 import { MaxStringLength } from "../../../Data/Constants";
+import { McApiPacketType } from "../../../Data/Enums";
 export class McApiOnEntityWorldIdUpdatedPacket {
     constructor(id = 0, value = "") {
         this._id = id;
         this._value = value;
     }
     get PacketType() {
-        return 24 /* McApiPacketType.OnEntityWorldIdUpdated */;
+        return McApiPacketType.OnEntityWorldIdUpdated;
     }
     get Id() {
         return this._id;

@@ -1,10 +1,11 @@
+import { EffectType } from "../Data/Enums";
 export class ProximityEffect {
     constructor(minRange = 0, maxRange = 0) {
         this._minRange = minRange;
         this._maxRange = maxRange;
     }
     get EffectType() {
-        return 2 /* EffectType.Proximity */;
+        return EffectType.Proximity;
     }
     get MinRange() {
         return this._minRange;

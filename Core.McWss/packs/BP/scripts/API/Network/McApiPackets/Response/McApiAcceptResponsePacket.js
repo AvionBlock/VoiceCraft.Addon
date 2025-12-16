@@ -1,3 +1,4 @@
+import { McApiPacketType } from "../../../Data/Enums";
 import { MaxStringLength } from "../../../Data/Constants";
 export class McApiAcceptResponsePacket {
     constructor(requestId = "", token = "") {
@@ -5,7 +6,7 @@ export class McApiAcceptResponsePacket {
         this._token = token;
     }
     get PacketType() {
-        return 16 /* McApiPacketType.AcceptResponse */;
+        return McApiPacketType.AcceptResponse;
     }
     get RequestId() {
         return this._requestId;

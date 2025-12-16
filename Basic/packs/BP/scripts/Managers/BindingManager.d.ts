@@ -6,9 +6,11 @@ export declare class BindingManager {
     private readonly _unbindedEntities;
     private readonly _bindedEntities;
     constructor(_vc: VoiceCraft);
+    GetBindedPlayers(): Player[];
     BindPlayer(bindingKey: string, value: Player): boolean;
     UnbindPlayer(playerId: string): boolean;
     GetEntityFromPlayerId(playerId: string): number | undefined;
+    private OnPlayerLeftEvent;
     private OnNetworkEntityCreatedPacketEvent;
     private OnEntityDestroyedPacketEvent;
     private OnDisconnectedEvent;

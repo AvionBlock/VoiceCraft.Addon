@@ -1,8 +1,9 @@
+import { McApiPacketType } from "../../../Data/Enums";
 export class McApiPingRequestPacket {
     constructor() {
     }
     get PacketType() {
-        return 2 /* McApiPacketType.PingRequest */;
+        return McApiPacketType.PingRequest;
     }
     Serialize(writer) {
     }

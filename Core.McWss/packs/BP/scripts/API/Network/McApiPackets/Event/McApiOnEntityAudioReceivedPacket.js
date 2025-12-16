@@ -1,3 +1,4 @@
+import { McApiPacketType } from "../../../Data/Enums";
 export class McApiOnEntityAudioReceivedPacket {
     constructor(id = 0, timestamp = 0, loudness = 0.0) {
         this._id = id;
@@ -5,7 +6,7 @@ export class McApiOnEntityAudioReceivedPacket {
         this._frameLoudness = loudness;
     }
     get PacketType() {
-        return 35 /* McApiPacketType.OnEntityAudioReceived */;
+        return McApiPacketType.OnEntityAudioReceived;
     }
     get Id() {
         return this._id;

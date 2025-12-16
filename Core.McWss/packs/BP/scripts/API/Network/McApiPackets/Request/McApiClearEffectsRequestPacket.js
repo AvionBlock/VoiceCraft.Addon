@@ -1,8 +1,9 @@
+import { McApiPacketType } from "../../../Data/Enums";
 export class McApiClearEffectsRequestPacket {
     constructor() {
     }
     get PacketType() {
-        return 4 /* McApiPacketType.ClearEffectsRequest */;
+        return McApiPacketType.ClearEffectsRequest;
     }
     Serialize(writer) {
     }

@@ -1,10 +1,11 @@
+import { McApiPacketType } from "../../../Data/Enums";
 export class McApiSetEntityCaveFactorRequestPacket {
     constructor(id = 0, value = 0) {
         this._id = id;
         this._value = value;
     }
     get PacketType() {
-        return 14 /* McApiPacketType.SetEntityCaveFactorRequest */;
+        return McApiPacketType.SetEntityCaveFactorRequest;
     }
     get Id() {
         return this._id;

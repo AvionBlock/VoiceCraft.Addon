@@ -5,6 +5,7 @@ import { NetDataWriter } from "./API/Network/NetDataWriter";
 import { NetDataReader } from "./API/Network/NetDataReader";
 import { CommandManager } from "./Managers/CommandManager";
 import { Guid } from "./API/Data/Guid";
+import { McApiPacketType } from "./API/Data/Enums";
 import { Event } from "./API/Event";
 import { Queue } from "./API/Data/Queue";
 import { Locales } from "./API/Locales";
@@ -53,8 +54,8 @@ export class McApiMcwss {
             return;
         this._reader.SetBufferSource(packetData);
         const packetType = this._reader.GetByte();
-        if (packetType < 0 /* McApiPacketType.LoginRequest */ ||
-            packetType > 35 /* McApiPacketType.OnEntityAudioReceived */)
+        if (packetType < McApiPacketType.LoginRequest ||
+            packetType > McApiPacketType.OnEntityAudioReceived)
             return; //Not a valid packet
         this.OutboundQueue.enqueue(this._reader.CopyData());
     }
@@ -125,8 +126,8 @@ export class McApiMcwss {
                 return;
             this._reader.SetBufferSource(packetData);
             const packetType = this._reader.GetByte();
-            if (packetType < 0 /* McApiPacketType.LoginRequest */ ||
-                packetType > 35 /* McApiPacketType.OnEntityAudioReceived */)
+            if (packetType < McApiPacketType.LoginRequest ||
+                packetType > McApiPacketType.OnEntityAudioReceived)
                 return; //Not a valid packet.
             system.sendScriptEvent(`${VoiceCraft.Namespace}:onPacket`, packet);
             await this.HandlePacketAsync(packetType, this._reader);
@@ -187,17 +188,17 @@ export class McApiMcwss {
     }
     async HandlePacketAsync(packetType, reader) {
         switch (packetType) {
-            case 16 /* McApiPacketType.AcceptResponse */:
+            case McApiPacketType.AcceptResponse:
                 const acceptResponsePacket = new McApiAcceptResponsePacket();
                 acceptResponsePacket.Deserialize(reader);
                 this.HandleAcceptResponsePacket(acceptResponsePacket);
                 break;
-            case 17 /* McApiPacketType.DenyResponse */:
+            case McApiPacketType.DenyResponse:
                 const denyResponsePacket = new McApiDenyResponsePacket();
                 denyResponsePacket.Deserialize(reader);
                 this.HandleDenyResponsePacket(denyResponsePacket);
                 break;
-            case 18 /* McApiPacketType.PingResponse */:
+            case McApiPacketType.PingResponse:
                 const pingResponsePacket = new McApiPingResponsePacket();
                 pingResponsePacket.Deserialize(reader);
                 this.HandlePingResponsePacket(pingResponsePacket);

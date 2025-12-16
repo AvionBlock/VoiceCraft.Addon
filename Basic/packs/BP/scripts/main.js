@@ -7,9 +7,13 @@ import { Vector3 } from "./API/Data/Vector3";
 import { McApiSetEntityRotationRequestPacket } from "./API/Network/McApiPackets/Request/McApiSetEntityRotationRequestPacket";
 import { Vector2 } from "./API/Data/Vector2";
 import { McApiSetEntityWorldIdRequestPacket } from "./API/Network/McApiPackets/Request/McApiSetEntityWorldIdRequestPacket";
+import { FormManager } from "./Managers/FormManager";
+import { EffectsManager } from "./Managers/EffectsManager";
 const vc = new VoiceCraft();
 const bm = new BindingManager(vc);
-new CommandManager(vc, bm);
+const em = new EffectsManager(vc);
+const fm = new FormManager(vc, bm, em);
+new CommandManager(vc, bm, fm);
 system.runInterval(() => IntervalLogic(), 0);
 world.afterEvents.playerLeave.subscribe((ev) => HandlePlayerLeaveEvent(ev));
 function HandlePlayerLeaveEvent(ev) {

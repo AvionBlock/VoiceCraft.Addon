@@ -1,3 +1,4 @@
+import { McApiPacketType } from "../../../Data/Enums";
 import { Vector2 } from "../../../Data/Vector2";
 export class McApiSetEntityRotationRequestPacket {
     constructor(id = 0, value = new Vector2(0, 0)) {
@@ -5,7 +6,7 @@ export class McApiSetEntityRotationRequestPacket {
         this._value = value;
     }
     get PacketType() {
-        return 13 /* McApiPacketType.SetEntityRotationRequest */;
+        return McApiPacketType.SetEntityRotationRequest;
     }
     get Id() {
         return this._id;
