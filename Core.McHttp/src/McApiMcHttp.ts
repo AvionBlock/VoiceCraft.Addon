@@ -32,6 +32,7 @@ export class McApiMcHttp {
     private _defaultTimeoutMs: number = 10000;
 
     //Connection state objects.
+    private _awaitingRequest: boolean = false;
     private _hostname?: string = undefined;
     private _token?: string = undefined;
     private _pinger?: number = undefined;
@@ -190,6 +191,7 @@ export class McApiMcHttp {
         if (this._updater !== undefined) {
             system.clearRun(this._updater);
             this._pinger = undefined;
+            http.cancelAll("Stop Requested");
         }
     }
 
@@ -251,6 +253,8 @@ export class McApiMcHttp {
             this.StopHttpUpdater();
             return;
         }
+        if(this._awaitingRequest)
+            return;
 
         const requestPacket = new McHttpUpdatePacket();
         let packet = this.OutboundQueue.dequeue();
@@ -267,12 +271,19 @@ export class McApiMcHttp {
             new HttpHeader('Content-Type', 'application/json'),
             new HttpHeader('Authorization', `Bearer ${this._token}`)
         ]);
-        const response = await http.request(request);
+        request.setTimeout(8000); //8 Second timeout. Less than the normal HTTP timeout.
+        try {
+            this._awaitingRequest = true;
+            const response = await http.request(request);
 
-        if (response.status !== 200) return;
-        const responsePacket = Object.assign(new McHttpUpdatePacket(), JSON.parse(response.body));
-        for (const packet of responsePacket.Packets) {
-            await this.ReceivePacketAsync(packet);
+            if (response.status !== 200) return;
+            const responsePacket = Object.assign(new McHttpUpdatePacket(), JSON.parse(response.body));
+            for (const packet of responsePacket.Packets) {
+                await this.ReceivePacketAsync(packet);
+            }
+        }
+        finally {
+            this._awaitingRequest = false;
         }
     }
 
