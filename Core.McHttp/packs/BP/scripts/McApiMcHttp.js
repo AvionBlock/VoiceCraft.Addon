@@ -215,7 +215,7 @@ export class McApiMcHttp {
         }
         const request = new HttpRequest(this._hostname);
         request.setBody(JSON.stringify(requestPacket));
-        request.setMethod(HttpRequestMethod.POST);
+        request.setMethod(HttpRequestMethod.Post);
         request.setHeaders([
             new HttpHeader('Content-Type', 'application/json'),
             new HttpHeader('Authorization', `Bearer ${this._token}`)
