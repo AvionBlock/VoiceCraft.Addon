@@ -85,7 +85,6 @@ export class McApiMcHttp {
             throw new Error("Already in connecting/connected state!");
 
         try {
-            this.StopHttpUpdater();
             this._hostname = hostname;
             this._connectionState = 1;
             this._requestIds.clear();
