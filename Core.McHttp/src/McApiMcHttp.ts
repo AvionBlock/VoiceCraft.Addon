@@ -260,12 +260,12 @@ export class McApiMcHttp {
         }
 
         const request = new HttpRequest(this._hostname);
-        request.body = JSON.stringify(requestPacket);
-        request.method = HttpRequestMethod.POST;
-        request.headers = [
+        request.setBody(JSON.stringify(requestPacket));
+        request.setMethod(HttpRequestMethod.POST);
+        request.setHeaders([
             new HttpHeader('Content-Type', 'application/json'),
             new HttpHeader('Authorization', `Bearer ${this._token}`)
-        ];
+        ]);
         const response = await http.request(request);
 
         if (response.status !== 200) return;
