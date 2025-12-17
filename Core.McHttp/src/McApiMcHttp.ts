@@ -1,8 +1,4 @@
-import {
-    ScriptEventCommandMessageAfterEvent,
-    system,
-    world,
-} from "@minecraft/server";
+import {ScriptEventCommandMessageAfterEvent, system, world,} from "@minecraft/server";
 import {http, HttpHeader, HttpRequest, HttpRequestMethod} from "@minecraft/server-net";
 import {Version} from "./API/Data/Version";
 import {VoiceCraft} from "./API/VoiceCraft";
@@ -118,18 +114,24 @@ export class McApiMcHttp {
             }
         } catch (ex) {
             this._connectionState = 0;
+            this._hostname = undefined;
             this.OutboundQueue.clear();
             throw ex;
         }
     }
 
-    public Disconnect(reason?: string) {
+    public async Disconnect(reason?: string) {
         if (this._connectionState !== 2) return;
         this._connectionState = 3;
-        if (this._pinger !== undefined) system.clearRun(this._pinger);
+        this.StopPinger();
         this.OutboundQueue.clear();
-        if(this._token !== undefined)
+        if (this._token !== undefined)
             this.SendPacket(new McApiLogoutRequestPacket(this._token));
+
+        while (this.OutboundQueue.size > 0) {
+            await system.waitTicks(1);
+            //Send any last outgoing packets.
+        }
         this._connectionState = 0;
         this._hostname = undefined;
         this._token = undefined;
@@ -189,7 +191,7 @@ export class McApiMcHttp {
     private StopHttpUpdater() {
         if (this._updater !== undefined) {
             system.clearRun(this._updater);
-            this._pinger = undefined;
+            this._updater = undefined;
             http.cancelAll("Stop Requested");
         }
     }
@@ -252,27 +254,27 @@ export class McApiMcHttp {
             this.StopHttpUpdater();
             return;
         }
-        if(this._awaitingRequest)
-            return;
 
-        const requestPacket = new McHttpUpdatePacket();
-        let packet = this.OutboundQueue.dequeue();
-        while (packet !== undefined) {
-            requestPacket.Packets.push(Z85.GetStringWithPadding(packet));
-            packet = this.OutboundQueue.dequeue();
-        }
-
-        const request = new HttpRequest(this._hostname);
-        request.setBody(JSON.stringify(requestPacket));
-        //@ts-ignore
-        request.setMethod(HttpRequestMethod.Post);
-        request.setHeaders([
-            new HttpHeader('Content-Type', 'application/json'),
-            new HttpHeader('Authorization', `Bearer ${this._token}`)
-        ]);
-        request.setTimeout(8000); //8 Second timeout. Less than the normal HTTP timeout.
         try {
+            if (this._awaitingRequest)
+                return;
             this._awaitingRequest = true;
+            const requestPacket = new McHttpUpdatePacket();
+            let packet = this.OutboundQueue.dequeue();
+            while (packet !== undefined) {
+                requestPacket.Packets.push(Z85.GetStringWithPadding(packet));
+                packet = this.OutboundQueue.dequeue();
+            }
+
+            const request = new HttpRequest(this._hostname);
+            request.setBody(JSON.stringify(requestPacket));
+            //@ts-ignore
+            request.setMethod(HttpRequestMethod.Post);
+            request.setHeaders([
+                new HttpHeader('Content-Type', 'application/json'),
+                new HttpHeader('Authorization', `Bearer ${this._token}`)
+            ]);
+            request.setTimeout(8000); //8 Second timeout. Less than the normal HTTP timeout.
             const response = await http.request(request);
 
             if (response.status !== 200) return;
@@ -280,8 +282,7 @@ export class McApiMcHttp {
             for (const packet of responsePacket.Packets) {
                 await this.ReceivePacketAsync(packet);
             }
-        }
-        finally {
+        } finally {
             this._awaitingRequest = false;
         }
     }
