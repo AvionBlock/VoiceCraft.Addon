@@ -23,7 +23,7 @@ export class CommandManager {
             {
                 name: `${VoiceCraft.Namespace}:vcconnect`,
                 description: "Attempts a connection to the McWss server.",
-                permissionLevel: CommandPermissionLevel.Host,
+                permissionLevel: CommandPermissionLevel.Admin,
                 mandatoryParameters: [
                     {name: "hostname", type: CustomCommandParamType.String},
                     {name: "token", type: CustomCommandParamType.String},
