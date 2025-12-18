@@ -14,7 +14,7 @@ export class CommandManager {
         registry.registerCommand({
             name: `${VoiceCraft.Namespace}:vcconnect`,
             description: "Attempts a connection to the McWss server.",
-            permissionLevel: CommandPermissionLevel.Host,
+            permissionLevel: CommandPermissionLevel.GameDirectors,
             mandatoryParameters: [
                 { name: "hostname", type: CustomCommandParamType.String },
                 { name: "token", type: CustomCommandParamType.String },

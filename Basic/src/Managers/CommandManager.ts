@@ -36,7 +36,7 @@ export class CommandManager {
             {
                 name: `${VoiceCraft.Namespace}:vcsettings`,
                 description: "Shows voicecraft settings.",
-                permissionLevel: CommandPermissionLevel.Admin
+                permissionLevel: CommandPermissionLevel.GameDirectors
             },
             (origin) => this.SettingsCommand(origin)
         )
@@ -47,21 +47,33 @@ export class CommandManager {
         bindingKey: string
     ): CustomCommandResult {
         if (!(origin.sourceEntity instanceof Player))
-            throw new Error("Command origin must be of type player!");
+            return {
+                status: CustomCommandStatus.Failure,
+                message: "Command origin must be of type player!"
+            };
 
         if (this._vc.ConnectionState !== 2)
-            throw new Error("Not connected! Cannot bind!");
+            return {
+                status: CustomCommandStatus.Failure,
+                message: "Not connected! Cannot bind!"
+            };
         if (!this._bm.BindPlayer(bindingKey, origin.sourceEntity))
-            throw new Error("Could not bind! Binding key does not exist!");
+            return {
+                status: CustomCommandStatus.Failure,
+                message: "Could not bind! Binding key does not exist or already bound!"
+            };
         return {
             status: CustomCommandStatus.Success,
             message: "Successfully binded!",
         };
     }
 
-    private SettingsCommand(origin: CustomCommandOrigin): undefined {
+    private SettingsCommand(origin: CustomCommandOrigin): CustomCommandResult | undefined {
         if (!(origin.sourceEntity instanceof Player))
-            throw new Error("Command origin must be of type player!");
+            return {
+                status: CustomCommandStatus.Failure,
+                message: "Command origin must be of type player!"
+            };
         const player = origin.sourceEntity;
 
         system.run(async () => {

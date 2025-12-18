@@ -30,9 +30,11 @@ export class CommandManager {
         }, (origin, data) => this.SendCommandTunnel(origin, data));
     }
     ConnectCommand(origin, token) {
-        if (origin.sourceEntity === undefined ||
-            !(origin.sourceEntity instanceof Player))
-            throw new Error("Command origin must be of type player!");
+        if (!(origin.sourceEntity instanceof Player))
+            return {
+                status: CustomCommandStatus.Failure,
+                message: "Command origin must be of type player!"
+            };
         system.run(async () => {
             const player = origin.sourceEntity;
             try {

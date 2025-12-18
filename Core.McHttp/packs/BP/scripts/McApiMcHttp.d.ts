@@ -6,6 +6,7 @@ export declare class McApiMcHttp {
     private _version;
     private _cm;
     private _defaultTimeoutMs;
+    private _awaitingRequest;
     private _hostname?;
     private _token?;
     private _pinger?;
@@ -21,7 +22,7 @@ export declare class McApiMcHttp {
     private HandleScriptEventAsync;
     private HandleSendPacketEventAsync;
     ConnectAsync(hostname: string, token: string): Promise<void>;
-    Disconnect(reason?: string): void;
+    Disconnect(reason?: string): Promise<void>;
     SendPacket(packet: IMcApiPacket): void;
     ReceivePacketAsync(packet: string): Promise<void>;
     private StartHttpUpdater;

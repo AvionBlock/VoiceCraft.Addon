@@ -7,7 +7,7 @@ export declare class BindingManager {
     private readonly _bindedEntities;
     constructor(_vc: VoiceCraft);
     GetBindedPlayers(): Player[];
-    BindPlayer(bindingKey: string, value: Player): boolean;
+    BindPlayer(bindingKey: string, player: Player): boolean;
     UnbindPlayer(playerId: string): boolean;
     GetEntityFromPlayerId(playerId: string): number | undefined;
     private OnPlayerLeftEvent;

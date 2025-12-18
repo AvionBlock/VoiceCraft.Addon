@@ -97,8 +97,7 @@ export class McApiMcwss {
         if (this._connectionState !== 2)
             return;
         this._connectionState = 3;
-        if (this._pinger !== undefined)
-            system.clearRun(this._pinger);
+        this.StopPinger();
         this.OutboundQueue.clear();
         if (this._token !== undefined)
             this.SendPacket(new McApiLogoutRequestPacket(this._token));

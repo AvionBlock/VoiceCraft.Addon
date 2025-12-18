@@ -2,6 +2,7 @@ import { TwoWayMap } from "../API/Data/TwoWayMap";
 import { McApiSetEntityDescriptionRequestPacket } from "../API/Network/McApiPackets/Request/McApiSetEntityDescriptionRequestPacket";
 import { world } from "@minecraft/server";
 import { McApiSetEntityWorldIdRequestPacket } from "../API/Network/McApiPackets/Request/McApiSetEntityWorldIdRequestPacket";
+import { McApiSetEntityNameRequestPacket } from "../API/Network/McApiPackets/Request/McApiSetEntityNameRequestPacket";
 export class BindingManager {
     _vc;
     static IdTable = [
@@ -80,15 +81,16 @@ export class BindingManager {
     GetBindedPlayers() {
         return world.getAllPlayers().filter(x => this._bindedEntities.valueHas(x.id));
     }
-    BindPlayer(bindingKey, value) {
+    BindPlayer(bindingKey, player) {
+        if (this._bindedEntities.valueHas(player.id))
+            return false;
         const entityId = this._unbindedEntities.valueGet(bindingKey);
         if (entityId === undefined)
             return false;
         this._unbindedEntities.delete(entityId);
-        this._bindedEntities.set(entityId, value.id);
-        if (this._vc.Token === undefined)
-            return true;
-        this._vc.SendPacket(new McApiSetEntityDescriptionRequestPacket(entityId, `Bound to player ${value.name}`));
+        this._bindedEntities.set(entityId, player.id);
+        this._vc.SendPacket(new McApiSetEntityNameRequestPacket(entityId, player.name));
+        this._vc.SendPacket(new McApiSetEntityDescriptionRequestPacket(entityId, `Bound to player ${player.name}`));
         return true;
     }
     UnbindPlayer(playerId) {

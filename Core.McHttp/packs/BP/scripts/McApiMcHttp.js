@@ -25,6 +25,7 @@ export class McApiMcHttp {
     _cm = new CommandManager(this);
     _defaultTimeoutMs = 10000;
     //Connection state objects.
+    _awaitingRequest = false;
     _hostname = undefined;
     _token = undefined;
     _pinger = undefined;
@@ -65,7 +66,6 @@ export class McApiMcHttp {
         if (this._connectionState !== 0)
             throw new Error("Already in connecting/connected state!");
         try {
-            this.StopHttpUpdater();
             this._hostname = hostname;
             this._connectionState = 1;
             this._requestIds.clear();
@@ -94,19 +94,23 @@ export class McApiMcHttp {
         }
         catch (ex) {
             this._connectionState = 0;
+            this._hostname = undefined;
             this.OutboundQueue.clear();
             throw ex;
         }
     }
-    Disconnect(reason) {
+    async Disconnect(reason) {
         if (this._connectionState !== 2)
             return;
         this._connectionState = 3;
-        if (this._pinger !== undefined)
-            system.clearRun(this._pinger);
+        this.StopPinger();
         this.OutboundQueue.clear();
         if (this._token !== undefined)
             this.SendPacket(new McApiLogoutRequestPacket(this._token));
+        while (this.OutboundQueue.size > 0) {
+            await system.waitTicks(1);
+            //Send any last outgoing packets.
+        }
         this._connectionState = 0;
         this._hostname = undefined;
         this._token = undefined;
@@ -153,7 +157,8 @@ export class McApiMcHttp {
     StopHttpUpdater() {
         if (this._updater !== undefined) {
             system.clearRun(this._updater);
-            this._pinger = undefined;
+            this._updater = undefined;
+            http.cancelAll("Stop Requested");
         }
     }
     StopPinger() {
@@ -207,25 +212,38 @@ export class McApiMcHttp {
             this.StopHttpUpdater();
             return;
         }
-        const requestPacket = new McHttpUpdatePacket();
-        let packet = this.OutboundQueue.dequeue();
-        while (packet !== undefined) {
-            requestPacket.Packets.push(Z85.GetStringWithPadding(packet));
-            packet = this.OutboundQueue.dequeue();
+        try {
+            if (this._awaitingRequest)
+                return;
+            this._awaitingRequest = true;
+            const requestPacket = new McHttpUpdatePacket();
+            let packet = this.OutboundQueue.dequeue();
+            while (packet !== undefined) {
+                requestPacket.Packets.push(Z85.GetStringWithPadding(packet));
+                packet = this.OutboundQueue.dequeue();
+            }
+            const request = new HttpRequest(this._hostname);
+            request.setBody(JSON.stringify(requestPacket));
+            //@ts-ignore
+            request.setMethod(HttpRequestMethod.Post);
+            request.setHeaders([
+                new HttpHeader('Content-Type', 'application/json'),
+                new HttpHeader('Authorization', `Bearer ${this._token}`)
+            ]);
+            request.setTimeout(8000); //8 Second timeout. Less than the normal HTTP timeout.
+            const response = await http.request(request);
+            if (response.status !== 200)
+                return;
+            const responsePacket = Object.assign(new McHttpUpdatePacket(), JSON.parse(response.body));
+            for (const packet of responsePacket.Packets) {
+                await this.ReceivePacketAsync(packet);
+            }
         }
-        const request = new HttpRequest(this._hostname);
-        request.setBody(JSON.stringify(requestPacket));
-        request.setMethod(HttpRequestMethod.Post);
-        request.setHeaders([
-            new HttpHeader('Content-Type', 'application/json'),
-            new HttpHeader('Authorization', `Bearer ${this._token}`)
-        ]);
-        const response = await http.request(request);
-        if (response.status !== 200)
-            return;
-        const responsePacket = Object.assign(new McHttpUpdatePacket(), JSON.parse(response.body));
-        for (const packet of responsePacket.Packets) {
-            await this.ReceivePacketAsync(packet);
+        catch {
+            //Do Nothing.
+        }
+        finally {
+            this._awaitingRequest = false;
         }
     }
     async HandlePacketAsync(packetType, reader) {

@@ -47,12 +47,13 @@ export class CommandManager {
         );
     }
 
-    private ConnectCommand(origin: CustomCommandOrigin, token: string) {
-        if (
-            origin.sourceEntity === undefined ||
-            !(origin.sourceEntity instanceof Player)
-        )
-            throw new Error("Command origin must be of type player!");
+    private ConnectCommand(origin: CustomCommandOrigin, token: string): CustomCommandResult | undefined {
+        if (!(origin.sourceEntity instanceof Player))
+            return {
+                status: CustomCommandStatus.Failure,
+                message: "Command origin must be of type player!"
+            };
+
         system.run(async () => {
             const player = origin.sourceEntity as Player;
             try {

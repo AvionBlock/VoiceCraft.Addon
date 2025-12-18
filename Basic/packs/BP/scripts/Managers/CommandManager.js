@@ -24,16 +24,25 @@ export class CommandManager {
         registry.registerCommand({
             name: `${VoiceCraft.Namespace}:vcsettings`,
             description: "Shows voicecraft settings.",
-            permissionLevel: CommandPermissionLevel.Admin
+            permissionLevel: CommandPermissionLevel.GameDirectors
         }, (origin) => this.SettingsCommand(origin));
     }
     BindCommand(origin, bindingKey) {
         if (!(origin.sourceEntity instanceof Player))
-            throw new Error("Command origin must be of type player!");
+            return {
+                status: CustomCommandStatus.Failure,
+                message: "Command origin must be of type player!"
+            };
         if (this._vc.ConnectionState !== 2)
-            throw new Error("Not connected! Cannot bind!");
+            return {
+                status: CustomCommandStatus.Failure,
+                message: "Not connected! Cannot bind!"
+            };
         if (!this._bm.BindPlayer(bindingKey, origin.sourceEntity))
-            throw new Error("Could not bind! Binding key does not exist!");
+            return {
+                status: CustomCommandStatus.Failure,
+                message: "Could not bind! Binding key does not exist or already bound!"
+            };
         return {
             status: CustomCommandStatus.Success,
             message: "Successfully binded!",
@@ -41,7 +50,10 @@ export class CommandManager {
     }
     SettingsCommand(origin) {
         if (!(origin.sourceEntity instanceof Player))
-            throw new Error("Command origin must be of type player!");
+            return {
+                status: CustomCommandStatus.Failure,
+                message: "Command origin must be of type player!"
+            };
         const player = origin.sourceEntity;
         system.run(async () => {
             await this._fm.ShowMainMenuSettingsFormAsync(player);

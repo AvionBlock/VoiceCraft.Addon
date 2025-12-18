@@ -9,6 +9,7 @@ import {Player, PlayerLeaveAfterEvent, world} from "@minecraft/server";
 import {
     McApiSetEntityWorldIdRequestPacket
 } from "../API/Network/McApiPackets/Request/McApiSetEntityWorldIdRequestPacket";
+import {McApiSetEntityNameRequestPacket} from "../API/Network/McApiPackets/Request/McApiSetEntityNameRequestPacket";
 
 export class BindingManager {
     private static readonly IdTable = [
@@ -103,17 +104,18 @@ export class BindingManager {
         return world.getAllPlayers().filter(x => this._bindedEntities.valueHas(x.id));
     }
 
-    public BindPlayer(bindingKey: string, value: Player): boolean {
+    public BindPlayer(bindingKey: string, player: Player): boolean {
+        if (this._bindedEntities.valueHas(player.id)) return false;
         const entityId = this._unbindedEntities.valueGet(bindingKey);
         if (entityId === undefined) return false;
         this._unbindedEntities.delete(entityId);
-        this._bindedEntities.set(entityId, value.id);
+        this._bindedEntities.set(entityId, player.id);
 
-        if (this._vc.Token === undefined) return true;
+        this._vc.SendPacket(new McApiSetEntityNameRequestPacket(entityId, player.name));
         this._vc.SendPacket(
             new McApiSetEntityDescriptionRequestPacket(
                 entityId,
-                `Bound to player ${value.name}`
+                `Bound to player ${player.name}`
             )
         );
         return true;

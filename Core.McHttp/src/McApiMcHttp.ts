@@ -282,7 +282,11 @@ export class McApiMcHttp {
             for (const packet of responsePacket.Packets) {
                 await this.ReceivePacketAsync(packet);
             }
-        } finally {
+        }
+        catch {
+            //Do Nothing.
+        }
+        finally {
             this._awaitingRequest = false;
         }
     }
