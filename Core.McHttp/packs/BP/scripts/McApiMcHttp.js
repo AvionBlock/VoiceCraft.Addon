@@ -232,6 +232,7 @@ export class McApiMcHttp {
             ]);
             request.setTimeout(8000); //8 Second timeout. Less than the normal HTTP timeout.
             const response = await http.request(request);
+            this._awaitingRequest = false;
             if (response.status !== 200)
                 return;
             const responsePacket = Object.assign(new McHttpUpdatePacket(), JSON.parse(response.body));
