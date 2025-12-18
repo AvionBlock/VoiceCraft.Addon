@@ -77,7 +77,7 @@ export class McApiMcwss {
         if (this._connectionState !== 2) {
             this._connectionState = 0;
             this.OutboundQueue.clear();
-            throw new Error(this._disconnectReason ?? Locales.VcMcApi.DisconnectReason.None);
+            throw new Error(this._disconnectReason ?? Locales.VcMcApi.DisconnectReason.Manual);
         }
         this.StartPinger();
         this._connectionState = 2;
@@ -95,11 +95,11 @@ export class McApiMcwss {
         world.translateMessage(Locales.VcMcApi.Status.Disconnected, {
             rawtext: [
                 {
-                    translate: reason ?? Locales.VcMcApi.DisconnectReason.None,
+                    translate: reason ?? Locales.VcMcApi.DisconnectReason.Manual,
                 },
             ],
         });
-        system.sendScriptEvent(`${VoiceCraft.Namespace}:onDisconnected`, reason ?? Locales.VcMcApi.DisconnectReason.None);
+        system.sendScriptEvent(`${VoiceCraft.Namespace}:onDisconnected`, reason ?? Locales.VcMcApi.DisconnectReason.Manual);
     }
     SendPacket(packet) {
         this._writer.Reset();

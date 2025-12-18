@@ -6,10 +6,12 @@ export declare class Locales {
             Disconnected: string;
         };
         DisconnectReason: {
-            None: string;
+            Manual: string;
             Timeout: string;
             InvalidLoginToken: string;
             IncompatibleVersion: string;
+            Shutdown: string;
+            Error: string;
         };
     }>;
 }
