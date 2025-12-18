@@ -1,4 +1,5 @@
 import { MaxStringLength } from "../../../Data/Constants";
+import { McApiPacketType } from "../../../Data/Enums";
 import { Vector2 } from "../../../Data/Vector2";
 import { Vector3 } from "../../../Data/Vector3";
 export class McApiOnEntityCreatedPacket {
@@ -19,7 +20,7 @@ export class McApiOnEntityCreatedPacket {
         this._muffleFactor = muffleFactor;
     }
     get PacketType() {
-        return 20 /* McApiPacketType.OnEntityCreated */;
+        return McApiPacketType.OnEntityCreated;
     }
     get Id() {
         return this._id;

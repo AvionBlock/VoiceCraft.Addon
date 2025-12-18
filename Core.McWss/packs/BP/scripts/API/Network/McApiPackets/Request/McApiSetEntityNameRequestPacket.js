@@ -1,15 +1,12 @@
+import { McApiPacketType } from "../../../Data/Enums";
 import { MaxStringLength } from "../../../Data/Constants";
 export class McApiSetEntityNameRequestPacket {
-    constructor(token = "", id = 0, value = "") {
-        this._token = token;
+    constructor(id = 0, value = "") {
         this._id = id;
         this._value = value;
     }
     get PacketType() {
-        return 8 /* McApiPacketType.SetEntityNameRequest */;
-    }
-    get Token() {
-        return this._token;
+        return McApiPacketType.SetEntityNameRequest;
     }
     get Id() {
         return this._id;
@@ -17,21 +14,17 @@ export class McApiSetEntityNameRequestPacket {
     get Value() {
         return this._value;
     }
-    _token;
     _id;
     _value;
     Serialize(writer) {
-        writer.PutString(this._token, MaxStringLength);
         writer.PutInt(this._id);
         writer.PutString(this._value, MaxStringLength);
     }
     Deserialize(reader) {
-        this._token = reader.GetString(MaxStringLength);
         this._id = reader.GetInt();
         this._value = reader.GetString(MaxStringLength);
     }
-    Set(token = "", id = 0, value = "") {
-        this._token = token;
+    Set(id = 0, value = "") {
         this._id = id;
         this._value = value;
         return this;

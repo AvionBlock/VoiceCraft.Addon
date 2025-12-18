@@ -7,9 +7,13 @@ import { Vector3 } from "./API/Data/Vector3";
 import { McApiSetEntityRotationRequestPacket } from "./API/Network/McApiPackets/Request/McApiSetEntityRotationRequestPacket";
 import { Vector2 } from "./API/Data/Vector2";
 import { McApiSetEntityWorldIdRequestPacket } from "./API/Network/McApiPackets/Request/McApiSetEntityWorldIdRequestPacket";
+import {FormManager} from "./Managers/FormManager";
+import {EffectsManager} from "./Managers/EffectsManager";
 const vc = new VoiceCraft();
 const bm = new BindingManager(vc);
-new CommandManager(vc, bm);
+const em = new EffectsManager(vc);
+const fm = new FormManager(vc, bm, em);
+new CommandManager(vc, bm, fm);
 
 system.runInterval(() => IntervalLogic(), 0);
 world.afterEvents.playerLeave.subscribe((ev) => HandlePlayerLeaveEvent(ev));
@@ -29,8 +33,8 @@ function IntervalLogic() {
         const worldId = player.dimension.id;
         const location = player.location;
         const rotation = player.getRotation();
-        vc.SendPacket(new McApiSetEntityWorldIdRequestPacket(vc.Token, entityId, worldId));
-        vc.SendPacket(new McApiSetEntityPositionRequestPacket(vc.Token, entityId, new Vector3(location.x, location.y, location.z)));
-        vc.SendPacket(new McApiSetEntityRotationRequestPacket(vc.Token, entityId, new Vector2(rotation.x, rotation.y)));
+        vc.SendPacket(new McApiSetEntityWorldIdRequestPacket(entityId, worldId));
+        vc.SendPacket(new McApiSetEntityPositionRequestPacket(entityId, new Vector3(location.x, location.y, location.z)));
+        vc.SendPacket(new McApiSetEntityRotationRequestPacket(entityId, new Vector2(rotation.x, rotation.y)));
     }
 }

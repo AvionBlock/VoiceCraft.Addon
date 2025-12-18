@@ -1,15 +1,11 @@
-import { MaxStringLength } from "../../../Data/Constants";
+import { McApiPacketType } from "../../../Data/Enums";
 export class McApiSetEntityTalkBitmaskRequestPacket {
-    constructor(token = "", id = 0, value = 0) {
-        this._token = token;
+    constructor(id = 0, value = 0) {
         this._id = id;
         this._value = value;
     }
     get PacketType() {
-        return 9 /* McApiPacketType.SetEntityTalkBitmaskRequest */;
-    }
-    get Token() {
-        return this._token;
+        return McApiPacketType.SetEntityTalkBitmaskRequest;
     }
     get Id() {
         return this._id;
@@ -17,21 +13,17 @@ export class McApiSetEntityTalkBitmaskRequestPacket {
     get Value() {
         return this._value;
     }
-    _token;
     _id;
     _value;
     Serialize(writer) {
-        writer.PutString(this._token, MaxStringLength);
         writer.PutInt(this._id);
         writer.PutUshort(this._value);
     }
     Deserialize(reader) {
-        this._token = reader.GetString(MaxStringLength);
         this._id = reader.GetInt();
         this._value = reader.GetUshort();
     }
-    Set(token = "", id = 0, value = 0) {
-        this._token = token;
+    Set(id = 0, value = 0) {
         this._id = id;
         this._value = value;
         return this;

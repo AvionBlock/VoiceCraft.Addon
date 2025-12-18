@@ -1,6 +1,7 @@
+import { EffectType } from "../Data/Enums";
 export class VisibilityEffect {
     get EffectType() {
-        return 1 /* EffectType.Visibility */;
+        return EffectType.Visibility;
     }
     Serialize(writer) {
         //Nothing to write.

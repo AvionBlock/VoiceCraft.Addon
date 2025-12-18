@@ -3,11 +3,9 @@ import { IMcApiPacket } from "../IMcApiPacket";
 import { NetDataWriter } from "../../NetDataWriter";
 import { NetDataReader } from "../../NetDataReader";
 export declare class McApiPingRequestPacket implements IMcApiPacket {
-    constructor(token?: string);
+    constructor();
     get PacketType(): McApiPacketType;
-    get Token(): string;
-    private _token;
     Serialize(writer: NetDataWriter): void;
     Deserialize(reader: NetDataReader): void;
-    Set(token?: string): McApiPingRequestPacket;
+    Set(): McApiPingRequestPacket;
 }

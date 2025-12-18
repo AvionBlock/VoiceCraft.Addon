@@ -27,12 +27,14 @@ export class CommandManager {
             optionalParameters: [
                 { name: "data", type: CustomCommandParamType.String },
             ],
-        }, (origin, data) => this.DataTunnelCommand(origin, data));
+        }, (origin, data) => this.SendCommandTunnel(origin, data));
     }
     ConnectCommand(origin, token) {
-        if (origin.sourceEntity === undefined ||
-            !(origin.sourceEntity instanceof Player))
-            throw new Error("Command origin must be of type player!");
+        if (!(origin.sourceEntity instanceof Player))
+            return {
+                status: CustomCommandStatus.Failure,
+                message: "Command origin must be of type player!"
+            };
         system.run(async () => {
             const player = origin.sourceEntity;
             try {
@@ -49,30 +51,32 @@ export class CommandManager {
         });
         return undefined;
     }
-    DataTunnelCommand(origin, data) {
-        try {
-            let stringData = "";
-            let first = true;
-            while (this._mcapi.OutboundQueue.size > 0) {
-                const packetData = this._mcapi.OutboundQueue.dequeue();
-                if (packetData === undefined)
-                    break;
-                const data = Z85.GetStringWithPadding(packetData);
-                stringData = stringData.concat(`${!first ? "|" : ""}${data.replaceAll("%", "%%")}`); //Issue workaround.
-                if (first) {
-                    first = false;
-                    continue;
+    SendCommandTunnel(_, data) {
+        if (data.length > 0) {
+            system.run(async () => {
+                let packets = data.split("|");
+                for (const packet of packets) {
+                    await this._mcapi.ReceivePacketAsync(packet);
                 }
-            }
-            if (data !== undefined) {
-                system.run(() => {
-                    this._mcapi.ReceivePacketAsync(data);
-                });
-            }
-            return { status: CustomCommandStatus.Success, message: stringData };
+            });
         }
-        catch {
-            return { status: CustomCommandStatus.Failure };
+        let packetData = this._mcapi.OutboundQueue.dequeue();
+        if (packetData === undefined)
+            return {
+                status: CustomCommandStatus.Success,
+                message: ""
+            };
+        let stringData = Z85.GetStringWithPadding(packetData);
+        while (stringData.length < 1000) {
+            packetData = this._mcapi.OutboundQueue.dequeue();
+            if (packetData === undefined)
+                break;
+            stringData += `|${Z85.GetStringWithPadding(packetData)}`;
         }
+        stringData = stringData.replaceAll("%", "%%");
+        return {
+            status: CustomCommandStatus.Success,
+            message: stringData,
+        };
     }
 }

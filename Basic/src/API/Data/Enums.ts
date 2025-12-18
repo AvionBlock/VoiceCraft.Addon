@@ -1,4 +1,4 @@
-export const enum McApiPacketType {
+export enum McApiPacketType {
     //Requests
     LoginRequest,
     LogoutRequest,
@@ -42,12 +42,12 @@ export const enum McApiPacketType {
     OnEntityAudioReceived,
 }
 
-export const enum PositioningType {
+export enum PositioningType {
     Server,
     Client,
 }
 
-export const enum EffectType {
+export enum EffectType {
     None,
     Visibility,
     Proximity,

@@ -1,4 +1,4 @@
-export declare const enum McApiPacketType {
+export declare enum McApiPacketType {
     LoginRequest = 0,
     LogoutRequest = 1,
     PingRequest = 2,
@@ -36,11 +36,11 @@ export declare const enum McApiPacketType {
     OnEntityMuffleFactorUpdated = 34,
     OnEntityAudioReceived = 35
 }
-export declare const enum PositioningType {
+export declare enum PositioningType {
     Server = 0,
     Client = 1
 }
-export declare const enum EffectType {
+export declare enum EffectType {
     None = 0,
     Visibility = 1,
     Proximity = 2,

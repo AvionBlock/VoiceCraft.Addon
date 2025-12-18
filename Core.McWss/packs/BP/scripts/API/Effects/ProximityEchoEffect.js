@@ -1,10 +1,11 @@
+import { EffectType } from "../Data/Enums";
 export class ProximityEchoEffect {
     constructor(delay = 0.5, range = 0) {
         this._delay = delay;
         this._range = range;
     }
     get EffectType() {
-        return 4 /* EffectType.ProximityEcho */;
+        return EffectType.ProximityEcho;
     }
     get Delay() {
         return this._delay;

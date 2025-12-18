@@ -1,10 +1,11 @@
+import { EffectType } from "../Data/Enums";
 export class EchoEffect {
     constructor(delay = 0.5, feedback = 0.5) {
         this._delay = delay;
         this._feedback = feedback;
     }
     get EffectType() {
-        return 5 /* EffectType.Echo */;
+        return EffectType.Echo;
     }
     get Delay() {
         return this._delay;

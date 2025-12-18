@@ -1,76 +1,63 @@
 import { CommandPermissionLevel, CustomCommandParamType, CustomCommandStatus, Player, system, } from "@minecraft/server";
 import { VoiceCraft } from "../API/VoiceCraft";
-import { McApiSetEntityDescriptionRequestPacket } from "../API/Network/McApiPackets/Request/McApiSetEntityDescriptionRequestPacket";
-import { McApiSetEntityTitleRequestPacket } from "../API/Network/McApiPackets/Request/McApiSetEntityTitleRequestPacket";
 export class CommandManager {
     _vc;
     _bm;
-    constructor(_vc, _bm) {
+    _fm;
+    constructor(_vc, _bm, _fm) {
         this._vc = _vc;
         this._bm = _bm;
+        this._fm = _fm;
         system.beforeEvents.startup.subscribe((ev) => {
             this.RegisterCommands(ev.customCommandRegistry);
         });
     }
     RegisterCommands(registry) {
         registry.registerCommand({
-            name: `${VoiceCraft.Namespace}:set_title`,
-            description: "Set's an entity's title",
-            permissionLevel: CommandPermissionLevel.Host,
-            mandatoryParameters: [
-                { name: "id", type: CustomCommandParamType.Integer },
-                { name: "value", type: CustomCommandParamType.String },
-            ],
-        }, (origin, id, value) => this.SetTitleCommand(origin, id, value));
-        registry.registerCommand({
-            name: `${VoiceCraft.Namespace}:set_description`,
-            description: "Set's an entity's description",
-            permissionLevel: CommandPermissionLevel.Host,
-            mandatoryParameters: [
-                { name: "id", type: CustomCommandParamType.Integer },
-                { name: "value", type: CustomCommandParamType.String },
-            ],
-        }, (origin, id, value) => this.SetDescriptionCommand(origin, id, value));
-        registry.registerCommand({
-            name: `${VoiceCraft.Namespace}:bind`,
+            name: `${VoiceCraft.Namespace}:vcbind`,
             description: "Binds to an entity",
             permissionLevel: CommandPermissionLevel.Any,
             mandatoryParameters: [
                 { name: "binding_key", type: CustomCommandParamType.String },
             ],
-        }, (origin, bindingKey) => this.BindEntityCommand(origin, bindingKey));
+        }, (origin, bindingKey) => this.BindCommand(origin, bindingKey));
+        registry.registerCommand({
+            name: `${VoiceCraft.Namespace}:vcsettings`,
+            description: "Shows voicecraft settings.",
+            permissionLevel: CommandPermissionLevel.GameDirectors
+        }, (origin) => this.SettingsCommand(origin));
     }
-    SetTitleCommand(origin, id, value) {
-        if (origin.sourceEntity === undefined ||
-            !(origin.sourceEntity instanceof Player))
-            throw new Error("Command origin must be of type player!");
-        system.run(async () => {
-            if (this._vc.Token !== undefined) {
-                this._vc.SendPacket(new McApiSetEntityTitleRequestPacket(this._vc.Token, id, value));
-            }
-        });
-        return undefined;
-    }
-    SetDescriptionCommand(origin, id, value) {
+    BindCommand(origin, bindingKey) {
         if (!(origin.sourceEntity instanceof Player))
-            throw new Error("Command origin must be of type player!");
-        system.run(async () => {
-            if (this._vc.Token !== undefined) {
-                this._vc.SendPacket(new McApiSetEntityDescriptionRequestPacket(this._vc.Token, id, value));
-            }
-        });
-        return undefined;
-    }
-    BindEntityCommand(origin, bindingKey) {
-        if (!(origin.sourceEntity instanceof Player))
-            throw new Error("Command origin must be of type player!");
+            return {
+                status: CustomCommandStatus.Failure,
+                message: "Command origin must be of type player!"
+            };
         if (this._vc.ConnectionState !== 2)
-            throw new Error("Not connected! Cannot bind!");
+            return {
+                status: CustomCommandStatus.Failure,
+                message: "Not connected! Cannot bind!"
+            };
         if (!this._bm.BindPlayer(bindingKey, origin.sourceEntity))
-            throw new Error("Could not bind! Binding key does not exist!");
+            return {
+                status: CustomCommandStatus.Failure,
+                message: "Could not bind! Binding key does not exist or already bound!"
+            };
         return {
             status: CustomCommandStatus.Success,
             message: "Successfully binded!",
         };
+    }
+    SettingsCommand(origin) {
+        if (!(origin.sourceEntity instanceof Player))
+            return {
+                status: CustomCommandStatus.Failure,
+                message: "Command origin must be of type player!"
+            };
+        const player = origin.sourceEntity;
+        system.run(async () => {
+            await this._fm.ShowMainMenuSettingsFormAsync(player);
+        });
+        return undefined;
     }
 }

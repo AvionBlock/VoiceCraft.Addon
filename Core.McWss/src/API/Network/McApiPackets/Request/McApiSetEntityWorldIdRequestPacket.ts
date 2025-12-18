@@ -5,17 +5,13 @@ import { NetDataReader } from "../../NetDataReader";
 import { MaxStringLength } from "../../../Data/Constants";
 
 export class McApiSetEntityWorldIdRequestPacket implements IMcApiPacket {
-  constructor(token: string = "", id: number = 0, value: string = "") {
-    this._token = token;
+  constructor(id: number = 0, value: string = "") {
     this._id = id;
     this._value = value;
   }
 
   public get PacketType(): McApiPacketType {
     return McApiPacketType.SetEntityWorldIdRequest;
-  }
-  public get Token(): string {
-    return this._token;
   }
   public get Id(): number {
     return this._id;
@@ -24,24 +20,20 @@ export class McApiSetEntityWorldIdRequestPacket implements IMcApiPacket {
     return this._value;
   }
 
-  private _token: string;
   private _id: number;
   private _value: string;
 
   public Serialize(writer: NetDataWriter) {
-    writer.PutString(this._token, MaxStringLength);
     writer.PutInt(this._id);
     writer.PutString(this._value, MaxStringLength);
   }
 
   public Deserialize(reader: NetDataReader) {
-    this._token = reader.GetString(MaxStringLength);
     this._id = reader.GetInt();
     this._value = reader.GetString(MaxStringLength);
   }
 
-  public Set(token: string = "", id: number = 0, value: string = ""): McApiSetEntityWorldIdRequestPacket {
-    this._token = token;
+  public Set(id: number = 0, value: string = ""): McApiSetEntityWorldIdRequestPacket {
     this._id = id;
     this._value = value;
     return this;

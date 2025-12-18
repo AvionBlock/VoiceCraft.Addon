@@ -1,0 +1,13 @@
+pack.name=VoiceCraft.Addon.Core.McHttp.RP
+pack.description=Http Backend Addon for VoiceCraft Proximity Chat
+
+VcMcApi.Status.Connected=§aSuccessfully Connected!
+VcMcApi.Status.Connecting=§eConnecting...
+VcMcApi.Status.Disconnected=§cDisconnected - Reason: %1
+
+VcMcApi.DisconnectReason.Manual=Manual Disconnection
+VcMcApi.DisconnectReason.Timeout=Timeout
+VcMcApi.DisconnectReason.InvalidLoginToken=Invalid Login Token
+VcMcApi.DisconnectReason.IncompatibleVersion=Incompatible Version
+VcMcApi.DisconnectReason.Shutdown=Server Shutdown
+VcMcApi.DisconnectReason.Error=An error occurred while trying to connect

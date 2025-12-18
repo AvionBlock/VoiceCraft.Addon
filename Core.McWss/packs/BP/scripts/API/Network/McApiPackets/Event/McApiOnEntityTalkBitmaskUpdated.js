@@ -1,10 +1,11 @@
+import { McApiPacketType } from "../../../Data/Enums";
 export class McApiOnEntityTalkBitmaskUpdatedPacket {
     constructor(id = 0, value = 0) {
         this._id = id;
         this._value = value;
     }
     get PacketType() {
-        return 28 /* McApiPacketType.OnEntityTalkBitmaskUpdated */;
+        return McApiPacketType.OnEntityTalkBitmaskUpdated;
     }
     get Id() {
         return this._id;

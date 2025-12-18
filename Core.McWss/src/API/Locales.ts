@@ -6,10 +6,12 @@ export class Locales {
       Disconnected: "VcMcApi.Status.Disconnected"
     },
     DisconnectReason: {
-      None: "VcMcApi.DisconnectReason.None",
+      Manual: "VcMcApi.DisconnectReason.Manual",
       Timeout: "VcMcApi.DisconnectReason.Timeout",
       InvalidLoginToken: "VcMcApi.DisconnectReason.InvalidLoginToken",
-      IncomaptibleVersion: "VcMcApi.DisconnectReason.IncompatibleVersion",
+      IncompatibleVersion: "VcMcApi.DisconnectReason.IncompatibleVersion",
+      Shutdown: "VcMcApi.DisconnectReason.Shutdown",
+      Error: "VcMcApi.DisconnectReason.Error",
     },
   });
 }

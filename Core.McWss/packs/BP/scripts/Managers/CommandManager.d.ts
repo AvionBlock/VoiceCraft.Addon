@@ -5,5 +5,5 @@ export declare class CommandManager {
     constructor(_mcapi: McApiMcwss);
     private RegisterCommands;
     private ConnectCommand;
-    private DataTunnelCommand;
+    private SendCommandTunnel;
 }

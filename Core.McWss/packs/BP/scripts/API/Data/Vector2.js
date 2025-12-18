@@ -6,8 +6,6 @@ export class Vector2 {
     X;
     Y;
     Equals(value) {
-        if (value.X !== this.X || value.Y !== this.Y)
-            return false;
-        return true;
+        return !(value.X !== this.X || value.Y !== this.Y);
     }
 }
