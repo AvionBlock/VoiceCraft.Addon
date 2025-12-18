@@ -161,7 +161,7 @@ export class BindingManager {
         }
 
         this._unbindedEntities.set(ev.Id, bindingKey);
-        if (this._vc.Token === undefined) return;
+        console.log("Setting Binding Key");
         this._vc.SendPacket(new McApiSetEntityWorldIdRequestPacket(ev.Id, ""));
         this._vc.SendPacket(
             new McApiSetEntityDescriptionRequestPacket(

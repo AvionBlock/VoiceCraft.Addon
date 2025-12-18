@@ -12,7 +12,7 @@ export declare class McApiMcwss {
     private _reader;
     private _lastPing;
     private _connectionState;
-    private _requestIds;
+    private _disconnectReason?;
     get Token(): string | undefined;
     OutboundQueue: Queue<Uint8Array>;
     OnPacket: Event<IMcApiPacket>;
@@ -25,9 +25,6 @@ export declare class McApiMcwss {
     ReceivePacketAsync(packet: string): Promise<void>;
     private StartPinger;
     private StopPinger;
-    private RegisterRequestId;
-    private DeregisterRequestId;
-    private GetResponseAsync;
     private PingIntervalLogic;
     private HandlePacketAsync;
     private HandleAcceptResponsePacket;

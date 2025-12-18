@@ -15,7 +15,7 @@ export declare class McApiMcHttp {
     private _reader;
     private _lastPing;
     private _connectionState;
-    private _requestIds;
+    private _disconnectReason?;
     OutboundQueue: Queue<Uint8Array>;
     OnPacket: Event<IMcApiPacket>;
     constructor();
@@ -29,9 +29,6 @@ export declare class McApiMcHttp {
     private StartPinger;
     private StopHttpUpdater;
     private StopPinger;
-    private RegisterRequestId;
-    private DeregisterRequestId;
-    private GetResponseAsync;
     private PingIntervalLogic;
     private HttpUpdaterLogic;
     private HandlePacketAsync;
