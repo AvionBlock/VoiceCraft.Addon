@@ -58,5 +58,7 @@ export enum EffectType {
     Proximity,
     Directional,
     ProximityEcho,
-    Echo
+    Echo,
+    ProximityMuffle,
+    Muffle,
 }
