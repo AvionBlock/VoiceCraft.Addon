@@ -1,26 +1,30 @@
 export var McApiPacketType;
 (function (McApiPacketType) {
-    //Requests
+    //Core
+    //Requests DO NOT CHANGE!
     McApiPacketType[McApiPacketType["LoginRequest"] = 0] = "LoginRequest";
     McApiPacketType[McApiPacketType["LogoutRequest"] = 1] = "LogoutRequest";
     McApiPacketType[McApiPacketType["PingRequest"] = 2] = "PingRequest";
-    McApiPacketType[McApiPacketType["SetEffectRequest"] = 3] = "SetEffectRequest";
-    McApiPacketType[McApiPacketType["ClearEffectsRequest"] = 4] = "ClearEffectsRequest";
-    McApiPacketType[McApiPacketType["SetEntityTitleRequest"] = 5] = "SetEntityTitleRequest";
-    McApiPacketType[McApiPacketType["SetEntityDescriptionRequest"] = 6] = "SetEntityDescriptionRequest";
-    McApiPacketType[McApiPacketType["SetEntityWorldIdRequest"] = 7] = "SetEntityWorldIdRequest";
-    McApiPacketType[McApiPacketType["SetEntityNameRequest"] = 8] = "SetEntityNameRequest";
-    McApiPacketType[McApiPacketType["SetEntityTalkBitmaskRequest"] = 9] = "SetEntityTalkBitmaskRequest";
-    McApiPacketType[McApiPacketType["SetEntityListenBitmaskRequest"] = 10] = "SetEntityListenBitmaskRequest";
-    McApiPacketType[McApiPacketType["SetEntityEffectBitmaskRequest"] = 11] = "SetEntityEffectBitmaskRequest";
-    McApiPacketType[McApiPacketType["SetEntityPositionRequest"] = 12] = "SetEntityPositionRequest";
-    McApiPacketType[McApiPacketType["SetEntityRotationRequest"] = 13] = "SetEntityRotationRequest";
-    McApiPacketType[McApiPacketType["SetEntityCaveFactorRequest"] = 14] = "SetEntityCaveFactorRequest";
-    McApiPacketType[McApiPacketType["SetEntityMuffleFactorRequest"] = 15] = "SetEntityMuffleFactorRequest";
+    //Responses DO NOT CHANGE!
+    McApiPacketType[McApiPacketType["AcceptResponse"] = 3] = "AcceptResponse";
+    McApiPacketType[McApiPacketType["DenyResponse"] = 4] = "DenyResponse";
+    McApiPacketType[McApiPacketType["PingResponse"] = 5] = "PingResponse";
+    //Other/Changeable
+    //Requests
+    McApiPacketType[McApiPacketType["SetEffectRequest"] = 6] = "SetEffectRequest";
+    McApiPacketType[McApiPacketType["ClearEffectsRequest"] = 7] = "ClearEffectsRequest";
+    McApiPacketType[McApiPacketType["SetEntityTitleRequest"] = 8] = "SetEntityTitleRequest";
+    McApiPacketType[McApiPacketType["SetEntityDescriptionRequest"] = 9] = "SetEntityDescriptionRequest";
+    McApiPacketType[McApiPacketType["SetEntityWorldIdRequest"] = 10] = "SetEntityWorldIdRequest";
+    McApiPacketType[McApiPacketType["SetEntityNameRequest"] = 11] = "SetEntityNameRequest";
+    McApiPacketType[McApiPacketType["SetEntityTalkBitmaskRequest"] = 12] = "SetEntityTalkBitmaskRequest";
+    McApiPacketType[McApiPacketType["SetEntityListenBitmaskRequest"] = 13] = "SetEntityListenBitmaskRequest";
+    McApiPacketType[McApiPacketType["SetEntityEffectBitmaskRequest"] = 14] = "SetEntityEffectBitmaskRequest";
+    McApiPacketType[McApiPacketType["SetEntityPositionRequest"] = 15] = "SetEntityPositionRequest";
+    McApiPacketType[McApiPacketType["SetEntityRotationRequest"] = 16] = "SetEntityRotationRequest";
+    McApiPacketType[McApiPacketType["SetEntityCaveFactorRequest"] = 17] = "SetEntityCaveFactorRequest";
+    McApiPacketType[McApiPacketType["SetEntityMuffleFactorRequest"] = 18] = "SetEntityMuffleFactorRequest";
     //Responses
-    McApiPacketType[McApiPacketType["AcceptResponse"] = 16] = "AcceptResponse";
-    McApiPacketType[McApiPacketType["DenyResponse"] = 17] = "DenyResponse";
-    McApiPacketType[McApiPacketType["PingResponse"] = 18] = "PingResponse";
     //Events
     McApiPacketType[McApiPacketType["OnEffectUpdated"] = 19] = "OnEffectUpdated";
     McApiPacketType[McApiPacketType["OnEntityCreated"] = 20] = "OnEntityCreated";

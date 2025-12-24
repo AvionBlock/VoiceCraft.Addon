@@ -5,7 +5,7 @@ import {
     McApiSetEntityDescriptionRequestPacket
 } from "../API/Network/McApiPackets/Request/McApiSetEntityDescriptionRequestPacket";
 import {McApiOnEntityDestroyedPacket} from "../API/Network/McApiPackets/Event/McApiOnEntityDestroyedPacket";
-import {Player, PlayerLeaveAfterEvent, world} from "@minecraft/server";
+import {Player, PlayerLeaveAfterEvent, system, world} from "@minecraft/server";
 import {
     McApiSetEntityWorldIdRequestPacket
 } from "../API/Network/McApiPackets/Request/McApiSetEntityWorldIdRequestPacket";
@@ -118,6 +118,7 @@ export class BindingManager {
                 `Bound to player ${player.name}`
             )
         );
+        system.sendScriptEvent(`${VoiceCraft.Namespace}:onPlayerBind`, `${player.id}:${entityId}`);
         return true;
     }
 
@@ -140,6 +141,7 @@ export class BindingManager {
             )
         );
         this._unbindedEntities.set(entityId, bindingKey);
+        system.sendScriptEvent(`${VoiceCraft.Namespace}:onPlayerUnbind`, `${playerId}:${entityId}`);
         return true;
     }
 
@@ -173,11 +175,19 @@ export class BindingManager {
 
     private OnEntityDestroyedPacketEvent(ev: McApiOnEntityDestroyedPacket) {
         this._unbindedEntities.delete(ev.Id);
-        this._bindedEntities.delete(ev.Id);
+        const playerId = this._bindedEntities.get(ev.Id);
+        if(playerId !== undefined)
+        {
+            this.UnbindPlayer(playerId);
+        }
     }
 
     private OnDisconnectedEvent(_: string) {
         this._unbindedEntities.clear();
+        for(const bindedEntity in this._bindedEntities.entries())
+        {
+            system.sendScriptEvent(`${VoiceCraft.Namespace}:onPlayerUnbind`, `${bindedEntity[1]}:${bindedEntity[0]}`);
+        }
         this._bindedEntities.clear();
     }
 

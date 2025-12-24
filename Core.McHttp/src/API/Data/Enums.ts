@@ -1,8 +1,16 @@
 export enum McApiPacketType {
-    //Requests
+    //Core
+    //Requests DO NOT CHANGE!
     LoginRequest,
     LogoutRequest,
     PingRequest,
+    //Responses DO NOT CHANGE!
+    AcceptResponse,
+    DenyResponse,
+    PingResponse,
+
+    //Other/Changeable
+    //Requests
     SetEffectRequest,
     ClearEffectsRequest,
     SetEntityTitleRequest,
@@ -18,9 +26,6 @@ export enum McApiPacketType {
     SetEntityMuffleFactorRequest,
 
     //Responses
-    AcceptResponse,
-    DenyResponse,
-    PingResponse,
 
     //Events
     OnEffectUpdated,
@@ -39,7 +44,7 @@ export enum McApiPacketType {
     OnEntityRotationUpdated,
     OnEntityCaveFactorUpdated,
     OnEntityMuffleFactorUpdated,
-    OnEntityAudioReceived,
+    OnEntityAudioReceived
 }
 
 export enum PositioningType {

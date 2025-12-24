@@ -61,10 +61,16 @@ export class VoiceCraft {
     OnDisconnected = new Event();
     //McApi
     OnPacket = new Event();
+    //Core
     //Requests
     OnLoginRequestPacket = new Event();
     OnLogoutRequestPacket = new Event();
     OnPingRequestPacket = new Event();
+    //Responses
+    OnAcceptResponsePacket = new Event();
+    OnDenyResponsePacket = new Event();
+    OnPingResponsePacket = new Event();
+    //Requests
     OnSetEffectRequestPacket = new Event();
     OnClearEffectsRequestPacket = new Event();
     OnSetEntityTitleRequestPacket = new Event();
@@ -79,9 +85,6 @@ export class VoiceCraft {
     OnSetEntityCaveFactorRequestPacket = new Event();
     OnSetEntityMuffleFactorRequestPacket = new Event();
     //Response
-    OnAcceptResponsePacket = new Event();
-    OnDenyResponsePacket = new Event();
-    OnPingResponsePacket = new Event();
     //Events
     OnEffectUpdatedPacket = new Event();
     OnEntityCreatedPacket = new Event();
@@ -161,6 +164,21 @@ export class VoiceCraft {
                 pingRequestPacket.Deserialize(reader);
                 this.HandlePingRequestPacket(pingRequestPacket);
                 break;
+            case McApiPacketType.AcceptResponse:
+                const acceptResponsePacket = new McApiAcceptResponsePacket();
+                acceptResponsePacket.Deserialize(reader);
+                this.HandleAcceptResponsePacket(acceptResponsePacket);
+                break;
+            case McApiPacketType.DenyResponse:
+                const denyResponsePacket = new McApiDenyResponsePacket();
+                denyResponsePacket.Deserialize(reader);
+                this.HandleDenyResponsePacket(denyResponsePacket);
+                break;
+            case McApiPacketType.PingResponse:
+                const pingResponsePacket = new McApiPingResponsePacket();
+                pingResponsePacket.Deserialize(reader);
+                this.HandlePingResponsePacket(pingResponsePacket);
+                break;
             case McApiPacketType.SetEffectRequest:
                 const setEffectRequestPacket = new McApiSetEffectRequestPacket();
                 setEffectRequestPacket.Deserialize(reader);
@@ -225,21 +243,6 @@ export class VoiceCraft {
                 const setEntityMuffleFactorRequestPacket = new McApiSetEntityMuffleFactorRequestPacket();
                 setEntityMuffleFactorRequestPacket.Deserialize(reader);
                 this.HandleSetEntityMuffleFactorRequestPacket(setEntityMuffleFactorRequestPacket);
-                break;
-            case McApiPacketType.AcceptResponse:
-                const acceptResponsePacket = new McApiAcceptResponsePacket();
-                acceptResponsePacket.Deserialize(reader);
-                this.HandleAcceptResponsePacket(acceptResponsePacket);
-                break;
-            case McApiPacketType.DenyResponse:
-                const denyResponsePacket = new McApiDenyResponsePacket();
-                denyResponsePacket.Deserialize(reader);
-                this.HandleDenyResponsePacket(denyResponsePacket);
-                break;
-            case McApiPacketType.PingResponse:
-                const pingResponsePacket = new McApiPingResponsePacket();
-                pingResponsePacket.Deserialize(reader);
-                this.HandlePingResponsePacket(pingResponsePacket);
                 break;
             case McApiPacketType.OnEffectUpdated:
                 const onEffectUpdatedPacket = new McApiOnEffectUpdatedPacket();
@@ -340,6 +343,18 @@ export class VoiceCraft {
         this.OnPacket.Invoke(packet);
         this.OnPingRequestPacket.Invoke(packet);
     }
+    HandleAcceptResponsePacket(packet) {
+        this.OnPacket.Invoke(packet);
+        this.OnAcceptResponsePacket.Invoke(packet);
+    }
+    HandleDenyResponsePacket(packet) {
+        this.OnPacket.Invoke(packet);
+        this.OnDenyResponsePacket.Invoke(packet);
+    }
+    HandlePingResponsePacket(packet) {
+        this.OnPacket.Invoke(packet);
+        this.OnPingResponsePacket.Invoke(packet);
+    }
     HandleSetEffectRequestPacket(packet) {
         this.OnPacket.Invoke(packet);
         this.OnSetEffectRequestPacket.Invoke(packet);
@@ -391,18 +406,6 @@ export class VoiceCraft {
     HandleSetEntityMuffleFactorRequestPacket(packet) {
         this.OnPacket.Invoke(packet);
         this.OnSetEntityMuffleFactorRequestPacket.Invoke(packet);
-    }
-    HandleAcceptResponsePacket(packet) {
-        this.OnPacket.Invoke(packet);
-        this.OnAcceptResponsePacket.Invoke(packet);
-    }
-    HandleDenyResponsePacket(packet) {
-        this.OnPacket.Invoke(packet);
-        this.OnDenyResponsePacket.Invoke(packet);
-    }
-    HandlePingResponsePacket(packet) {
-        this.OnPacket.Invoke(packet);
-        this.OnPingResponsePacket.Invoke(packet);
     }
     HandleOnEffectUpdatedPacket(packet) {
         this.OnPacket.Invoke(packet);
