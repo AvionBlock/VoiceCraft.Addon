@@ -37,6 +37,8 @@ import { McApiOnEffectUpdatedPacket } from "./Network/McApiPackets/Event/McApiOn
 import { McApiSetEffectRequestPacket } from "./Network/McApiPackets/Request/McApiSetEffectRequestPacket";
 import { McApiClearEffectsRequestPacket } from "./Network/McApiPackets/Request/McApiClearEffectsRequestPacket";
 export declare class VoiceCraft {
+    static readonly MajorVersion: number;
+    static readonly MinorVersion: number;
     static readonly Namespace: string;
     private _writer;
     private _reader;

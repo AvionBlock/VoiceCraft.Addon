@@ -20,7 +20,7 @@ import {McApiPingRequestPacket} from "./API/Network/McApiPackets/Request/McApiPi
 import {McApiPingResponsePacket} from "./API/Network/McApiPackets/Response/McApiPingResponsePacket";
 
 export class McApiMcwss {
-    private _version: Version = new Version(1, 1, 0);
+    private _version: Version = new Version(VoiceCraft.MajorVersion, VoiceCraft.MinorVersion, 0);
     private _cm: CommandManager = new CommandManager(this);
     private _defaultTimeoutMs: number = 10000;
 

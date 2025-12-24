@@ -22,7 +22,7 @@ import {McApiPingResponsePacket} from "./API/Network/McApiPackets/Response/McApi
 import {McHttpUpdatePacket} from "./Packets/McHttpUpdatePacket";
 
 export class McApiMcHttp {
-    private _version: Version = new Version(1, 1, 0);
+    private _version: Version = new Version(VoiceCraft.MajorVersion, VoiceCraft.MinorVersion, 0);
     private _cm: CommandManager = new CommandManager(this);
     private _defaultTimeoutMs: number = 10000;
 

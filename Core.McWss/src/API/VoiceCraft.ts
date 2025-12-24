@@ -55,6 +55,8 @@ import {McApiSetEffectRequestPacket} from "./Network/McApiPackets/Request/McApiS
 import {McApiClearEffectsRequestPacket} from "./Network/McApiPackets/Request/McApiClearEffectsRequestPacket";
 
 export class VoiceCraft {
+    public static readonly MajorVersion: number = 1;
+    public static readonly MinorVersion: number = 2;
     public static readonly Namespace: string = "voicecraft";
 
     private _writer: NetDataWriter = new NetDataWriter();
