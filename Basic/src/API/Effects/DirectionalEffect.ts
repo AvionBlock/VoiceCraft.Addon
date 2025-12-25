@@ -11,6 +11,9 @@ export class DirectionalEffect implements IAudioEffect{
     get WetDry(): number {
         return this._wetDry;
     }
+    set WetDry(value: number) {
+        this._wetDry = Math.min(1, Math.max(value, 0));
+    }
 
     private _wetDry: number = 1;
 

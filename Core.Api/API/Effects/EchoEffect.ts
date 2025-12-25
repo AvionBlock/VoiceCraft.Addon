@@ -11,13 +11,22 @@ export class EchoEffect implements IAudioEffect {
     get Delay(): number {
         return this._delay;
     }
+    set Delay(value: number) {
+        this._delay = value;
+    }
 
     get Feedback(): number {
         return this._feedback;
     }
+    set Feedback(value: number) {
+        this._feedback = value;
+    }
 
     get WetDry(): number {
         return this._wetDry;
+    }
+    set WetDry(value: number) {
+        this._wetDry = Math.min(1, Math.max(value, 0));
     }
 
     private _delay: number = 0.5;

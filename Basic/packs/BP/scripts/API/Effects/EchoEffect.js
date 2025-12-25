@@ -1,39 +1,38 @@
 import { EffectType } from "../Data/Enums";
 export class EchoEffect {
-    constructor(delay = 0.5, feedback = 0.5) {
-        this._delay = delay;
-        this._feedback = feedback;
-    }
     get EffectType() {
         return EffectType.Echo;
     }
     get Delay() {
         return this._delay;
     }
+    set Delay(value) {
+        this._delay = value;
+    }
     get Feedback() {
         return this._feedback;
     }
-    get Wet() {
-        return this._wet;
+    set Feedback(value) {
+        this._feedback = value;
     }
-    get Dry() {
-        return this._dry;
+    get WetDry() {
+        return this._wetDry;
     }
-    _delay;
-    _feedback;
-    _wet = 1;
-    _dry = 0;
+    set WetDry(value) {
+        this._wetDry = Math.min(1, Math.max(value, 0));
+    }
+    _delay = 0.5;
+    _feedback = 0.5;
+    _wetDry = 1;
     Serialize(writer) {
         writer.PutFloat(this._delay);
         writer.PutFloat(this._feedback);
-        writer.PutFloat(this._wet);
-        writer.PutFloat(this._dry);
+        writer.PutFloat(this._wetDry);
     }
     Deserialize(reader) {
         this._delay = reader.GetFloat();
         this._feedback = reader.GetFloat();
-        this._wet = reader.GetFloat();
-        this._dry = reader.GetFloat();
+        this._wetDry = reader.GetFloat();
     }
     Reset() {
         //Nothing to reset.

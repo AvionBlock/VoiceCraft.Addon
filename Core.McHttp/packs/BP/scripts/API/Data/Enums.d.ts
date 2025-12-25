@@ -46,5 +46,7 @@ export declare enum EffectType {
     Proximity = 2,
     Directional = 3,
     ProximityEcho = 4,
-    Echo = 5
+    Echo = 5,
+    ProximityMuffle = 6,
+    Muffle = 7
 }

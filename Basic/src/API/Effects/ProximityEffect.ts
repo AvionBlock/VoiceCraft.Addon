@@ -11,13 +11,22 @@ export class ProximityEffect implements IAudioEffect {
     get MinRange(): number {
         return this._minRange;
     }
+    set MinRange(value: number) {
+        this._minRange = value;
+    }
 
     get MaxRange(): number {
         return this._maxRange;
     }
+    set MaxRange(value: number) {
+        this._maxRange = value;
+    }
 
     get WetDry(): number {
         return this._wetDry;
+    }
+    set WetDry(value: number) {
+        this._wetDry = Math.min(1, Math.max(value, 0));
     }
 
     private _minRange: number = 0;

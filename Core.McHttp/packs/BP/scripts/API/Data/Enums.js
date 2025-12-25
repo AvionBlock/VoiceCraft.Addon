@@ -57,4 +57,6 @@ export var EffectType;
     EffectType[EffectType["Directional"] = 3] = "Directional";
     EffectType[EffectType["ProximityEcho"] = 4] = "ProximityEcho";
     EffectType[EffectType["Echo"] = 5] = "Echo";
+    EffectType[EffectType["ProximityMuffle"] = 6] = "ProximityMuffle";
+    EffectType[EffectType["Muffle"] = 7] = "Muffle";
 })(EffectType || (EffectType = {}));

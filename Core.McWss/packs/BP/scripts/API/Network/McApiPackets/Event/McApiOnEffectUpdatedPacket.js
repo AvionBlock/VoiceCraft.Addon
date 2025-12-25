@@ -4,6 +4,8 @@ import { ProximityEffect } from "../../../Effects/ProximityEffect";
 import { DirectionalEffect } from "../../../Effects/DirectionalEffect";
 import { ProximityEchoEffect } from "../../../Effects/ProximityEchoEffect";
 import { EchoEffect } from "../../../Effects/EchoEffect";
+import { ProximityMuffleEffect } from "../../../Effects/ProximityMuffleEffect";
+import { MuffleEffect } from "../../../Effects/MuffleEffect";
 export class McApiOnEffectUpdatedPacket {
     constructor(bitmask = 0, effect) {
         this._bitmask = bitmask;
@@ -56,6 +58,14 @@ export class McApiOnEffectUpdatedPacket {
                 break;
             case EffectType.Echo:
                 this._effect = new EchoEffect();
+                this._effect.Deserialize(reader);
+                break;
+            case EffectType.ProximityMuffle:
+                this._effect = new ProximityMuffleEffect();
+                this._effect.Deserialize(reader);
+                break;
+            case EffectType.Muffle:
+                this._effect = new MuffleEffect();
                 this._effect.Deserialize(reader);
                 break;
         }

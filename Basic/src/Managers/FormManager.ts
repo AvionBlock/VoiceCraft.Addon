@@ -6,9 +6,11 @@ import {EffectsManager} from "./EffectsManager";
 import {ProximityEffect} from "../API/Effects/ProximityEffect";
 import {VisibilityEffect} from "../API/Effects/VisibilityEffect";
 import {EffectType} from "../API/Data/Enums";
-import {EchoEffect} from "../API/Effects/EchoEffect";
 import {DirectionalEffect} from "../API/Effects/DirectionalEffect";
 import {ProximityEchoEffect} from "../API/Effects/ProximityEchoEffect";
+import {EchoEffect} from "../API/Effects/EchoEffect";
+import {ProximityMuffleEffect} from "../API/Effects/ProximityMuffleEffect";
+import {MuffleEffect} from "../API/Effects/MuffleEffect";
 
 export class FormManager {
     private _mainMenuSettingsForm = () => new ActionFormData()
@@ -27,33 +29,49 @@ export class FormManager {
         .button("Proximity")
         .button("Directional")
         .button("Proximity Echo")
-        .button("Echo");
+        .button("Echo")
+        .button("Proximity Muffle")
+        .button("Muffle")
 
     private _setVisibilityEffectMenuSettingsForm = (bitmask: number) => new ModalFormData()
         .title("Set Visibility Effect")
         .textField("Bitmask", "0", {defaultValue: bitmask.toString()});
 
-    private _setProximityEffectMenuSettingsForm = (bitmask: number, min: number, max: number) => new ModalFormData()
+    private _setProximityEffectMenuSettingsForm = (bitmask: number, wetDry: number, min: number, max: number) => new ModalFormData()
         .title("Set Proximity Effect")
         .textField("Bitmask", "0", {defaultValue: bitmask.toString()})
+        .textField("WetDry", "1", {defaultValue: wetDry.toString()})
         .slider("Min Range", 0, 100, {defaultValue: min})
         .slider("Max Range", 0, 100, {defaultValue: max});
 
-    private _setDirectionalEffectMenuSettingsForm = (bitmask: number) => new ModalFormData()
+    private _setDirectionalEffectMenuSettingsForm = (bitmask: number, wetDry: number) => new ModalFormData()
         .title("Set Directional Effect")
         .textField("Bitmask", "0", {defaultValue: bitmask.toString()})
+        .textField("WetDry", "1", {defaultValue: wetDry.toString()});
 
-    private _setProximityEchoEffectMenuSettingsForm = (bitmask: number, delay: number, range: number) => new ModalFormData()
+    private _setProximityEchoEffectMenuSettingsForm = (bitmask: number, wetDry: number, delay: number, range: number) => new ModalFormData()
         .title("Set Proximity Echo Effect")
         .textField("Bitmask", "0", {defaultValue: bitmask.toString()})
+        .textField("WetDry", "1", {defaultValue: wetDry.toString()})
         .textField("Delay", "0", {defaultValue: delay.toString()})
         .slider("Range", 0, 100, {defaultValue: range});
 
-    private _setEchoEffectMenuSettingsForm = (bitmask: number, delay: number, feedback: number) => new ModalFormData()
+    private _setEchoEffectMenuSettingsForm = (bitmask: number, wetDry: number, delay: number, feedback: number) => new ModalFormData()
         .title("Set Echo Effect")
         .textField("Bitmask", "0", {defaultValue: bitmask.toString()})
+        .textField("WetDry", "1", {defaultValue: wetDry.toString()})
         .textField("Delay", "0", {defaultValue: delay.toString()})
         .textField("Feedback", "0", {defaultValue: feedback.toString()});
+
+    private _setProximityMuffleEffectMenuSettingsForm = (bitmask: number, wetDry: number) => new ModalFormData()
+        .title("Set Proximity Muffle Effect")
+        .textField("Bitmask", "0", {defaultValue: bitmask.toString()})
+        .textField("WetDry", "1", {defaultValue: wetDry.toString()});
+
+    private _setMuffleEffectMenuSettingsForm = (bitmask: number, wetDry: number) => new ModalFormData()
+        .title("Set Muffle Effect")
+        .textField("Bitmask", "0", {defaultValue: bitmask.toString()})
+        .textField("WetDry", "1", {defaultValue: wetDry.toString()});
 
     private _deleteEffectMenuSettingsForm = () => {
         const form = new ActionFormData()
@@ -134,6 +152,12 @@ export class FormManager {
             case 4:
                 await this.ShowSetEchoEffectMenuSettingsFormAsync(player);
                 break;
+            case 5:
+                await this.ShowSetProximityMuffleEffectMenuSettingsFormAsync(player);
+                break;
+            case 6:
+                await this.ShowSetMuffleEffectMenuSettingsFormAsync(player);
+                break;
         }
     }
 
@@ -147,45 +171,90 @@ export class FormManager {
     }
 
     public async ShowSetProximityEffectMenuSettingsFormAsync(player: Player) {
-        const {cancelationReason, formValues} = await this._setProximityEffectMenuSettingsForm(0, 0, 100).show(player);
+        const {
+            cancelationReason,
+            formValues
+        } = await this._setProximityEffectMenuSettingsForm(0, 1, 0, 100).show(player);
         if (cancelationReason !== undefined || formValues === undefined) return;
-        const [bitmaskValue, minValue, maxValue] = formValues;
-        if (typeof bitmaskValue !== "string" || typeof minValue !== "number" || typeof maxValue != "number") return;
+        const [bitmaskValue, wetDryValue, minValue, maxValue] = formValues;
+        if (typeof bitmaskValue !== "string" || typeof wetDryValue !== "string" || typeof minValue !== "number" || typeof maxValue != "number") return;
         const bitmask = Number.parseInt(bitmaskValue);
-        this._em.SetEffect(bitmask, new ProximityEffect(minValue, maxValue));
+        const wetDry = Number.parseFloat(wetDryValue);
+        const effect = new ProximityEffect();
+        effect.WetDry = wetDry;
+        effect.MinRange = minValue;
+        effect.MaxRange = maxValue;
+        this._em.SetEffect(bitmask, effect);
     }
 
     public async ShowSetDirectionalEffectMenuSettingsFormAsync(player: Player) {
-        const {cancelationReason, formValues} = await this._setDirectionalEffectMenuSettingsForm(0).show(player);
+        const {cancelationReason, formValues} = await this._setDirectionalEffectMenuSettingsForm(0, 1).show(player);
         if (cancelationReason !== undefined || formValues === undefined) return;
-        const [bitmaskValue] = formValues;
-        if (typeof bitmaskValue !== "string") return;
+        const [bitmaskValue, wetDryValue] = formValues;
+        if (typeof bitmaskValue !== "string" || typeof wetDryValue !== "string") return;
         const bitmask = Number.parseInt(bitmaskValue);
-        this._em.SetEffect(bitmask, new DirectionalEffect());
+        const wetDry = Number.parseFloat(wetDryValue);
+        const effect = new DirectionalEffect();
+        effect.WetDry = wetDry;
+        this._em.SetEffect(bitmask, effect);
     }
 
     public async ShowSetProximityEchoEffectMenuSettingsFormAsync(player: Player) {
         const {
             cancelationReason,
             formValues
-        } = await this._setProximityEchoEffectMenuSettingsForm(0, 0.5, 30).show(player);
+        } = await this._setProximityEchoEffectMenuSettingsForm(0, 1, 0.5, 30).show(player);
         if (cancelationReason !== undefined || formValues === undefined) return;
-        const [bitmaskValue, delayValue, rangeValue] = formValues;
-        if (typeof bitmaskValue !== "string" || typeof delayValue !== "string" || typeof rangeValue != "number") return;
+        const [bitmaskValue, wetDryValue, delayValue, rangeValue] = formValues;
+        if (typeof bitmaskValue !== "string" || typeof wetDryValue !== "string" || typeof delayValue !== "string" || typeof rangeValue != "number") return;
         const bitmask = Number.parseInt(bitmaskValue);
+        const wetDry = Number.parseFloat(wetDryValue);
         const delay = Number.parseFloat(delayValue);
-        this._em.SetEffect(bitmask, new ProximityEchoEffect(delay, rangeValue));
+        const effect = new ProximityEchoEffect();
+        effect.WetDry = wetDry;
+        effect.Delay = delay;
+        effect.Range = rangeValue;
+        this._em.SetEffect(bitmask, effect);
     }
 
     public async ShowSetEchoEffectMenuSettingsFormAsync(player: Player) {
-        const {cancelationReason, formValues} = await this._setEchoEffectMenuSettingsForm(0, 0.5, 0.5).show(player);
+        const {cancelationReason, formValues} = await this._setEchoEffectMenuSettingsForm(0, 1, 0.5, 0.5).show(player);
         if (cancelationReason !== undefined || formValues === undefined) return;
-        const [bitmaskValue, delayValue, feedbackValue] = formValues;
-        if (typeof bitmaskValue !== "string" || typeof delayValue !== "string" || typeof feedbackValue != "string") return;
+        const [bitmaskValue, wetDryValue, delayValue, feedbackValue] = formValues;
+        if (typeof bitmaskValue !== "string" || typeof wetDryValue !== "string" || typeof delayValue !== "string" || typeof feedbackValue != "string") return;
         const bitmask = Number.parseInt(bitmaskValue);
+        const wetDry = Number.parseFloat(wetDryValue);
         const delay = Number.parseFloat(delayValue);
         const feedback = Number.parseFloat(feedbackValue);
-        this._em.SetEffect(bitmask, new EchoEffect(delay, feedback));
+        const effect = new EchoEffect();
+        effect.WetDry = wetDry;
+        effect.Delay = delay;
+        effect.Feedback = feedback;
+        this._em.SetEffect(bitmask, effect);
+    }
+
+    public async ShowSetProximityMuffleEffectMenuSettingsFormAsync(player: Player) {
+        const {cancelationReason, formValues} = await this._setProximityMuffleEffectMenuSettingsForm(0, 1).show(player);
+        if (cancelationReason !== undefined || formValues === undefined) return;
+        const [bitmaskValue, wetDryValue] = formValues;
+        if (typeof bitmaskValue !== "string" || typeof wetDryValue !== "string") return;
+        const bitmask = Number.parseInt(bitmaskValue);
+        const wetDry = Number.parseFloat(wetDryValue);
+        const effect = new ProximityMuffleEffect();
+        effect.WetDry = wetDry;
+        this._em.SetEffect(bitmask, effect);
+    }
+
+    public async ShowSetMuffleEffectMenuSettingsFormAsync(player: Player) {
+        const {cancelationReason, formValues} = await this._setMuffleEffectMenuSettingsForm(0, 1).show(player);
+        if (cancelationReason !== undefined || formValues === undefined) return;
+        const [bitmaskValue, wetDryValue] = formValues;
+        if (typeof bitmaskValue !== "string" || typeof wetDryValue !== "string") return;
+        const bitmask = Number.parseInt(bitmaskValue);
+        const wetDry = Number.parseFloat(wetDryValue);
+        const effect = new MuffleEffect();
+        effect.WetDry = wetDry;
+        this._em.SetEffect(bitmask, effect);
     }
 
     public async ShowDeleteEffectSettingsFormAsync(player: Player) {
@@ -207,8 +276,7 @@ export class FormManager {
         const form = this._selectPlayerActionMenuSettingsForm(selectedPlayer);
         const {canceled, selection} = await form.show(player);
         if (canceled || selection === undefined) return;
-        switch(selection)
-        {
+        switch (selection) {
             case 0:
                 throw new Error("Not implemented.");
         }

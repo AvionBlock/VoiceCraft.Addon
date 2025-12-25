@@ -14,6 +14,8 @@ export declare class FormManager {
     private _setDirectionalEffectMenuSettingsForm;
     private _setProximityEchoEffectMenuSettingsForm;
     private _setEchoEffectMenuSettingsForm;
+    private _setProximityMuffleEffectMenuSettingsForm;
+    private _setMuffleEffectMenuSettingsForm;
     private _deleteEffectMenuSettingsForm;
     private _selectPlayerMenuSettingsForm;
     private _selectPlayerActionMenuSettingsForm;
@@ -26,6 +28,8 @@ export declare class FormManager {
     ShowSetDirectionalEffectMenuSettingsFormAsync(player: Player): Promise<void>;
     ShowSetProximityEchoEffectMenuSettingsFormAsync(player: Player): Promise<void>;
     ShowSetEchoEffectMenuSettingsFormAsync(player: Player): Promise<void>;
+    ShowSetProximityMuffleEffectMenuSettingsFormAsync(player: Player): Promise<void>;
+    ShowSetMuffleEffectMenuSettingsFormAsync(player: Player): Promise<void>;
     ShowDeleteEffectSettingsFormAsync(player: Player): Promise<void>;
     ShowSelectPlayerSettingsFormAsync(player: Player): Promise<void>;
     ShowPlayerActionsSettingsFormAsync(player: Player, selectedPlayer: Player): Promise<void>;
