@@ -184,10 +184,6 @@ export class BindingManager {
 
     private OnDisconnectedEvent(_: string) {
         this._unbindedEntities.clear();
-        for(const bindedEntity in this._bindedEntities.entries())
-        {
-            system.sendScriptEvent(`${VoiceCraft.Namespace}:onPlayerUnbind`, `${bindedEntity[1]}:${bindedEntity[0]}`);
-        }
         this._bindedEntities.clear();
     }
 
