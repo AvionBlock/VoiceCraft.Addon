@@ -8,25 +8,18 @@ export class ProximityMuffleEffect implements IAudioEffect {
         return EffectType.ProximityMuffle;
     }
 
-    get Wet(): number {
-        return this._wet;
+    get WetDry(): number {
+        return this._wetDry;
     }
 
-    get Dry(): number {
-        return this._dry;
-    }
-
-    private _wet: number = 1;
-    private _dry: number = 0;
+    private _wetDry: number = 1;
 
     Serialize(writer: NetDataWriter): void {
-        writer.PutFloat(this._wet);
-        writer.PutFloat(this._dry);
+        writer.PutFloat(this._wetDry);
     }
 
     Deserialize(reader: NetDataReader): void {
-        this._wet = reader.GetFloat();
-        this._dry = reader.GetFloat();
+        this._wetDry = reader.GetFloat();
     }
 
     Reset(): void {
