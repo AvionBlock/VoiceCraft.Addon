@@ -242,6 +242,7 @@ export class McApiMcHttp {
     HandleDenyResponsePacket(packet) {
         this.OnPacket.Invoke(packet);
         if (this._connectionState === 1) {
+            this._disconnectReason = packet.Reason;
             this._connectionState = 0;
             this._token = undefined;
             this._hostname = undefined;

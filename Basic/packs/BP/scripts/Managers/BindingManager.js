@@ -137,9 +137,6 @@ export class BindingManager {
     }
     OnDisconnectedEvent(_) {
         this._unbindedEntities.clear();
-        for (const bindedEntity in this._bindedEntities.entries()) {
-            system.sendScriptEvent(`${VoiceCraft.Namespace}:onPlayerUnbind`, `${bindedEntity[1]}:${bindedEntity[0]}`);
-        }
         this._bindedEntities.clear();
     }
     GetRandomInt(min, max) {
