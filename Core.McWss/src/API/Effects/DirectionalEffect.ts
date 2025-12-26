@@ -8,12 +8,21 @@ export class DirectionalEffect implements IAudioEffect{
         return EffectType.Directional;
     }
 
+    get WetDry(): number {
+        return this._wetDry;
+    }
+    set WetDry(value: number) {
+        this._wetDry = Math.min(1, Math.max(value, 0));
+    }
+
+    private _wetDry: number = 1;
+
     Serialize(writer: NetDataWriter): void {
-        //Nothing to write.
+        writer.PutFloat(this._wetDry)
     }
 
     Deserialize(reader: NetDataReader): void {
-        //Nothing to deserialize.
+        this._wetDry = reader.GetFloat();
     }
 
     Reset(): void {

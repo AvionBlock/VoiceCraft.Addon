@@ -1,39 +1,38 @@
 import { EffectType } from "../Data/Enums";
 export class ProximityEchoEffect {
-    constructor(delay = 0.5, range = 0) {
-        this._delay = delay;
-        this._range = range;
-    }
     get EffectType() {
         return EffectType.ProximityEcho;
     }
     get Delay() {
         return this._delay;
     }
+    set Delay(value) {
+        this._delay = value;
+    }
     get Range() {
         return this._range;
     }
-    get Wet() {
-        return this._wet;
+    set Range(value) {
+        this._range = value;
     }
-    get Dry() {
-        return this._dry;
+    get WetDry() {
+        return this._wetDry;
     }
-    _delay;
-    _range;
-    _wet = 1;
-    _dry = 0;
+    set WetDry(value) {
+        this._wetDry = Math.min(1, Math.max(value, 0));
+    }
+    _delay = 0.5;
+    _range = 0;
+    _wetDry = 1;
     Serialize(writer) {
         writer.PutFloat(this._delay);
         writer.PutFloat(this._range);
-        writer.PutFloat(this._wet);
-        writer.PutFloat(this._dry);
+        writer.PutFloat(this._wetDry);
     }
     Deserialize(reader) {
         this._delay = reader.GetFloat();
         this._range = reader.GetFloat();
-        this._wet = reader.GetFloat();
-        this._dry = reader.GetFloat();
+        this._wetDry = reader.GetFloat();
     }
     Reset() {
         //Nothing to reset.

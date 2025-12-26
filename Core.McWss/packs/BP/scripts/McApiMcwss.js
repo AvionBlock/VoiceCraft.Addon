@@ -18,7 +18,7 @@ import { McApiLogoutRequestPacket } from "./API/Network/McApiPackets/Request/McA
 import { McApiPingRequestPacket } from "./API/Network/McApiPackets/Request/McApiPingRequestPacket";
 import { McApiPingResponsePacket } from "./API/Network/McApiPackets/Response/McApiPingResponsePacket";
 export class McApiMcwss {
-    _version = new Version(1, 1, 0);
+    _version = new Version(VoiceCraft.MajorVersion, VoiceCraft.MinorVersion, 0);
     _cm = new CommandManager(this);
     _defaultTimeoutMs = 10000;
     //Connection state objects.
@@ -179,6 +179,7 @@ export class McApiMcwss {
     HandleDenyResponsePacket(packet) {
         this.OnPacket.Invoke(packet);
         if (this._connectionState === 1) {
+            this._disconnectReason = packet.Reason;
             this._connectionState = 0;
             this._token = undefined;
             this.OutboundQueue.clear();

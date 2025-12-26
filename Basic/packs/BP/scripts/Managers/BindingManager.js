@@ -1,6 +1,7 @@
+import { VoiceCraft } from "../API/VoiceCraft";
 import { TwoWayMap } from "../API/Data/TwoWayMap";
 import { McApiSetEntityDescriptionRequestPacket } from "../API/Network/McApiPackets/Request/McApiSetEntityDescriptionRequestPacket";
-import { world } from "@minecraft/server";
+import { system, world } from "@minecraft/server";
 import { McApiSetEntityWorldIdRequestPacket } from "../API/Network/McApiPackets/Request/McApiSetEntityWorldIdRequestPacket";
 import { McApiSetEntityNameRequestPacket } from "../API/Network/McApiPackets/Request/McApiSetEntityNameRequestPacket";
 export class BindingManager {
@@ -91,6 +92,7 @@ export class BindingManager {
         this._bindedEntities.set(entityId, player.id);
         this._vc.SendPacket(new McApiSetEntityNameRequestPacket(entityId, player.name));
         this._vc.SendPacket(new McApiSetEntityDescriptionRequestPacket(entityId, `Bound to player ${player.name}`));
+        system.sendScriptEvent(`${VoiceCraft.Namespace}:onPlayerBind`, `${player.id}:${entityId}`);
         return true;
     }
     UnbindPlayer(playerId) {
@@ -106,6 +108,7 @@ export class BindingManager {
         this._vc.SendPacket(new McApiSetEntityWorldIdRequestPacket(entityId, ""));
         this._vc.SendPacket(new McApiSetEntityDescriptionRequestPacket(entityId, `Welcome! Your binding key is ${bindingKey}`));
         this._unbindedEntities.set(entityId, bindingKey);
+        system.sendScriptEvent(`${VoiceCraft.Namespace}:onPlayerUnbind`, `${playerId}:${entityId}`);
         return true;
     }
     GetEntityFromPlayerId(playerId) {
@@ -121,13 +124,15 @@ export class BindingManager {
             bindingKey = this.GenerateRandomId(5);
         }
         this._unbindedEntities.set(ev.Id, bindingKey);
-        console.log("Setting Binding Key");
         this._vc.SendPacket(new McApiSetEntityWorldIdRequestPacket(ev.Id, ""));
         this._vc.SendPacket(new McApiSetEntityDescriptionRequestPacket(ev.Id, `Welcome! Your binding key is ${bindingKey}`));
     }
     OnEntityDestroyedPacketEvent(ev) {
         this._unbindedEntities.delete(ev.Id);
-        this._bindedEntities.delete(ev.Id);
+        const playerId = this._bindedEntities.get(ev.Id);
+        if (playerId !== undefined) {
+            this.UnbindPlayer(playerId);
+        }
     }
     OnDisconnectedEvent(_) {
         this._unbindedEntities.clear();

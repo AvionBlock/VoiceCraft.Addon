@@ -22,7 +22,7 @@ import {McApiPingResponsePacket} from "./API/Network/McApiPackets/Response/McApi
 import {McHttpUpdatePacket} from "./Packets/McHttpUpdatePacket";
 
 export class McApiMcHttp {
-    private _version: Version = new Version(1, 1, 0);
+    private _version: Version = new Version(VoiceCraft.MajorVersion, VoiceCraft.MinorVersion, 0);
     private _cm: CommandManager = new CommandManager(this);
     private _defaultTimeoutMs: number = 10000;
 
@@ -36,7 +36,7 @@ export class McApiMcHttp {
     private _reader: NetDataReader = new NetDataReader();
     private _lastPing: number = 0;
     private _connectionState: 0 | 1 | 2 | 3 = 0; //0: Disconnected, 1: Connecting, 2: Connected, 3: Disconnecting
-    private _disconnectReason? = undefined;
+    private _disconnectReason?: string = undefined;
 
     //Queue
     public OutboundQueue: Queue<Uint8Array> = new Queue<Uint8Array>();
@@ -286,6 +286,7 @@ export class McApiMcHttp {
     private HandleDenyResponsePacket(packet: McApiDenyResponsePacket) {
         this.OnPacket.Invoke(packet);
         if (this._connectionState === 1) {
+            this._disconnectReason = packet.Reason;
             this._connectionState = 0;
             this._token = undefined;
             this._hostname = undefined;
