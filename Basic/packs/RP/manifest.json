@@ -8,14 +8,14 @@
     "description": "pack.description",
     "min_engine_version": [1, 21, 20],
     "uuid": "7dd4e351-209b-4aa4-8c07-800788f3244f",
-    "version": [1, 2, 0]
+    "version": [1, 3, 0]
   },
   "modules": [
    {
      "description": "pack.description",
      "type": "resources",
      "uuid": "4aa02496-366b-4123-8c33-103b7bddefd1",
-     "version": [1, 2, 0]
+     "version": [1, 3, 0]
    }
  ]
 }
