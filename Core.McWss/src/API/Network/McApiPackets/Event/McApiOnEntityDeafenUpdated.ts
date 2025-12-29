@@ -24,7 +24,7 @@ export class McApiOnEntityDeafenUpdatedPacket implements IMcApiPacket {
 
   public Serialize(writer: NetDataWriter) {
     writer.PutInt(this.Id);
-    writer.PutBool(this._value);
+    writer.PutBool(this.Value);
   }
 
   public Deserialize(reader: NetDataReader) {

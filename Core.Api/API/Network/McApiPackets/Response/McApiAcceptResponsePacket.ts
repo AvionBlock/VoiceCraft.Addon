@@ -25,8 +25,8 @@ export class McApiAcceptResponsePacket implements IMcApiPacket, IMcApiRIdPacket 
   private _token: string;
 
   public Serialize(writer: NetDataWriter) {
-    writer.PutString(this._requestId, MaxStringLength);
-    writer.PutString(this._token, MaxStringLength);
+    writer.PutString(this.RequestId, MaxStringLength);
+    writer.PutString(this.Token, MaxStringLength);
   }
 
   public Deserialize(reader: NetDataReader) {

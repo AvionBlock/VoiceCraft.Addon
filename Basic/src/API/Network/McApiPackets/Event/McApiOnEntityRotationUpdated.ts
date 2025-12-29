@@ -25,8 +25,8 @@ export class McApiOnEntityRotationUpdatedPacket implements IMcApiPacket {
 
   public Serialize(writer: NetDataWriter) {
     writer.PutInt(this.Id);
-    writer.PutFloat(this._value.X);
-    writer.PutFloat(this._value.Y);
+    writer.PutFloat(this.Value.X);
+    writer.PutFloat(this.Value.Y);
   }
 
   public Deserialize(reader: NetDataReader) {

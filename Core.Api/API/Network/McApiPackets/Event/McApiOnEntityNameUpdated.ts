@@ -25,7 +25,7 @@ export class McApiOnEntityNameUpdatedPacket implements IMcApiPacket {
 
   public Serialize(writer: NetDataWriter) {
     writer.PutInt(this.Id);
-    writer.PutString(this._value, MaxStringLength);
+    writer.PutString(this.Value, MaxStringLength);
   }
 
   public Deserialize(reader: NetDataReader) {

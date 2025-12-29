@@ -24,7 +24,7 @@ export class McApiOnEntityTalkBitmaskUpdatedPacket implements IMcApiPacket {
 
   public Serialize(writer: NetDataWriter) {
     writer.PutInt(this.Id);
-    writer.PutUshort(this._value);
+    writer.PutUshort(this.Value);
   }
 
   public Deserialize(reader: NetDataReader) {

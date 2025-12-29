@@ -23,8 +23,8 @@ export class McApiSetEntityMuffleFactorRequestPacket implements IMcApiPacket {
   private _value: number;
 
   public Serialize(writer: NetDataWriter) {
-    writer.PutInt(this._id);
-    writer.PutFloat(this._value);
+    writer.PutInt(this.Id);
+    writer.PutFloat(this.Value);
   }
 
   public Deserialize(reader: NetDataReader) {

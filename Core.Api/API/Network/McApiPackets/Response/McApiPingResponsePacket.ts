@@ -19,7 +19,7 @@ export class McApiPingResponsePacket implements IMcApiPacket {
   private _token: string;
 
   public Serialize(writer: NetDataWriter) {
-    writer.PutString(this._token, MaxStringLength);
+    writer.PutString(this.Token, MaxStringLength);
   }
 
   public Deserialize(reader: NetDataReader) {

@@ -24,7 +24,7 @@ export class McApiOnEntityCaveFactorUpdatedPacket implements IMcApiPacket {
 
   public Serialize(writer: NetDataWriter) {
     writer.PutInt(this.Id);
-    writer.PutFloat(this._value);
+    writer.PutFloat(this.Value);
   }
 
   public Deserialize(reader: NetDataReader) {

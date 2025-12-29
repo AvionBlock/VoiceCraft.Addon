@@ -32,9 +32,9 @@ export class McApiOnEntityAudioReceivedPacket implements IMcApiPacket {
   private _frameLoudness: number;
 
   public Serialize(writer: NetDataWriter) {
-    writer.PutInt(this._id);
-    writer.PutUshort(this._timestamp);
-    writer.PutFloat(this._frameLoudness);
+    writer.PutInt(this.Id);
+    writer.PutUshort(this.Timestamp);
+    writer.PutFloat(this.FrameLoudness);
   }
 
   public Deserialize(reader: NetDataReader) {

@@ -29,8 +29,8 @@ export class McApiOnEntityVisibilityUpdatedPacket implements IMcApiPacket {
 
   public Serialize(writer: NetDataWriter) {
     writer.PutInt(this.Id);
-    writer.PutInt(this._id2);
-    writer.PutBool(this._value);
+    writer.PutInt(this.Id2);
+    writer.PutBool(this.Value);
   }
 
   public Deserialize(reader: NetDataReader) {

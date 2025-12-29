@@ -11,8 +11,12 @@ export enum McApiPacketType {
 
     //Other/Changeable
     //Requests
+    ResetRequest,
     SetEffectRequest,
     ClearEffectsRequest,
+    CreateEntityRequest,
+    DestroyEntityRequest,
+    EntityAudioRequest,
     SetEntityTitleRequest,
     SetEntityDescriptionRequest,
     SetEntityWorldIdRequest,
@@ -26,6 +30,9 @@ export enum McApiPacketType {
     SetEntityMuffleFactorRequest,
 
     //Responses
+    ResetResponse,
+    CreateEntityResponse,
+    DestroyEntityResponse,
 
     //Events
     OnEffectUpdated,

@@ -25,8 +25,8 @@ export class McApiDenyResponsePacket implements IMcApiPacket, IMcApiRIdPacket {
   private _reason: string;
 
   public Serialize(writer: NetDataWriter) {
-    writer.PutString(this._requestId, MaxStringLength);
-    writer.PutString(this._reason, MaxStringLength);
+    writer.PutString(this.RequestId, MaxStringLength);
+    writer.PutString(this.Reason, MaxStringLength);
   }
 
   public Deserialize(reader: NetDataReader) {

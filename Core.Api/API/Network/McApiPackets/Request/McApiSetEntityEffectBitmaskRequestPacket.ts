@@ -23,8 +23,8 @@ export class McApiSetEntityEffectBitmaskRequestPacket implements IMcApiPacket {
   private _value: number;
 
   public Serialize(writer: NetDataWriter) {
-    writer.PutInt(this._id);
-    writer.PutUshort(this._value);
+    writer.PutInt(this.Id);
+    writer.PutUshort(this.Value);
   }
 
   public Deserialize(reader: NetDataReader) {
