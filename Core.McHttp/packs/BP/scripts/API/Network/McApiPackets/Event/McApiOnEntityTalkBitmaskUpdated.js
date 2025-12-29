@@ -17,7 +17,7 @@ export class McApiOnEntityTalkBitmaskUpdatedPacket {
     _value;
     Serialize(writer) {
         writer.PutInt(this.Id);
-        writer.PutUshort(this._value);
+        writer.PutUshort(this.Value);
     }
     Deserialize(reader) {
         this._id = reader.GetInt();

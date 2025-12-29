@@ -18,7 +18,7 @@ export class McApiOnEntityWorldIdUpdatedPacket {
     _value;
     Serialize(writer) {
         writer.PutInt(this.Id);
-        writer.PutString(this._value, MaxStringLength);
+        writer.PutString(this.Value, MaxStringLength);
     }
     Deserialize(reader) {
         this._id = reader.GetInt();

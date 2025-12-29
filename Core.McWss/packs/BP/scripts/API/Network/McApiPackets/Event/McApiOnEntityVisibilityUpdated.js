@@ -22,8 +22,8 @@ export class McApiOnEntityVisibilityUpdatedPacket {
     _value;
     Serialize(writer) {
         writer.PutInt(this.Id);
-        writer.PutInt(this._id2);
-        writer.PutBool(this._value);
+        writer.PutInt(this.Id2);
+        writer.PutBool(this.Value);
     }
     Deserialize(reader) {
         this._id = reader.GetInt();

@@ -17,7 +17,7 @@ export class McApiOnEntityMuteUpdatedPacket {
     _value;
     Serialize(writer) {
         writer.PutInt(this.Id);
-        writer.PutBool(this._value);
+        writer.PutBool(this.Value);
     }
     Deserialize(reader) {
         this._id = reader.GetInt();

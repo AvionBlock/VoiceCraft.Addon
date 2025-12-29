@@ -21,8 +21,8 @@ export class McApiSetEffectRequestPacket {
     _effectType;
     _effect;
     Serialize(writer) {
-        writer.PutUshort(this._bitmask);
-        writer.PutByte(this._effect?.EffectType ?? EffectType.None);
+        writer.PutUshort(this.Bitmask);
+        writer.PutByte(this.Effect?.EffectType ?? EffectType.None);
         if (this._effect !== undefined)
             this._effect.Serialize(writer);
     }

@@ -1,8 +1,6 @@
 import {VoiceCraft} from "../API/VoiceCraft";
-import {BindingManager} from "./BindingManager";
 import {Player} from "@minecraft/server";
 import {ActionFormData, ModalFormData} from "@minecraft/server-ui";
-import {EffectsManager} from "./EffectsManager";
 import {ProximityEffect} from "../API/Effects/ProximityEffect";
 import {VisibilityEffect} from "../API/Effects/VisibilityEffect";
 import {EffectType} from "../API/Data/Enums";
@@ -11,6 +9,11 @@ import {ProximityEchoEffect} from "../API/Effects/ProximityEchoEffect";
 import {EchoEffect} from "../API/Effects/EchoEffect";
 import {ProximityMuffleEffect} from "../API/Effects/ProximityMuffleEffect";
 import {MuffleEffect} from "../API/Effects/MuffleEffect";
+import {AudioEffectSystem} from "../API/Systems/AudioEffectSystem";
+import {BindingSystem} from "../API/Systems/BindingSystem";
+import {McApiSetEffectRequestPacket} from "../API/Network/McApiPackets/Request/McApiSetEffectRequestPacket";
+import {McApiDestroyEntityRequestPacket} from "../API/Network/McApiPackets/Request/McApiDestroyEntityRequestPacket";
+import {Guid} from "../API/Data/Guid";
 
 export class FormManager {
     private _mainMenuSettingsForm = () => new ActionFormData()
@@ -77,7 +80,7 @@ export class FormManager {
         const form = new ActionFormData()
             .title("Delete Effect")
         const bitmasks = [];
-        for (const effect of this._em.Effects.entries()) {
+        for (const effect of this._aes.Effects.entries()) {
             bitmasks.push(effect[0]);
             form.button(`${EffectType[effect[1].EffectType]}: ${effect[0]}`);
         }
@@ -87,7 +90,7 @@ export class FormManager {
     private _selectPlayerMenuSettingsForm = () => {
         const form = new ActionFormData()
             .title("Select Player")
-        const players = this._bm.GetBindedPlayers();
+        const players = this._bs.BoundPlayers;
         for (const player of players) {
             form.button(`${player.name}`);
         }
@@ -100,7 +103,7 @@ export class FormManager {
             .button("Kick");
     }
 
-    constructor(private _vc: VoiceCraft, private _bm: BindingManager, private _em: EffectsManager) {
+    constructor(private _vc: VoiceCraft, private _bs: BindingSystem, private _aes: AudioEffectSystem) {
     }
 
     public async ShowMainMenuSettingsFormAsync(player: Player) {
@@ -167,7 +170,7 @@ export class FormManager {
         const [bitmaskValue] = formValues;
         if (typeof bitmaskValue !== "string") return;
         const bitmask = Number.parseInt(bitmaskValue);
-        this._em.SetEffect(bitmask, new VisibilityEffect());
+        this._aes.SetEffect(bitmask, new VisibilityEffect());
     }
 
     public async ShowSetProximityEffectMenuSettingsFormAsync(player: Player) {
@@ -184,7 +187,7 @@ export class FormManager {
         effect.WetDry = wetDry;
         effect.MinRange = minValue;
         effect.MaxRange = maxValue;
-        this._em.SetEffect(bitmask, effect);
+        this._aes.SetEffect(bitmask, effect);
     }
 
     public async ShowSetDirectionalEffectMenuSettingsFormAsync(player: Player) {
@@ -196,7 +199,7 @@ export class FormManager {
         const wetDry = Number.parseFloat(wetDryValue);
         const effect = new DirectionalEffect();
         effect.WetDry = wetDry;
-        this._em.SetEffect(bitmask, effect);
+        this._aes.SetEffect(bitmask, effect);
     }
 
     public async ShowSetProximityEchoEffectMenuSettingsFormAsync(player: Player) {
@@ -214,7 +217,7 @@ export class FormManager {
         effect.WetDry = wetDry;
         effect.Delay = delay;
         effect.Range = rangeValue;
-        this._em.SetEffect(bitmask, effect);
+        this._aes.SetEffect(bitmask, effect);
     }
 
     public async ShowSetEchoEffectMenuSettingsFormAsync(player: Player) {
@@ -230,7 +233,7 @@ export class FormManager {
         effect.WetDry = wetDry;
         effect.Delay = delay;
         effect.Feedback = feedback;
-        this._em.SetEffect(bitmask, effect);
+        this._aes.SetEffect(bitmask, effect);
     }
 
     public async ShowSetProximityMuffleEffectMenuSettingsFormAsync(player: Player) {
@@ -242,7 +245,7 @@ export class FormManager {
         const wetDry = Number.parseFloat(wetDryValue);
         const effect = new ProximityMuffleEffect();
         effect.WetDry = wetDry;
-        this._em.SetEffect(bitmask, effect);
+        this._aes.SetEffect(bitmask, effect);
     }
 
     public async ShowSetMuffleEffectMenuSettingsFormAsync(player: Player) {
@@ -254,14 +257,14 @@ export class FormManager {
         const wetDry = Number.parseFloat(wetDryValue);
         const effect = new MuffleEffect();
         effect.WetDry = wetDry;
-        this._em.SetEffect(bitmask, effect);
+        this._aes.SetEffect(bitmask, effect);
     }
 
     public async ShowDeleteEffectSettingsFormAsync(player: Player) {
         const form = this._deleteEffectMenuSettingsForm();
         const {canceled, selection} = await form.form.show(player);
         if (canceled || selection === undefined) return;
-        this._em.SetEffect(form.bitmasks[selection], undefined);
+        this._aes.SetEffect(form.bitmasks[selection], undefined);
     }
 
     public async ShowSelectPlayerSettingsFormAsync(player: Player) {
@@ -278,7 +281,9 @@ export class FormManager {
         if (canceled || selection === undefined) return;
         switch (selection) {
             case 0:
-                throw new Error("Not implemented.");
+                const entityId = this._bs.GetBoundEntity(selectedPlayer.id);
+                if(entityId === undefined) return;
+                this._vc.SendPacket(new McApiDestroyEntityRequestPacket(Guid.Create().toString(), entityId));
         }
     }
 }

@@ -7,10 +7,12 @@ import { ProximityEchoEffect } from "../API/Effects/ProximityEchoEffect";
 import { EchoEffect } from "../API/Effects/EchoEffect";
 import { ProximityMuffleEffect } from "../API/Effects/ProximityMuffleEffect";
 import { MuffleEffect } from "../API/Effects/MuffleEffect";
+import { McApiDestroyEntityRequestPacket } from "../API/Network/McApiPackets/Request/McApiDestroyEntityRequestPacket";
+import { Guid } from "../API/Data/Guid";
 export class FormManager {
     _vc;
-    _bm;
-    _em;
+    _bs;
+    _aes;
     _mainMenuSettingsForm = () => new ActionFormData()
         .title("Settings")
         .button("Effects")
@@ -65,7 +67,7 @@ export class FormManager {
         const form = new ActionFormData()
             .title("Delete Effect");
         const bitmasks = [];
-        for (const effect of this._em.Effects.entries()) {
+        for (const effect of this._aes.Effects.entries()) {
             bitmasks.push(effect[0]);
             form.button(`${EffectType[effect[1].EffectType]}: ${effect[0]}`);
         }
@@ -74,7 +76,7 @@ export class FormManager {
     _selectPlayerMenuSettingsForm = () => {
         const form = new ActionFormData()
             .title("Select Player");
-        const players = this._bm.GetBindedPlayers();
+        const players = this._bs.BoundPlayers;
         for (const player of players) {
             form.button(`${player.name}`);
         }
@@ -85,10 +87,10 @@ export class FormManager {
             .title(`${player.name}`)
             .button("Kick");
     };
-    constructor(_vc, _bm, _em) {
+    constructor(_vc, _bs, _aes) {
         this._vc = _vc;
-        this._bm = _bm;
-        this._em = _em;
+        this._bs = _bs;
+        this._aes = _aes;
     }
     async ShowMainMenuSettingsFormAsync(player) {
         try {
@@ -157,7 +159,7 @@ export class FormManager {
         if (typeof bitmaskValue !== "string")
             return;
         const bitmask = Number.parseInt(bitmaskValue);
-        this._em.SetEffect(bitmask, new VisibilityEffect());
+        this._aes.SetEffect(bitmask, new VisibilityEffect());
     }
     async ShowSetProximityEffectMenuSettingsFormAsync(player) {
         const { cancelationReason, formValues } = await this._setProximityEffectMenuSettingsForm(0, 1, 0, 100).show(player);
@@ -172,7 +174,7 @@ export class FormManager {
         effect.WetDry = wetDry;
         effect.MinRange = minValue;
         effect.MaxRange = maxValue;
-        this._em.SetEffect(bitmask, effect);
+        this._aes.SetEffect(bitmask, effect);
     }
     async ShowSetDirectionalEffectMenuSettingsFormAsync(player) {
         const { cancelationReason, formValues } = await this._setDirectionalEffectMenuSettingsForm(0, 1).show(player);
@@ -185,7 +187,7 @@ export class FormManager {
         const wetDry = Number.parseFloat(wetDryValue);
         const effect = new DirectionalEffect();
         effect.WetDry = wetDry;
-        this._em.SetEffect(bitmask, effect);
+        this._aes.SetEffect(bitmask, effect);
     }
     async ShowSetProximityEchoEffectMenuSettingsFormAsync(player) {
         const { cancelationReason, formValues } = await this._setProximityEchoEffectMenuSettingsForm(0, 1, 0.5, 30).show(player);
@@ -201,7 +203,7 @@ export class FormManager {
         effect.WetDry = wetDry;
         effect.Delay = delay;
         effect.Range = rangeValue;
-        this._em.SetEffect(bitmask, effect);
+        this._aes.SetEffect(bitmask, effect);
     }
     async ShowSetEchoEffectMenuSettingsFormAsync(player) {
         const { cancelationReason, formValues } = await this._setEchoEffectMenuSettingsForm(0, 1, 0.5, 0.5).show(player);
@@ -218,7 +220,7 @@ export class FormManager {
         effect.WetDry = wetDry;
         effect.Delay = delay;
         effect.Feedback = feedback;
-        this._em.SetEffect(bitmask, effect);
+        this._aes.SetEffect(bitmask, effect);
     }
     async ShowSetProximityMuffleEffectMenuSettingsFormAsync(player) {
         const { cancelationReason, formValues } = await this._setProximityMuffleEffectMenuSettingsForm(0, 1).show(player);
@@ -231,7 +233,7 @@ export class FormManager {
         const wetDry = Number.parseFloat(wetDryValue);
         const effect = new ProximityMuffleEffect();
         effect.WetDry = wetDry;
-        this._em.SetEffect(bitmask, effect);
+        this._aes.SetEffect(bitmask, effect);
     }
     async ShowSetMuffleEffectMenuSettingsFormAsync(player) {
         const { cancelationReason, formValues } = await this._setMuffleEffectMenuSettingsForm(0, 1).show(player);
@@ -244,14 +246,14 @@ export class FormManager {
         const wetDry = Number.parseFloat(wetDryValue);
         const effect = new MuffleEffect();
         effect.WetDry = wetDry;
-        this._em.SetEffect(bitmask, effect);
+        this._aes.SetEffect(bitmask, effect);
     }
     async ShowDeleteEffectSettingsFormAsync(player) {
         const form = this._deleteEffectMenuSettingsForm();
         const { canceled, selection } = await form.form.show(player);
         if (canceled || selection === undefined)
             return;
-        this._em.SetEffect(form.bitmasks[selection], undefined);
+        this._aes.SetEffect(form.bitmasks[selection], undefined);
     }
     async ShowSelectPlayerSettingsFormAsync(player) {
         const form = this._selectPlayerMenuSettingsForm();
@@ -268,7 +270,10 @@ export class FormManager {
             return;
         switch (selection) {
             case 0:
-                throw new Error("Not implemented.");
+                const entityId = this._bs.GetBoundEntity(selectedPlayer.id);
+                if (entityId === undefined)
+                    return;
+                this._vc.SendPacket(new McApiDestroyEntityRequestPacket(Guid.Create().toString(), entityId));
         }
     }
 }

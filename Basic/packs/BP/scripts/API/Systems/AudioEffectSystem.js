@@ -1,5 +1,6 @@
-import { McApiSetEffectRequestPacket } from "../API/Network/McApiPackets/Request/McApiSetEffectRequestPacket";
-export class EffectsManager {
+import { McApiSetEffectRequestPacket } from "../Network/McApiPackets/Request/McApiSetEffectRequestPacket";
+import { McApiClearEffectsRequestPacket } from "../Network/McApiPackets/Request/McApiClearEffectsRequestPacket";
+export class AudioEffectSystem {
     _vc;
     Effects = new Map();
     constructor(_vc) {
@@ -9,6 +10,9 @@ export class EffectsManager {
     }
     SetEffect(bitmask, effect) {
         this._vc.SendPacket(new McApiSetEffectRequestPacket(bitmask, effect));
+    }
+    Clear() {
+        this._vc.SendPacket(new McApiClearEffectsRequestPacket());
     }
     OnEffectUpdatedEvent(ev) {
         if (ev.Effect === undefined) {

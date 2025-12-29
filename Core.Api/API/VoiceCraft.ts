@@ -87,6 +87,14 @@ export class VoiceCraft {
     //Events
     public readonly OnConnected: Event<string> = new Event<string>();
     public readonly OnDisconnected: Event<string> = new Event<string>();
+    public readonly OnPlayerBind: Event<{ playerId: string, entityId: string }> = new Event<{
+        playerId: string,
+        entityId: string
+    }>();
+    public readonly OnPlayerUnbind: Event<{ playerId: string, entityId: string }> = new Event<{
+        playerId: string,
+        entityId: string
+    }>();
     //McApi
     public readonly OnPacket: Event<IMcApiPacket> = new Event<IMcApiPacket>();
 
@@ -201,6 +209,12 @@ export class VoiceCraft {
             case `${VoiceCraft.Namespace}:onDisconnected`:
                 this.HandleOnDisconnectedEvent(ev.message);
                 break;
+            case `${VoiceCraft.Namespace}:onPlayerBind`:
+                this.HandleOnPlayerBindEvent(ev.message);
+                break;
+            case `${VoiceCraft.Namespace}:onPlayerUnbind`:
+                this.HandleOnPlayerUnbindEvent(ev.message);
+                break;
         }
     }
 
@@ -224,6 +238,16 @@ export class VoiceCraft {
         this._token = undefined;
         this._connectionState = 0;
         this.OnDisconnected.Invoke(reason);
+    }
+
+    private HandleOnPlayerBindEvent(data: string) {
+        const splitData = data.split(":");
+        this.OnPlayerBind.Invoke({ playerId: splitData[0], entityId: splitData[1] });
+    }
+
+    private HandleOnPlayerUnbindEvent(data: string) {
+        const splitData = data.split(":");
+        this.OnPlayerUnbind.Invoke({ playerId: splitData[0], entityId: splitData[1] });
     }
 
     private async HandlePacketAsync(packetType: McApiPacketType, reader: NetDataReader) {

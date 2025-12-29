@@ -21,9 +21,9 @@ export class McApiOnEntityAudioReceivedPacket {
     _timestamp;
     _frameLoudness;
     Serialize(writer) {
-        writer.PutInt(this._id);
-        writer.PutUshort(this._timestamp);
-        writer.PutFloat(this._frameLoudness);
+        writer.PutInt(this.Id);
+        writer.PutUshort(this.Timestamp);
+        writer.PutFloat(this.FrameLoudness);
     }
     Deserialize(reader) {
         this._id = reader.GetInt();

@@ -17,10 +17,10 @@ export class McApiSetEntityPositionRequestPacket {
     _id;
     _value;
     Serialize(writer) {
-        writer.PutInt(this._id);
-        writer.PutFloat(this._value.X);
-        writer.PutFloat(this._value.Y);
-        writer.PutFloat(this._value.Z);
+        writer.PutInt(this.Id);
+        writer.PutFloat(this.Value.X);
+        writer.PutFloat(this.Value.Y);
+        writer.PutFloat(this.Value.Z);
     }
     Deserialize(reader) {
         this._id = reader.GetInt();

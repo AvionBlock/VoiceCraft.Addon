@@ -36,6 +36,13 @@ import { McApiSetEntityWorldIdRequestPacket } from "./Network/McApiPackets/Reque
 import { McApiOnEffectUpdatedPacket } from "./Network/McApiPackets/Event/McApiOnEffectUpdatedPacket";
 import { McApiSetEffectRequestPacket } from "./Network/McApiPackets/Request/McApiSetEffectRequestPacket";
 import { McApiClearEffectsRequestPacket } from "./Network/McApiPackets/Request/McApiClearEffectsRequestPacket";
+import { McApiResetRequestPacket } from "./Network/McApiPackets/Request/McApiResetRequestPacket";
+import { McApiCreateEntityRequestPacket } from "./Network/McApiPackets/Request/McApiCreateEntityRequestPacket";
+import { McApiDestroyEntityRequestPacket } from "./Network/McApiPackets/Request/McApiDestroyEntityRequestPacket";
+import { McApiEntityAudioRequestPacket } from "./Network/McApiPackets/Request/McApiEntityAudioRequestPacket";
+import { McApiResetResponsePacket } from "./Network/McApiPackets/Response/McApiResetResponsePacket";
+import { McApiCreateEntityResponsePacket } from "./Network/McApiPackets/Response/McApiCreateEntityResponsePacket";
+import { McApiDestroyEntityResponsePacket } from "./Network/McApiPackets/Response/McApiDestroyEntityResponsePacket";
 export declare class VoiceCraft {
     static readonly MajorVersion: number;
     static readonly MinorVersion: number;
@@ -49,6 +56,14 @@ export declare class VoiceCraft {
     get Token(): string | undefined;
     readonly OnConnected: Event<string>;
     readonly OnDisconnected: Event<string>;
+    readonly OnPlayerBind: Event<{
+        playerId: string;
+        entityId: string;
+    }>;
+    readonly OnPlayerUnbind: Event<{
+        playerId: string;
+        entityId: string;
+    }>;
     readonly OnPacket: Event<IMcApiPacket>;
     readonly OnLoginRequestPacket: Event<McApiLoginRequestPacket>;
     readonly OnLogoutRequestPacket: Event<McApiLogoutRequestPacket>;
@@ -56,8 +71,12 @@ export declare class VoiceCraft {
     readonly OnAcceptResponsePacket: Event<McApiAcceptResponsePacket>;
     readonly OnDenyResponsePacket: Event<McApiDenyResponsePacket>;
     readonly OnPingResponsePacket: Event<McApiPingResponsePacket>;
+    readonly OnResetRequestPacket: Event<McApiResetRequestPacket>;
     readonly OnSetEffectRequestPacket: Event<McApiSetEffectRequestPacket>;
     readonly OnClearEffectsRequestPacket: Event<McApiClearEffectsRequestPacket>;
+    readonly OnCreateEntityRequestPacket: Event<McApiCreateEntityRequestPacket>;
+    readonly OnDestroyEntityRequestPacket: Event<McApiDestroyEntityRequestPacket>;
+    readonly OnEntityAudioRequestPacket: Event<McApiEntityAudioRequestPacket>;
     readonly OnSetEntityTitleRequestPacket: Event<McApiSetEntityTitleRequestPacket>;
     readonly OnSetEntityDescriptionRequestPacket: Event<McApiSetEntityDescriptionRequestPacket>;
     readonly OnSetEntityWorldIdRequestPacket: Event<McApiSetEntityWorldIdRequestPacket>;
@@ -69,6 +88,9 @@ export declare class VoiceCraft {
     readonly OnSetEntityRotationRequestPacket: Event<McApiSetEntityRotationRequestPacket>;
     readonly OnSetEntityCaveFactorRequestPacket: Event<McApiSetEntityCaveFactorRequestPacket>;
     readonly OnSetEntityMuffleFactorRequestPacket: Event<McApiSetEntityMuffleFactorRequestPacket>;
+    readonly OnResetResponsePacket: Event<McApiResetResponsePacket>;
+    readonly OnCreateEntityResponsePacket: Event<McApiCreateEntityResponsePacket>;
+    readonly OnDestroyEntityResponsePacket: Event<McApiDestroyEntityResponsePacket>;
     readonly OnEffectUpdatedPacket: Event<McApiOnEffectUpdatedPacket>;
     readonly OnEntityCreatedPacket: Event<McApiOnEntityCreatedPacket>;
     readonly OnNetworkEntityCreatedPacket: Event<McApiOnNetworkEntityCreatedPacket>;
@@ -91,6 +113,8 @@ export declare class VoiceCraft {
     private HandleOnPacketEventAsync;
     private HandleOnConnectedEvent;
     private HandleOnDisconnectedEvent;
+    private HandleOnPlayerBindEvent;
+    private HandleOnPlayerUnbindEvent;
     private HandlePacketAsync;
     private HandleLoginRequestPacket;
     private HandleLogoutRequestPacket;
@@ -98,8 +122,12 @@ export declare class VoiceCraft {
     private HandleAcceptResponsePacket;
     private HandleDenyResponsePacket;
     private HandlePingResponsePacket;
+    private HandleResetRequestPacket;
     private HandleSetEffectRequestPacket;
     private HandleClearEffectsRequestPacket;
+    private HandleCreateEntityRequestPacket;
+    private HandleDestroyEntityRequestPacket;
+    private HandleEntityAudioRequestPacket;
     private HandleSetEntityTitleRequestPacket;
     private HandleSetEntityDescriptionRequestPacket;
     private HandleSetEntityWorldIdRequestPacket;
@@ -111,6 +139,9 @@ export declare class VoiceCraft {
     private HandleSetEntityRotationRequestPacket;
     private HandleSetEntityCaveFactorRequestPacket;
     private HandleSetEntityMuffleFactorRequestPacket;
+    private HandleResetResponsePacket;
+    private HandleCreateEntityResponsePacket;
+    private HandleDestroyEntityResponsePacket;
     private HandleOnEffectUpdatedPacket;
     private HandleOnEntityCreatedPacket;
     private HandleOnNetworkEntityCreatedPacket;

@@ -16,8 +16,8 @@ export class McApiSetEntityListenBitmaskRequestPacket {
     _id;
     _value;
     Serialize(writer) {
-        writer.PutInt(this._id);
-        writer.PutUshort(this._value);
+        writer.PutInt(this.Id);
+        writer.PutUshort(this.Value);
     }
     Deserialize(reader) {
         this._id = reader.GetInt();

@@ -9,11 +9,11 @@ import {
     system,
 } from "@minecraft/server";
 import {VoiceCraft} from "../API/VoiceCraft";
-import {BindingManager} from "./BindingManager";
 import {FormManager} from "./FormManager";
+import {BindingSystem} from "../API/Systems/BindingSystem";
 
 export class CommandManager {
-    constructor(private _vc: VoiceCraft, private _bm: BindingManager, private _fm: FormManager) {
+    constructor(private _vc: VoiceCraft, private _bs: BindingSystem, private _fm: FormManager) {
         system.beforeEvents.startup.subscribe((ev) => {
             this.RegisterCommands(ev.customCommandRegistry);
         });
@@ -57,7 +57,7 @@ export class CommandManager {
                 status: CustomCommandStatus.Failure,
                 message: "Not connected! Cannot bind!"
             };
-        if (!this._bm.BindPlayer(bindingKey, origin.sourceEntity))
+        if (!this._bs.BindPlayer(bindingKey, origin.sourceEntity))
             return {
                 status: CustomCommandStatus.Failure,
                 message: "Could not bind! Binding key does not exist or already bound!"

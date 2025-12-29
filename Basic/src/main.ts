@@ -1,6 +1,5 @@
 import { PlayerLeaveAfterEvent, system, world } from "@minecraft/server";
 import { VoiceCraft } from "./API/VoiceCraft";
-import { BindingManager } from "./Managers/BindingManager";
 import { CommandManager } from "./Managers/CommandManager";
 import { McApiSetEntityPositionRequestPacket } from "./API/Network/McApiPackets/Request/McApiSetEntityPositionRequestPacket";
 import { Vector3 } from "./API/Data/Vector3";
@@ -8,19 +7,15 @@ import { McApiSetEntityRotationRequestPacket } from "./API/Network/McApiPackets/
 import { Vector2 } from "./API/Data/Vector2";
 import { McApiSetEntityWorldIdRequestPacket } from "./API/Network/McApiPackets/Request/McApiSetEntityWorldIdRequestPacket";
 import {FormManager} from "./Managers/FormManager";
-import {EffectsManager} from "./Managers/EffectsManager";
+import {BindingSystem} from "./API/Systems/BindingSystem";
+import {AudioEffectSystem} from "./API/Systems/AudioEffectSystem";
 const vc = new VoiceCraft();
-const bm = new BindingManager(vc);
-const em = new EffectsManager(vc);
-const fm = new FormManager(vc, bm, em);
-new CommandManager(vc, bm, fm);
+const bs = new BindingSystem(vc);
+const aes = new AudioEffectSystem(vc);
+const fm = new FormManager(vc, bs, aes);
+new CommandManager(vc, bs, fm);
 
 system.runInterval(() => IntervalLogic(), 0);
-world.afterEvents.playerLeave.subscribe((ev) => HandlePlayerLeaveEvent(ev));
-
-function HandlePlayerLeaveEvent(ev: PlayerLeaveAfterEvent) {
-    bm.UnbindPlayer(ev.playerId);
-}
 
 function IntervalLogic() {
     if(vc.Token === undefined) return;
@@ -28,7 +23,7 @@ function IntervalLogic() {
     const players = world.getAllPlayers();
     for(const player of players)
     {
-        const entityId = bm.GetEntityFromPlayerId(player.id);
+        const entityId = bs.GetBoundEntity(player.id);
         if(entityId === undefined) continue;
         const worldId = player.dimension.id;
         const location = player.location;
