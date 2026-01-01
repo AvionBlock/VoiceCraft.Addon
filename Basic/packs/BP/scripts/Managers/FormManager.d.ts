@@ -7,6 +7,7 @@ export declare class FormManager {
     private _bs;
     private _aes;
     private _mainMenuSettingsForm;
+    private _generalSettingsMenuForm;
     private _effectsMenuSettingsForm;
     private _selectEffectMenuSettingsForm;
     private _setVisibilityEffectMenuSettingsForm;
@@ -21,6 +22,7 @@ export declare class FormManager {
     private _selectPlayerActionMenuSettingsForm;
     constructor(_vc: VoiceCraft, _bs: BindingSystem, _aes: AudioEffectSystem);
     ShowMainMenuSettingsFormAsync(player: Player): Promise<void>;
+    ShowGeneralSettingsFormAsync(player: Player): Promise<void>;
     ShowEffectSettingsFormAsync(player: Player): Promise<void>;
     ShowSelectEffectMenuSettingsFormAsync(player: Player): Promise<void>;
     ShowSetVisibilityEffectMenuSettingsFormAsync(player: Player): Promise<void>;

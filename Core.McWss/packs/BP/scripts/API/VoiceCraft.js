@@ -47,6 +47,10 @@ import { McApiEntityAudioRequestPacket } from "./Network/McApiPackets/Request/Mc
 import { McApiResetResponsePacket } from "./Network/McApiPackets/Response/McApiResetResponsePacket";
 import { McApiCreateEntityResponsePacket } from "./Network/McApiPackets/Response/McApiCreateEntityResponsePacket";
 import { McApiDestroyEntityResponsePacket } from "./Network/McApiPackets/Response/McApiDestroyEntityResponsePacket";
+import { McApiSetEntityMuteRequestPacket } from "./Network/McApiPackets/Request/McApiSetEntityMuteRequestPacket";
+import { McApiSetEntityDeafenRequestPacket } from "./Network/McApiPackets/Request/McApiSetEntityDeafenRequestPacket";
+import { McApiOnEntityServerMuteUpdatedPacket } from "./Network/McApiPackets/Event/McApiOnEntityServerMuteUpdated";
+import { McApiOnEntityServerDeafenUpdatedPacket } from "./Network/McApiPackets/Event/McApiOnEntityServerDeafenUpdated";
 export class VoiceCraft {
     static MajorVersion = 1;
     static MinorVersion = 3;
@@ -92,6 +96,8 @@ export class VoiceCraft {
     OnSetEntityDescriptionRequestPacket = new Event();
     OnSetEntityWorldIdRequestPacket = new Event();
     OnSetEntityNameRequestPacket = new Event();
+    OnSetEntityMuteRequestPacket = new Event();
+    OnSetEntityDeafenRequestPacket = new Event();
     OnSetEntityTalkBitmaskRequestPacket = new Event();
     OnSetEntityListenBitmaskRequestPacket = new Event();
     OnSetEntityEffectBitmaskRequestPacket = new Event();
@@ -113,6 +119,8 @@ export class VoiceCraft {
     OnEntityNameUpdatedPacket = new Event();
     OnEntityMuteUpdatedPacket = new Event();
     OnEntityDeafenUpdatedPacket = new Event();
+    OnEntityServerMuteUpdatedPacket = new Event();
+    OnEntityServerDeafenUpdatedPacket = new Event();
     OnEntityTalkBitmaskUpdatedPacket = new Event();
     OnEntityListenBitmaskUpdatedPacket = new Event();
     OnEntityEffectBitmaskUpdatedPacket = new Event();
@@ -261,6 +269,16 @@ export class VoiceCraft {
                 setEntityNameRequestPacket.Deserialize(reader);
                 this.HandleSetEntityNameRequestPacket(setEntityNameRequestPacket);
                 break;
+            case McApiPacketType.SetEntityMuteRequest:
+                const setEntityMuteRequestPacket = new McApiSetEntityMuteRequestPacket();
+                setEntityMuteRequestPacket.Deserialize(reader);
+                this.HandleSetEntityMuteRequestPacket(setEntityMuteRequestPacket);
+                break;
+            case McApiPacketType.SetEntityDeafenRequest:
+                const setEntityDeafenRequestPacket = new McApiSetEntityDeafenRequestPacket();
+                setEntityDeafenRequestPacket.Deserialize(reader);
+                this.HandleSetEntityDeafenRequestPacket(setEntityDeafenRequestPacket);
+                break;
             case McApiPacketType.SetEntityTalkBitmaskRequest:
                 const setEntityTalkBitmaskRequestPacket = new McApiSetEntityTalkBitmaskRequestPacket();
                 setEntityTalkBitmaskRequestPacket.Deserialize(reader);
@@ -355,6 +373,16 @@ export class VoiceCraft {
                 const onEntityDeafenUpdatedPacket = new McApiOnEntityDeafenUpdatedPacket();
                 onEntityDeafenUpdatedPacket.Deserialize(reader);
                 this.HandleOnEntityDeafenUpdatedPacket(onEntityDeafenUpdatedPacket);
+                break;
+            case McApiPacketType.OnEntityServerMuteUpdated:
+                const onEntityServerMuteUpdatedPacket = new McApiOnEntityServerMuteUpdatedPacket();
+                onEntityServerMuteUpdatedPacket.Deserialize(reader);
+                this.HandleOnEntityServerMuteUpdatedPacket(onEntityServerMuteUpdatedPacket);
+                break;
+            case McApiPacketType.OnEntityServerDeafenUpdated:
+                const onEntityServerDeafenUpdatedPacket = new McApiOnEntityServerDeafenUpdatedPacket();
+                onEntityServerDeafenUpdatedPacket.Deserialize(reader);
+                this.HandleOnEntityServerDeafenUpdatedPacket(onEntityServerDeafenUpdatedPacket);
                 break;
             case McApiPacketType.OnEntityTalkBitmaskUpdated:
                 const onEntityTalkBitmaskUpdatedPacket = new McApiOnEntityTalkBitmaskUpdatedPacket();
@@ -462,6 +490,14 @@ export class VoiceCraft {
         this.OnPacket.Invoke(packet);
         this.OnSetEntityNameRequestPacket.Invoke(packet);
     }
+    HandleSetEntityMuteRequestPacket(packet) {
+        this.OnPacket.Invoke(packet);
+        this.OnSetEntityMuteRequestPacket.Invoke(packet);
+    }
+    HandleSetEntityDeafenRequestPacket(packet) {
+        this.OnPacket.Invoke(packet);
+        this.OnSetEntityDeafenRequestPacket.Invoke(packet);
+    }
     HandleSetEntityTalkBitmaskRequestPacket(packet) {
         this.OnPacket.Invoke(packet);
         this.OnSetEntityTalkBitmaskRequestPacket.Invoke(packet);
@@ -537,6 +573,14 @@ export class VoiceCraft {
     HandleOnEntityDeafenUpdatedPacket(packet) {
         this.OnPacket.Invoke(packet);
         this.OnEntityDeafenUpdatedPacket.Invoke(packet);
+    }
+    HandleOnEntityServerMuteUpdatedPacket(packet) {
+        this.OnPacket.Invoke(packet);
+        this.OnEntityServerMuteUpdatedPacket.Invoke(packet);
+    }
+    HandleOnEntityServerDeafenUpdatedPacket(packet) {
+        this.OnPacket.Invoke(packet);
+        this.OnEntityServerDeafenUpdatedPacket.Invoke(packet);
     }
     HandleOnEntityTalkBitmaskUpdatedPacket(packet) {
         this.OnPacket.Invoke(packet);

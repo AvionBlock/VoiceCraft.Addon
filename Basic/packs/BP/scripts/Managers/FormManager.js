@@ -1,3 +1,5 @@
+import { VoiceCraft } from "../API/VoiceCraft";
+import { world } from "@minecraft/server";
 import { ActionFormData, ModalFormData } from "@minecraft/server-ui";
 import { ProximityEffect } from "../API/Effects/ProximityEffect";
 import { VisibilityEffect } from "../API/Effects/VisibilityEffect";
@@ -9,14 +11,21 @@ import { ProximityMuffleEffect } from "../API/Effects/ProximityMuffleEffect";
 import { MuffleEffect } from "../API/Effects/MuffleEffect";
 import { McApiDestroyEntityRequestPacket } from "../API/Network/McApiPackets/Request/McApiDestroyEntityRequestPacket";
 import { Guid } from "../API/Data/Guid";
+import { McApiSetEntityMuteRequestPacket } from "../API/Network/McApiPackets/Request/McApiSetEntityMuteRequestPacket";
+import { McApiSetEntityDeafenRequestPacket } from "../API/Network/McApiPackets/Request/McApiSetEntityDeafenRequestPacket";
 export class FormManager {
     _vc;
     _bs;
     _aes;
     _mainMenuSettingsForm = () => new ActionFormData()
         .title("Settings")
+        .button("General")
         .button("Effects")
         .button("Players");
+    _generalSettingsMenuForm = (caveEcho, underwaterMuffle) => new ModalFormData()
+        .title("General Settings")
+        .toggle("Enable Cave Echo", { defaultValue: caveEcho })
+        .toggle("Enable Underwater Muffle", { defaultValue: underwaterMuffle });
     _effectsMenuSettingsForm = () => new ActionFormData()
         .title("Effects")
         .button("Set Effect")
@@ -85,7 +94,11 @@ export class FormManager {
     _selectPlayerActionMenuSettingsForm = (player) => {
         return new ActionFormData()
             .title(`${player.name}`)
-            .button("Kick");
+            .button("Kick")
+            .button("Mute")
+            .button("Unmute")
+            .button("Deafen")
+            .button("Undeafen");
     };
     constructor(_vc, _bs, _aes) {
         this._vc = _vc;
@@ -99,9 +112,12 @@ export class FormManager {
                 return;
             switch (selection) {
                 case 0:
-                    await this.ShowEffectSettingsFormAsync(player);
+                    await this.ShowGeneralSettingsFormAsync(player);
                     break;
                 case 1:
+                    await this.ShowEffectSettingsFormAsync(player);
+                    break;
+                case 2:
                     await this.ShowSelectPlayerSettingsFormAsync(player);
                     break;
             }
@@ -109,6 +125,18 @@ export class FormManager {
         catch (error) {
             player.sendMessage(`§c${error}`);
         }
+    }
+    async ShowGeneralSettingsFormAsync(player) {
+        const caveEcho = world.getDynamicProperty(`${VoiceCraft.Namespace}:enableCaveEcho`) ?? false;
+        const underwaterMuffle = world.getDynamicProperty(`${VoiceCraft.Namespace}:enableUnderwaterMuffle`) ?? false;
+        const { cancelationReason, formValues } = await this._generalSettingsMenuForm(caveEcho, underwaterMuffle).show(player);
+        if (cancelationReason !== undefined || formValues === undefined)
+            return;
+        const [caveEchoValue, underwaterMuffleValue] = formValues;
+        if (typeof caveEchoValue !== "boolean" || typeof underwaterMuffleValue !== "boolean")
+            return;
+        world.setDynamicProperty(`${VoiceCraft.Namespace}:enableCaveEcho`, caveEchoValue);
+        world.setDynamicProperty(`${VoiceCraft.Namespace}:enableUnderwaterMuffle`, underwaterMuffleValue);
     }
     async ShowEffectSettingsFormAsync(player) {
         const { canceled, selection } = await this._effectsMenuSettingsForm().show(player);
@@ -268,12 +296,38 @@ export class FormManager {
         const { canceled, selection } = await form.show(player);
         if (canceled || selection === undefined)
             return;
+        let entityId = undefined;
         switch (selection) {
             case 0:
-                const entityId = this._bs.GetBoundEntity(selectedPlayer.id);
+                entityId = this._bs.GetBoundEntity(selectedPlayer.id);
                 if (entityId === undefined)
                     return;
                 this._vc.SendPacket(new McApiDestroyEntityRequestPacket(Guid.Create().toString(), entityId));
+                break;
+            case 1:
+                entityId = this._bs.GetBoundEntity(selectedPlayer.id);
+                if (entityId === undefined)
+                    return;
+                this._vc.SendPacket(new McApiSetEntityMuteRequestPacket(entityId, true));
+                break;
+            case 2:
+                entityId = this._bs.GetBoundEntity(selectedPlayer.id);
+                if (entityId === undefined)
+                    return;
+                this._vc.SendPacket(new McApiSetEntityMuteRequestPacket(entityId, false));
+                break;
+            case 3:
+                entityId = this._bs.GetBoundEntity(selectedPlayer.id);
+                if (entityId === undefined)
+                    return;
+                this._vc.SendPacket(new McApiSetEntityDeafenRequestPacket(entityId, true));
+                break;
+            case 4:
+                entityId = this._bs.GetBoundEntity(selectedPlayer.id);
+                if (entityId === undefined)
+                    return;
+                this._vc.SendPacket(new McApiSetEntityDeafenRequestPacket(entityId, false));
+                break;
         }
     }
 }
