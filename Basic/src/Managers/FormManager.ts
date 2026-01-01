@@ -1,5 +1,5 @@
 import {VoiceCraft} from "../API/VoiceCraft";
-import {Player} from "@minecraft/server";
+import {Player, world} from "@minecraft/server";
 import {ActionFormData, ModalFormData} from "@minecraft/server-ui";
 import {ProximityEffect} from "../API/Effects/ProximityEffect";
 import {VisibilityEffect} from "../API/Effects/VisibilityEffect";
@@ -19,8 +19,14 @@ import {McApiSetEntityDeafenRequestPacket} from "../API/Network/McApiPackets/Req
 export class FormManager {
     private _mainMenuSettingsForm = () => new ActionFormData()
         .title("Settings")
+        .button("General")
         .button("Effects")
         .button("Players");
+
+    private _generalSettingsMenuForm = (caveEcho: boolean, underwaterMuffle: boolean) => new ModalFormData()
+        .title("General Settings")
+        .toggle("Enable Cave Echo", {defaultValue: caveEcho})
+        .toggle("Enable Underwater Muffle", {defaultValue: underwaterMuffle});
 
     private _effectsMenuSettingsForm = () => new ActionFormData()
         .title("Effects")
@@ -117,15 +123,32 @@ export class FormManager {
             if (canceled || selection === undefined) return;
             switch (selection) {
                 case 0:
-                    await this.ShowEffectSettingsFormAsync(player);
+                    await this.ShowGeneralSettingsFormAsync(player);
                     break;
                 case 1:
+                    await this.ShowEffectSettingsFormAsync(player);
+                    break;
+                case 2:
                     await this.ShowSelectPlayerSettingsFormAsync(player);
                     break;
             }
         } catch (error) {
             player.sendMessage(`§c${error}`);
         }
+    }
+
+    public async ShowGeneralSettingsFormAsync(player: Player) {
+        const caveEcho = world.getDynamicProperty(`${VoiceCraft.Namespace}:enableCaveEcho`) as boolean ?? false;
+        const underwaterMuffle = world.getDynamicProperty(`${VoiceCraft.Namespace}:enableUnderwaterMuffle`) as boolean ?? false;
+        const {
+            cancelationReason,
+            formValues
+        } = await this._generalSettingsMenuForm(caveEcho, underwaterMuffle).show(player);
+        if (cancelationReason !== undefined || formValues === undefined) return;
+        const [caveEchoValue, underwaterMuffleValue] = formValues;
+        if (typeof caveEchoValue !== "boolean" || typeof underwaterMuffleValue !== "boolean") return;
+        world.setDynamicProperty(`${VoiceCraft.Namespace}:enableCaveEcho`, caveEchoValue);
+        world.setDynamicProperty(`${VoiceCraft.Namespace}:enableUnderwaterMuffle`, underwaterMuffleValue);
     }
 
     public async ShowEffectSettingsFormAsync(player: Player) {
@@ -288,27 +311,27 @@ export class FormManager {
         switch (selection) {
             case 0:
                 entityId = this._bs.GetBoundEntity(selectedPlayer.id);
-                if(entityId === undefined) return;
+                if (entityId === undefined) return;
                 this._vc.SendPacket(new McApiDestroyEntityRequestPacket(Guid.Create().toString(), entityId));
                 break;
             case 1:
                 entityId = this._bs.GetBoundEntity(selectedPlayer.id);
-                if(entityId === undefined) return;
+                if (entityId === undefined) return;
                 this._vc.SendPacket(new McApiSetEntityMuteRequestPacket(entityId, true));
                 break;
             case 2:
                 entityId = this._bs.GetBoundEntity(selectedPlayer.id);
-                if(entityId === undefined) return;
+                if (entityId === undefined) return;
                 this._vc.SendPacket(new McApiSetEntityMuteRequestPacket(entityId, false));
                 break;
             case 3:
                 entityId = this._bs.GetBoundEntity(selectedPlayer.id);
-                if(entityId === undefined) return;
+                if (entityId === undefined) return;
                 this._vc.SendPacket(new McApiSetEntityDeafenRequestPacket(entityId, true));
                 break;
             case 4:
                 entityId = this._bs.GetBoundEntity(selectedPlayer.id);
-                if(entityId === undefined) return;
+                if (entityId === undefined) return;
                 this._vc.SendPacket(new McApiSetEntityDeafenRequestPacket(entityId, false));
                 break;
         }
