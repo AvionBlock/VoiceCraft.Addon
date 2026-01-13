@@ -1,2 +1,2 @@
-import { McApiMcwss } from "./McApiMcwss";
-const vc = new McApiMcwss();
+import { McApiMcWss } from "./McApiMcWss";
+const vc = new McApiMcWss();

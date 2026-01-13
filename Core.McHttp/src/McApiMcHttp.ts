@@ -174,7 +174,7 @@ export class McApiMcHttp {
         this.StopPinger();
         this._pinger = system.runInterval(
             () => this.PingIntervalLogic(),
-            Math.round(this._defaultTimeoutMs / 4 / 20)
+            Math.round(this._defaultTimeoutMs / 8 / 20)
         );
     }
 

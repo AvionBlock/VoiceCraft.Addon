@@ -8,14 +8,14 @@ import {
     Player,
     system,
 } from "@minecraft/server";
-import {McApiMcwss} from "../McApiMcwss";
+import {McApiMcWss} from "../McApiMcWss";
 import {Z85} from "../API/Encoders/Z85";
 import {Locales} from "../API/Locales";
 import {VoiceCraft} from "../API/VoiceCraft";
 import "../Extensions";
 
 export class CommandManager {
-    constructor(private _mcapi: McApiMcwss) {
+    constructor(private _mcapi: McApiMcWss) {
         system.beforeEvents.startup.subscribe((ev) => {
             this.RegisterCommands(ev.customCommandRegistry);
         });

@@ -19,7 +19,7 @@ import {McApiLogoutRequestPacket} from "./API/Network/McApiPackets/Request/McApi
 import {McApiPingRequestPacket} from "./API/Network/McApiPackets/Request/McApiPingRequestPacket";
 import {McApiPingResponsePacket} from "./API/Network/McApiPackets/Response/McApiPingResponsePacket";
 
-export class McApiMcwss {
+export class McApiMcWss {
     private _version: Version = new Version(VoiceCraft.MajorVersion, VoiceCraft.MinorVersion, 0);
     private _cm: CommandManager = new CommandManager(this);
     private _defaultTimeoutMs: number = 10000;
@@ -157,7 +157,7 @@ export class McApiMcwss {
         this.StopPinger();
         this._pinger = system.runInterval(
             () => this.PingIntervalLogic(),
-            Math.round(this._defaultTimeoutMs / 4 / 20)
+            Math.round(this._defaultTimeoutMs / 8 / 20)
         );
     }
 
