@@ -50,6 +50,7 @@ import { McApiOnEntityServerDeafenUpdatedPacket } from "./Network/McApiPackets/E
 export declare class VoiceCraft {
     static readonly MajorVersion: number;
     static readonly MinorVersion: number;
+    static readonly PatchVersion: number;
     static readonly Namespace: string;
     private _writer;
     private _reader;

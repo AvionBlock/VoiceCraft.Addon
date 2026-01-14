@@ -2,7 +2,7 @@ import { Event } from "./API/Event";
 import { Queue } from "./API/Data/Queue";
 import "./Extensions";
 import { IMcApiPacket } from "./API/Network/McApiPackets/IMcApiPacket";
-export declare class McApiMcwss {
+export declare class McApiMcWss {
     private _version;
     private _cm;
     private _defaultTimeoutMs;

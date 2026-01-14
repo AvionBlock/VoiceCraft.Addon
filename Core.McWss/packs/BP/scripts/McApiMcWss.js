@@ -17,8 +17,8 @@ import { McApiDenyResponsePacket } from "./API/Network/McApiPackets/Response/McA
 import { McApiLogoutRequestPacket } from "./API/Network/McApiPackets/Request/McApiLogoutRequestPacket";
 import { McApiPingRequestPacket } from "./API/Network/McApiPackets/Request/McApiPingRequestPacket";
 import { McApiPingResponsePacket } from "./API/Network/McApiPackets/Response/McApiPingResponsePacket";
-export class McApiMcwss {
-    _version = new Version(VoiceCraft.MajorVersion, VoiceCraft.MinorVersion, 0);
+export class McApiMcWss {
+    _version = new Version(VoiceCraft.MajorVersion, VoiceCraft.MinorVersion, VoiceCraft.PatchVersion);
     _cm = new CommandManager(this);
     _defaultTimeoutMs = 10000;
     //Connection state objects.
@@ -126,7 +126,7 @@ export class McApiMcwss {
     }
     StartPinger() {
         this.StopPinger();
-        this._pinger = system.runInterval(() => this.PingIntervalLogic(), Math.round(this._defaultTimeoutMs / 4 / 20));
+        this._pinger = system.runInterval(() => this.PingIntervalLogic(), Math.round(this._defaultTimeoutMs / 8 / 20));
     }
     StopPinger() {
         if (this._pinger !== undefined) {

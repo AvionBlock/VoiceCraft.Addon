@@ -20,7 +20,7 @@ import { McApiPingRequestPacket } from "./API/Network/McApiPackets/Request/McApi
 import { McApiPingResponsePacket } from "./API/Network/McApiPackets/Response/McApiPingResponsePacket";
 import { McHttpUpdatePacket } from "./Packets/McHttpUpdatePacket";
 export class McApiMcHttp {
-    _version = new Version(VoiceCraft.MajorVersion, VoiceCraft.MinorVersion, 0);
+    _version = new Version(VoiceCraft.MajorVersion, VoiceCraft.MinorVersion, VoiceCraft.PatchVersion);
     _cm = new CommandManager(this);
     _defaultTimeoutMs = 10000;
     //Connection state objects.
@@ -142,7 +142,7 @@ export class McApiMcHttp {
     }
     StartPinger() {
         this.StopPinger();
-        this._pinger = system.runInterval(() => this.PingIntervalLogic(), Math.round(this._defaultTimeoutMs / 4 / 20));
+        this._pinger = system.runInterval(() => this.PingIntervalLogic(), Math.round(this._defaultTimeoutMs / 8 / 20));
     }
     StopHttpUpdater() {
         if (this._updater !== undefined) {

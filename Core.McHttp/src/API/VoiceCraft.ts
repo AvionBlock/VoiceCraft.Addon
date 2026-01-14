@@ -68,6 +68,7 @@ import {McApiOnEntityServerDeafenUpdatedPacket} from "./Network/McApiPackets/Eve
 export class VoiceCraft {
     public static readonly MajorVersion: number = 1;
     public static readonly MinorVersion: number = 3;
+    public static readonly PatchVersion: number = 1;
     public static readonly Namespace: string = "voicecraft";
 
     private _writer: NetDataWriter = new NetDataWriter();
