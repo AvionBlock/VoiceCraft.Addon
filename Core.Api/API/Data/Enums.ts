@@ -1,3 +1,10 @@
+export enum McApiConnectionState {
+    Disconnected,
+    Connecting,
+    Connected,
+    Disconnecting
+}
+
 export enum McApiPacketType {
     //Core
     //Requests DO NOT CHANGE!

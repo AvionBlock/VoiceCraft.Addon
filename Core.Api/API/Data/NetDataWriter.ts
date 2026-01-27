@@ -1,4 +1,5 @@
 import { UTF8 } from "../Encoders/UTF8";
+import {INetSerializable} from "../Interfaces/INetSerializable";
 
 export class NetDataWriter {
   /**
@@ -58,6 +59,13 @@ export class NetDataWriter {
     const dst = new Uint8Array(this._offset);
     dst.set(this._data.subarray(0, this._offset));
     return dst;
+  }
+
+  /**
+   * @description Writes a packet into the buffer.
+   */
+  public PutPacket(value: INetSerializable) {
+    value.Serialize(this);
   }
 
   /**

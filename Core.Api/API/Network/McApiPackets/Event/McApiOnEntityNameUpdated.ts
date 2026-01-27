@@ -1,7 +1,7 @@
 import { MaxStringLength } from "../../../Data/Constants";
 import { McApiPacketType } from "../../../Data/Enums";
-import { NetDataReader } from "../../NetDataReader";
-import { NetDataWriter } from "../../NetDataWriter";
+import { NetDataReader } from "../../../Data/NetDataReader";
+import { NetDataWriter } from "../../../Data/NetDataWriter";
 import { IMcApiPacket } from "../IMcApiPacket";
 
 export class McApiOnEntityNameUpdatedPacket implements IMcApiPacket {

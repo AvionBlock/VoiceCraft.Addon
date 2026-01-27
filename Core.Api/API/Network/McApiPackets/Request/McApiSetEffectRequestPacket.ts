@@ -1,7 +1,7 @@
 import {EffectType, McApiPacketType} from "../../../Data/Enums";
 import {IMcApiPacket} from "../IMcApiPacket";
-import {NetDataWriter} from "../../NetDataWriter";
-import {NetDataReader} from "../../NetDataReader";
+import {NetDataWriter} from "../../../Data/NetDataWriter";
+import {NetDataReader} from "../../../Data/NetDataReader";
 import {IAudioEffect} from "../../../Interfaces/IAudioEffect";
 
 export class McApiSetEffectRequestPacket implements IMcApiPacket {

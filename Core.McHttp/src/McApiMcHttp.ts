@@ -1,242 +1,115 @@
-import {ScriptEventCommandMessageAfterEvent, system, world,} from "@minecraft/server";
-import {http, HttpHeader, HttpRequest, HttpRequestMethod} from "@minecraft/server-net";
-import {Version} from "./API/Data/Version";
-import {VoiceCraft} from "./API/VoiceCraft";
-import {NetDataWriter} from "./API/Network/NetDataWriter";
-import {NetDataReader} from "./API/Network/NetDataReader";
-import {CommandManager} from "./Managers/CommandManager";
-import {Guid} from "./API/Data/Guid";
-import {McApiPacketType} from "./API/Data/Enums";
-import {Event} from "./API/Event";
-import {Queue} from "./API/Data/Queue";
-import {Locales} from "./API/Locales";
-import {Z85} from "./API/Encoders/Z85";
 import "./Extensions";
-import {IMcApiPacket} from "./API/Network/McApiPackets/IMcApiPacket";
+import {McApiClient} from "./API/McApiClient";
+import {McApiConnectionState, McApiPacketType} from "./API/Data/Enums";
 import {McApiLoginRequestPacket} from "./API/Network/McApiPackets/Request/McApiLoginRequestPacket";
+import {Guid} from "./API/Data/Guid";
+import {NetDataWriter} from "./API/Data/NetDataWriter";
 import {McApiAcceptResponsePacket} from "./API/Network/McApiPackets/Response/McApiAcceptResponsePacket";
-import {McApiDenyResponsePacket} from "./API/Network/McApiPackets/Response/McApiDenyResponsePacket";
+import {IMcApiPacket} from "./API/Network/McApiPackets/IMcApiPacket";
+import {IsIMcApiRIdPacket} from "./API/Network/McApiPackets/IMcApiRIdPacket";
+import {system} from "@minecraft/server";
+import {Event} from "./API/Event";
+import {McHttpUpdatePacket} from "./API/Network/McHttpPackets/McHttpUpdatePacket";
+import {http, HttpHeader, HttpRequest, HttpResponse} from "@minecraft/server-net";
+import {Z85} from "./API/Encoders/Z85";
+import {Queue} from "./API/Data/Queue";
 import {McApiLogoutRequestPacket} from "./API/Network/McApiPackets/Request/McApiLogoutRequestPacket";
-import {McApiPingRequestPacket} from "./API/Network/McApiPackets/Request/McApiPingRequestPacket";
-import {McApiPingResponsePacket} from "./API/Network/McApiPackets/Response/McApiPingResponsePacket";
-import {McHttpUpdatePacket} from "./Packets/McHttpUpdatePacket";
+import {NetDataReader} from "./API/Data/NetDataReader";
 
-export class McApiMcHttp {
-    private _version: Version = new Version(VoiceCraft.MajorVersion, VoiceCraft.MinorVersion, VoiceCraft.PatchVersion);
-    private _cm: CommandManager = new CommandManager(this);
-    private _defaultTimeoutMs: number = 10000;
-
-    //Connection state objects.
+export class McApiMcHttp extends McApiClient {
+    private _timeoutMs: number = 10000;
+    private readonly _writer: NetDataWriter = new NetDataWriter();
+    private readonly _reader: NetDataReader = new NetDataReader();
     private _awaitingRequest: boolean = false;
-    private _hostname?: string = undefined;
-    private _token?: string = undefined;
-    private _pinger?: number = undefined;
-    private _updater?: number = undefined;
-    private _writer: NetDataWriter = new NetDataWriter();
-    private _reader: NetDataReader = new NetDataReader();
-    private _lastPing: number = 0;
-    private _connectionState: 0 | 1 | 2 | 3 = 0; //0: Disconnected, 1: Connecting, 2: Connected, 3: Disconnecting
-    private _disconnectReason?: string = undefined;
+    private _sessionToken: string = "";
+    private _updater: number | undefined;
+    private _outboundQueue: Queue<string> = new Queue<string>();
 
-    //Queue
-    public OutboundQueue: Queue<Uint8Array> = new Queue<Uint8Array>();
+    public override OnConnected: Event<string> = new Event<string>();
+    public override OnDisconnected: Event<string | undefined> = new Event<string | undefined>();
 
-    //McApi
-    public OnPacket: Event<IMcApiPacket> = new Event<IMcApiPacket>();
+    public async ConnectAsync(ip: string, _: number, loginToken: string): Promise<void> {
+        if (this.ConnectionState != McApiConnectionState.Disconnected) return;
+        this.ConnectionState = McApiConnectionState.Connecting;
+        this._sessionToken = "";
+        this._outboundQueue.clear();
+        this.StopUpdater();
+        this.StartUpdater(ip);
 
-    constructor() {
-        system.afterEvents.scriptEventReceive.subscribe((ev) =>
-            this.HandleScriptEventAsync(ev)
-        );
-    }
-
-    private async HandleScriptEventAsync(
-        ev: ScriptEventCommandMessageAfterEvent
-    ) {
-        switch (ev.id) {
-            case `${VoiceCraft.Namespace}:sendPacket`:
-                await this.HandleSendPacketEventAsync(ev.message);
-                break;
+        const requestId = Guid.Create().toString();
+        const packet = new McApiLoginRequestPacket(requestId, loginToken, this.Version);
+        try {
+            this.SendPacket(packet);
+            const result = await this.GetRidResponseAsync<McApiAcceptResponsePacket>(
+                requestId,
+                McApiPacketType.AcceptResponse,
+                8000);
+            this.ConnectionState = McApiConnectionState.Connected;
+            this._sessionToken = result.Token;
+            this.OnConnected.Invoke(result.Token);
+        } catch (ex) {
+            await this.DisconnectAsync(`${ex}`, true);
         }
     }
 
-    private async HandleSendPacketEventAsync(packet: string) {
-        if (this._connectionState !== 2) return; //Not connected or we've got too many packets.
-        const packetData = Z85.GetBytesWithPadding(packet);
-        if (packetData.length <= 0) return;
-        this._reader.SetBufferSource(packetData);
-        const packetType = this._reader.GetByte();
-        if (
-            packetType < McApiPacketType.LoginRequest ||
-            packetType > McApiPacketType.OnEntityAudioReceived
-        )
-            return; //Not a valid packet
+    public async DisconnectAsync(reason?: string, force: boolean = false): Promise<void> {
+        if (this.ConnectionState == McApiConnectionState.Disconnected ||
+            this.ConnectionState == McApiConnectionState.Disconnecting) return;
+        if (force) {
+            this.ConnectionState = McApiConnectionState.Disconnected;
+            this.OnDisconnected.Invoke(reason);
+            return;
+        }
 
-        this.OutboundQueue.enqueue(this._reader.CopyData());
-    }
+        this.SendPacket(new McApiLogoutRequestPacket(this._sessionToken));
+        this.ConnectionState = McApiConnectionState.Disconnecting;
 
-    public async ConnectAsync(hostname: string, token: string) {
-        if (this._connectionState !== 0)
-            throw new Error("Already in connecting/connected state!");
-
-        this._hostname = hostname;
-        this._connectionState = 1;
-        this.OutboundQueue.clear();
-        this.StartHttpUpdater();
-        const packet = new McApiLoginRequestPacket(
-            Guid.Create().toString(),
-            token,
-            this._version
-        );
-        this.SendPacket(packet);
-        const expiryTime = Date.now() + this._defaultTimeoutMs;
-        while (this._connectionState === 1) {
-            if (Date.now() > expiryTime) {
-                this._connectionState = 0;
-                this._hostname = undefined;
-                this.OutboundQueue.clear();
-                throw new Error(Locales.VcMcApi.DisconnectReason.Timeout)
-            }
+        while (this.ConnectionState == McApiConnectionState.Disconnecting) {
             await system.waitTicks(1);
         }
-        if (this._connectionState !== 2) {
-            this._connectionState = 0;
-            this._hostname = undefined;
-            this.OutboundQueue.clear();
-            throw new Error(this._disconnectReason ?? Locales.VcMcApi.DisconnectReason.Manual);
-        }
-
-        this.StartPinger();
-        this._connectionState = 2;
+        this.ConnectionState = McApiConnectionState.Disconnected;
+        this.OnDisconnected.Invoke(reason);
     }
 
-    public async Disconnect(reason?: string) {
-        if (this._connectionState !== 2) return;
-        this._connectionState = 3;
-        this.StopPinger();
-        this.OutboundQueue.clear();
-        if (this._token !== undefined)
-            this.SendPacket(new McApiLogoutRequestPacket(this._token));
-
-        while (this.OutboundQueue.size > 0) {
-            await system.waitTicks(1);
-            //Send any last outgoing packets.
-        }
-        this._connectionState = 0;
-        this._hostname = undefined;
-        this._token = undefined;
-
-        world.translateMessage(Locales.VcMcApi.Status.Disconnected, {
-            rawtext: [
-                {
-                    translate: reason ?? Locales.VcMcApi.DisconnectReason.Manual,
-                },
-            ],
-        });
-        system.sendScriptEvent(
-            `${VoiceCraft.Namespace}:onDisconnected`,
-            reason ?? Locales.VcMcApi.DisconnectReason.Manual
-        );
-    }
-
-    public SendPacket(packet: IMcApiPacket) {
+    public override SendPacket(packet: IMcApiPacket): boolean {
+        if (this.ConnectionState == McApiConnectionState.Disconnected ||
+            this.ConnectionState == McApiConnectionState.Disconnecting) return false;
         this._writer.Reset();
         this._writer.PutByte(packet.PacketType);
-        packet.Serialize(this._writer); //Serialize
-        this.OutboundQueue.enqueue(this._writer.CopyData());
+        this._writer.PutPacket(packet);
+        this._outboundQueue.enqueue(Z85.GetStringWithPadding(this._writer.CopyData()))
+        return true;
     }
 
-    public async ReceivePacketAsync(packet: string) {
-        try {
-            const packetData = Z85.GetBytesWithPadding(packet);
-            if (packetData.length <= 0) return;
-
-            this._reader.SetBufferSource(packetData);
-            const packetType = this._reader.GetByte();
-            if (
-                packetType < McApiPacketType.LoginRequest ||
-                packetType > McApiPacketType.OnEntityAudioReceived
-            )
-                return; //Not a valid packet.
-            system.sendScriptEvent(`${VoiceCraft.Namespace}:onPacket`, packet);
-            await this.HandlePacketAsync(packetType as McApiPacketType, this._reader);
-        } catch (ex) {
-            console.error(ex);
-        }
+    private StartUpdater(hostname: string): void {
+        this._updater = system.runInterval(async () => this.HttpUpdaterLogic(hostname));
     }
 
-    private StartHttpUpdater() {
-        this.StopHttpUpdater();
-        this._updater = system.runInterval(async () => this.HttpUpdaterLogic());
+    private StopUpdater(): void {
+        if (this._updater == undefined) return;
+        system.clearRun(this._updater);
     }
 
-    private StartPinger() {
-        this.StopPinger();
-        this._pinger = system.runInterval(
-            () => this.PingIntervalLogic(),
-            Math.round(this._defaultTimeoutMs / 8 / 20)
-        );
-    }
-
-    private StopHttpUpdater() {
-        if (this._updater !== undefined) {
-            system.clearRun(this._updater);
-            this._updater = undefined;
-            http.cancelAll("Stop Requested");
-        }
-    }
-
-    private StopPinger() {
-        if (this._pinger !== undefined) {
-            system.clearRun(this._pinger);
-            this._pinger = undefined;
-        }
-    }
-
-    private async PingIntervalLogic() {
-        if (this._connectionState !== 2) {
-            this.StopPinger();
-            return;
-        }
-        if (Date.now() - this._lastPing >= this._defaultTimeoutMs)
-            await this.Disconnect(Locales.VcMcApi.DisconnectReason.Timeout);
-        this.SendPacket(new McApiPingRequestPacket());
-    }
-
-    private async HttpUpdaterLogic() {
-        if (this._hostname === undefined || this._connectionState === 0) {
-            this.StopHttpUpdater();
-            return;
-        }
-
+    private async HttpUpdaterLogic(hostname: string) {
         try {
             if (this._awaitingRequest)
                 return;
+            if (this.ConnectionState == McApiConnectionState.Disconnected) {
+                this.StopUpdater();
+                return;
+            }
+            if (Date.now() - this.LastPing >= this._timeoutMs &&
+                this.ConnectionState != McApiConnectionState.Disconnecting) {
+                this.DisconnectAsync("Timeout", true).then();
+                this.StopUpdater();
+                return;
+            }
+
             this._awaitingRequest = true;
-            const requestPacket = new McHttpUpdatePacket();
-            let packet = this.OutboundQueue.dequeue();
-            while (packet !== undefined) {
-                requestPacket.Packets.push(Z85.GetStringWithPadding(packet));
-                packet = this.OutboundQueue.dequeue();
-            }
-
-            const request = new HttpRequest(this._hostname);
-            request.setBody(JSON.stringify(requestPacket));
-            //@ts-ignore
-            request.setMethod(HttpRequestMethod.Post);
-            request.setHeaders([
-                new HttpHeader('Content-Type', 'application/json'),
-                new HttpHeader('Authorization', `Bearer ${this._token}`)
-            ]);
-            request.setTimeout(8000); //8 Second timeout. Less than the normal HTTP timeout.
-            const response = await http.request(request);
+            const response = await http.request(this.SendPacketsLogic(hostname));
             this._awaitingRequest = false;
-
             if (response.status !== 200) return;
-            const responsePacket = Object.assign(new McHttpUpdatePacket(), JSON.parse(response.body));
-            for (const packet of responsePacket.Packets) {
-                await this.ReceivePacketAsync(packet);
-            }
+            this.ReceivePacketsLogic(response);
         } catch {
             //Do Nothing.
         } finally {
@@ -244,58 +117,107 @@ export class McApiMcHttp {
         }
     }
 
-    private async HandlePacketAsync(
-        packetType: McApiPacketType,
-        reader: NetDataReader
-    ) {
-        switch (packetType) {
-            case McApiPacketType.AcceptResponse:
-                const acceptResponsePacket = new McApiAcceptResponsePacket();
-                acceptResponsePacket.Deserialize(reader);
-                this.HandleAcceptResponsePacket(acceptResponsePacket);
-                break;
-            case McApiPacketType.DenyResponse:
-                const denyResponsePacket = new McApiDenyResponsePacket();
-                denyResponsePacket.Deserialize(reader);
-                this.HandleDenyResponsePacket(denyResponsePacket);
-                break;
-            case McApiPacketType.PingResponse:
-                const pingResponsePacket = new McApiPingResponsePacket();
-                pingResponsePacket.Deserialize(reader);
-                this.HandlePingResponsePacket(pingResponsePacket);
-                break;
+    private SendPacketsLogic(hostname: string): HttpRequest {
+        const requestPacket = new McHttpUpdatePacket();
+        let packet = this._outboundQueue.dequeue();
+        while (packet !== undefined) {
+            requestPacket.Packets.push(packet);
+            packet = this._outboundQueue.dequeue();
+        }
+        const request = new HttpRequest(hostname);
+        request.setBody(JSON.stringify(requestPacket));
+        //@ts-ignore
+        request.setMethod(HttpRequestMethod.Post);
+        request.setHeaders([
+            new HttpHeader('Content-Type', 'application/json'),
+            new HttpHeader('Authorization', `Bearer ${this._sessionToken}`)
+        ]);
+        request.setTimeout(8000); //8 Second timeout. Less than the normal HTTP timeout.
+        return request;
+    }
+
+    private ReceivePacketsLogic(response: HttpResponse): void {
+        const responsePacket = Object.assign(new McHttpUpdatePacket(), JSON.parse(response.body));
+        for (const packet of responsePacket.Packets) {
+            const source = Z85.GetBytesWithPadding(packet);
+            this._reader.SetBufferSource(source);
+            this.ProcessPacket(this._reader, (packet) => this.ExecutePacket(packet));
         }
     }
 
-    private HandleAcceptResponsePacket(packet: McApiAcceptResponsePacket) {
-        this.OnPacket.Invoke(packet);
-        if (this._connectionState === 1) {
-            this._connectionState = 2;
-            this._token = packet.Token;
-            this._lastPing = Date.now();
-            try {
-                system.sendScriptEvent(
-                    `${VoiceCraft.Namespace}:onConnected`,
-                    packet.Token);
-            } catch {
-                //Do Nothing
+    private async GetResponseAsync<T>(packetType: McApiPacketType, timeout: number): Promise<T> {
+        const startTime = Date.now();
+        let result: IMcApiPacket | undefined = undefined;
+        let disconnectReason: string | undefined = undefined;
+        const onReceived = this.OnPacketReceived.Subscribe((packet) => OnPacketReceived(packet));
+        const onDisconnected = this.OnDisconnected.Subscribe((packet) => OnDisconnected(packet));
+
+        try {
+            while (result != undefined) {
+                if (Date.now() - startTime >= timeout) {
+                    throw new Error("Timeout");
+                }
+                if (disconnectReason != undefined) {
+                    throw new Error(disconnectReason);
+                }
+                await system.waitTicks(1);
             }
+
+            //TS forces me to do this.
+            if (result != undefined) {
+                return result as T;
+            }
+            throw new Error("Failure to get result!");
+        } finally {
+            this.OnPacketReceived.Unsubscribe(onReceived);
+            this.OnDisconnected.Unsubscribe(onDisconnected);
+        }
+
+        function OnPacketReceived(packet: IMcApiPacket): void {
+            if (packet.PacketType != packetType) return;
+            result = packet;
+        }
+
+        function OnDisconnected(reason: string | undefined): void {
+            disconnectReason = reason;
         }
     }
 
-    private HandleDenyResponsePacket(packet: McApiDenyResponsePacket) {
-        this.OnPacket.Invoke(packet);
-        if (this._connectionState === 1) {
-            this._disconnectReason = packet.Reason;
-            this._connectionState = 0;
-            this._token = undefined;
-            this._hostname = undefined;
-            this.OutboundQueue.clear();
-        }
-    }
+    private async GetRidResponseAsync<T>(requestId: string, packetType: McApiPacketType, timeout: number): Promise<T> {
+        const startTime = Date.now();
+        let result: IMcApiPacket | undefined = undefined;
+        let disconnectReason: string | undefined = undefined;
 
-    private HandlePingResponsePacket(packet: McApiPingResponsePacket) {
-        this.OnPacket.Invoke(packet);
-        this._lastPing = Date.now();
+        const onReceived = this.OnPacketReceived.Subscribe((packet) => OnPacketReceived(packet));
+        const onDisconnected = this.OnDisconnected.Subscribe((packet) => OnDisconnected(packet));
+        try {
+            while (result != undefined) {
+                if (Date.now() - startTime >= timeout) {
+                    throw new Error("Timeout");
+                }
+                if (disconnectReason != undefined) {
+                    throw new Error(disconnectReason);
+                }
+                await system.waitTicks(1);
+            }
+
+            //TS forces me to do this.
+            if (result != undefined) {
+                return result as T;
+            }
+            throw new Error("Failure to get result!");
+        } finally {
+            this.OnPacketReceived.Unsubscribe(onReceived);
+            this.OnDisconnected.Unsubscribe(onDisconnected);
+        }
+
+        function OnPacketReceived(packet: IMcApiPacket): void {
+            if (!IsIMcApiRIdPacket(packet) || packet.RequestId != requestId || packet.PacketType != packetType) return;
+            result = packet;
+        }
+
+        function OnDisconnected(reason: string | undefined): void {
+            disconnectReason = reason;
+        }
     }
 }

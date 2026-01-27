@@ -3,8 +3,8 @@ import { McApiPacketType, PositioningType } from "../../../Data/Enums";
 import { Guid } from "../../../Data/Guid";
 import { Vector2 } from "../../../Data/Vector2";
 import { Vector3 } from "../../../Data/Vector3";
-import { NetDataReader } from "../../NetDataReader";
-import { NetDataWriter } from "../../NetDataWriter";
+import { NetDataReader } from "../../../Data/NetDataReader";
+import { NetDataWriter } from "../../../Data/NetDataWriter";
 import { McApiOnEntityCreatedPacket } from "./McApiOnEntityCreatedPacket";
 
 export class McApiOnNetworkEntityCreatedPacket extends McApiOnEntityCreatedPacket {

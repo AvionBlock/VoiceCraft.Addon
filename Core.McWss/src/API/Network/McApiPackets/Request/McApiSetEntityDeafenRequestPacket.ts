@@ -1,7 +1,7 @@
 import { McApiPacketType } from "../../../Data/Enums";
 import { IMcApiPacket } from "../IMcApiPacket";
-import { NetDataWriter } from "../../NetDataWriter";
-import { NetDataReader } from "../../NetDataReader";
+import { NetDataWriter } from "../../../Data/NetDataWriter";
+import { NetDataReader } from "../../../Data/NetDataReader";
 
 export class McApiSetEntityDeafenRequestPacket implements IMcApiPacket {
   constructor(id: number = 0, value: boolean = false) {
