@@ -1,7 +1,7 @@
 import { McApiPacketType } from "../../../Data/Enums";
 import { IMcApiPacket } from "../IMcApiPacket";
-import { NetDataWriter } from "../../NetDataWriter";
-import { NetDataReader } from "../../NetDataReader";
+import { NetDataWriter } from "../../../Data/NetDataWriter";
+import { NetDataReader } from "../../../Data/NetDataReader";
 import { Vector2 } from "../../../Data/Vector2";
 export declare class McApiSetEntityRotationRequestPacket implements IMcApiPacket {
     constructor(id?: number, value?: Vector2);

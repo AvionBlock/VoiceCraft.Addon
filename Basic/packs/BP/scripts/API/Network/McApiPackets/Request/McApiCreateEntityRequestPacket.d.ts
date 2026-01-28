@@ -1,8 +1,8 @@
 import { McApiPacketType } from "../../../Data/Enums";
 import { Vector2 } from "../../../Data/Vector2";
 import { Vector3 } from "../../../Data/Vector3";
-import { NetDataReader } from "../../NetDataReader";
-import { NetDataWriter } from "../../NetDataWriter";
+import { NetDataReader } from "../../../Data/NetDataReader";
+import { NetDataWriter } from "../../../Data/NetDataWriter";
 import { IMcApiPacket } from "../IMcApiPacket";
 import { IMcApiRIdPacket } from "../IMcApiRIdPacket";
 export declare class McApiCreateEntityRequestPacket implements IMcApiPacket, IMcApiRIdPacket {

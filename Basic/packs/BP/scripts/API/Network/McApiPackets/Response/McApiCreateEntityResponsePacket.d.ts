@@ -1,7 +1,7 @@
 import { McApiPacketType } from "../../../Data/Enums";
 import { IMcApiPacket } from "../IMcApiPacket";
-import { NetDataWriter } from "../../NetDataWriter";
-import { NetDataReader } from "../../NetDataReader";
+import { NetDataWriter } from "../../../Data/NetDataWriter";
+import { NetDataReader } from "../../../Data/NetDataReader";
 import { IMcApiRIdPacket } from "../IMcApiRIdPacket";
 export declare class McApiCreateEntityResponsePacket implements IMcApiPacket, IMcApiRIdPacket {
     constructor(requestId?: string, responseCode?: ResponseCodes, id?: number);

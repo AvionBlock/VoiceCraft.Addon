@@ -1,6 +1,6 @@
 import { McApiPacketType } from "../../../Data/Enums";
-import { NetDataReader } from "../../NetDataReader";
-import { NetDataWriter } from "../../NetDataWriter";
+import { NetDataReader } from "../../../Data/NetDataReader";
+import { NetDataWriter } from "../../../Data/NetDataWriter";
 import { IMcApiPacket } from "../IMcApiPacket";
 export declare class McApiOnEntityCaveFactorUpdatedPacket implements IMcApiPacket {
     constructor(id?: number, value?: number);

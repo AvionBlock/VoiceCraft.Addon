@@ -1,9 +1,9 @@
 import { system } from "@minecraft/server";
 import { Z85 } from "./Encoders/Z85";
 import { McApiPacketType } from "./Data/Enums";
-import { NetDataReader } from "./Network/NetDataReader";
+import { NetDataReader } from "./Data/NetDataReader";
 import { Event } from "./Event";
-import { NetDataWriter } from "./Network/NetDataWriter";
+import { NetDataWriter } from "./Data/NetDataWriter";
 import { McApiAcceptResponsePacket } from "./Network/McApiPackets/Response/McApiAcceptResponsePacket";
 import { McApiDenyResponsePacket } from "./Network/McApiPackets/Response/McApiDenyResponsePacket";
 import { McApiPingResponsePacket } from "./Network/McApiPackets/Response/McApiPingResponsePacket";

@@ -1,3 +1,9 @@
+export declare enum McApiConnectionState {
+    Disconnected = 0,
+    Connecting = 1,
+    Connected = 2,
+    Disconnecting = 3
+}
 export declare enum McApiPacketType {
     LoginRequest = 0,
     LogoutRequest = 1,

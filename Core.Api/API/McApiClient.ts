@@ -29,17 +29,26 @@ import {McApiOnEntityRotationUpdatedPacket} from "./Network/McApiPackets/Event/M
 import {McApiOnEntityCaveFactorUpdatedPacket} from "./Network/McApiPackets/Event/McApiOnEntityCaveFactorUpdated";
 import {McApiOnEntityMuffleFactorUpdatedPacket} from "./Network/McApiPackets/Event/McApiOnEntityMuffleFactorUpdated";
 import {McApiOnEntityAudioReceivedPacket} from "./Network/McApiPackets/Event/McApiOnEntityAudioReceivedPacket";
+import {system} from "@minecraft/server";
 
 export abstract class McApiClient {
     private _connectionState: McApiConnectionState = McApiConnectionState.Disconnected;
+    private _token: string | undefined;
     protected LastPing: number = 0;
 
     public Version: Version = new Version(VoiceCraft.MajorVersion, VoiceCraft.MinorVersion, VoiceCraft.PatchVersion);
 
+    public get Token(): string | undefined {
+        return this._token;
+    }
+    protected set Token(value: string | undefined) {
+        this._token = value;
+    }
+
     //Events
     public OnPacketReceived: Event<IMcApiPacket> = new Event<IMcApiPacket>();
-    public abstract OnConnected: Event<string>;
-    public abstract OnDisconnected: Event<string | undefined>;
+    public OnConnected: Event<string> = new Event<string>();
+    public OnDisconnected: Event<string | undefined> = new Event<string | undefined>();
 
     public get ConnectionState() {
         return this._connectionState;
@@ -208,25 +217,32 @@ export abstract class McApiClient {
                 this.OnPacketReceived.Invoke(onEntityAudioReceivedPacket);
                 onParsed(onEntityAudioReceivedPacket);
                 break;
+            default:
+                return;
         }
     }
 
     protected ExecutePacket(packet: IMcApiPacket): void {
         switch (packet.constructor) {
+            case McApiAcceptResponsePacket:
+                this.HandleAcceptResponsePacket(packet as McApiAcceptResponsePacket);
+                break;
             case McApiDenyResponsePacket:
                 this.HandleDenyResponsePacket(packet as McApiDenyResponsePacket);
-                break;
-            case McApiPingResponsePacket:
-                this.HandlePingResponsePacket(packet as McApiPingResponsePacket);
                 break;
         }
     }
 
-    private HandleDenyResponsePacket(packet: McApiDenyResponsePacket): void {
-        this.DisconnectAsync(packet.Reason, true).then();
+    private HandleAcceptResponsePacket(packet: McApiAcceptResponsePacket) {
+        if(this.ConnectionState != McApiConnectionState.Connecting) return;
+        this._token = packet.Token;
+        this._connectionState = McApiConnectionState.Connected;
+        this.OnConnected?.Invoke(packet.Token);
+        system.sendScriptEvent(`${VoiceCraft.Namespace}:onConnected`, packet.Token);
     }
 
-    private HandlePingResponsePacket(_: McApiPingResponsePacket): void {
-        this.LastPing = Date.now();
+    private HandleDenyResponsePacket(packet: McApiDenyResponsePacket): void {
+        if(this.ConnectionState != McApiConnectionState.Connecting) return;
+        this.DisconnectAsync(packet.Reason, true).then();
     }
 }

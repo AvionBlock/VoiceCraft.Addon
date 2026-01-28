@@ -1,3 +1,10 @@
+export var McApiConnectionState;
+(function (McApiConnectionState) {
+    McApiConnectionState[McApiConnectionState["Disconnected"] = 0] = "Disconnected";
+    McApiConnectionState[McApiConnectionState["Connecting"] = 1] = "Connecting";
+    McApiConnectionState[McApiConnectionState["Connected"] = 2] = "Connected";
+    McApiConnectionState[McApiConnectionState["Disconnecting"] = 3] = "Disconnecting";
+})(McApiConnectionState || (McApiConnectionState = {}));
 export var McApiPacketType;
 (function (McApiPacketType) {
     //Core

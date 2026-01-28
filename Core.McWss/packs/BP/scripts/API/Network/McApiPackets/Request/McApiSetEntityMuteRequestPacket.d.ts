@@ -1,7 +1,7 @@
 import { McApiPacketType } from "../../../Data/Enums";
 import { IMcApiPacket } from "../IMcApiPacket";
-import { NetDataWriter } from "../../NetDataWriter";
-import { NetDataReader } from "../../NetDataReader";
+import { NetDataWriter } from "../../../Data/NetDataWriter";
+import { NetDataReader } from "../../../Data/NetDataReader";
 export declare class McApiSetEntityMuteRequestPacket implements IMcApiPacket {
     constructor(id?: number, value?: boolean);
     get PacketType(): McApiPacketType;

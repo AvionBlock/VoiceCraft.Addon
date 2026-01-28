@@ -1,6 +1,6 @@
 import { IAudioEffect } from "../Interfaces/IAudioEffect";
-import { NetDataReader } from "../Network/NetDataReader";
-import { NetDataWriter } from "../Network/NetDataWriter";
+import { NetDataReader } from "../Data/NetDataReader";
+import { NetDataWriter } from "../Data/NetDataWriter";
 import { EffectType } from "../Data/Enums";
 export declare class VisibilityEffect implements IAudioEffect {
     get EffectType(): EffectType;

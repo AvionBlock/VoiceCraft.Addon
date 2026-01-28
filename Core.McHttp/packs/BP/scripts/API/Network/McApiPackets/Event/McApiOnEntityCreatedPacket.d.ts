@@ -1,8 +1,8 @@
 import { McApiPacketType } from "../../../Data/Enums";
 import { Vector2 } from "../../../Data/Vector2";
 import { Vector3 } from "../../../Data/Vector3";
-import { NetDataReader } from "../../NetDataReader";
-import { NetDataWriter } from "../../NetDataWriter";
+import { NetDataReader } from "../../../Data/NetDataReader";
+import { NetDataWriter } from "../../../Data/NetDataWriter";
 import { IMcApiPacket } from "../IMcApiPacket";
 export declare class McApiOnEntityCreatedPacket implements IMcApiPacket {
     constructor(id?: number, loudness?: number, lastSpoke?: bigint, worldId?: string, name?: string, muted?: boolean, deafened?: boolean, talkBitmask?: number, listenBitmask?: number, effectBitmask?: number, position?: Vector3, rotation?: Vector2, caveFactor?: number, muffleFactor?: number);
