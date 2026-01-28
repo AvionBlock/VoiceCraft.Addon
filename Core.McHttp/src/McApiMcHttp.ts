@@ -48,7 +48,7 @@ export class McApiMcHttp extends McApiClient {
         this.StartUpdater(ip);
 
         const requestId = Guid.Create().toString();
-        const packet = new McApiLoginRequestPacket(requestId, loginToken, this.Version);
+        const packet = new McApiLoginRequestPacket(requestId, loginToken, VoiceCraft.Version);
         try {
             this.SendPacket(packet);
             const startTime = Date.now();

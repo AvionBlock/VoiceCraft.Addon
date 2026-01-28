@@ -1,0 +1,32 @@
+import { McApiPacketType } from "../../../Data/Enums";
+import { MaxDescriptionStringLength } from "../../../Data/Constants";
+export class McApiSetEntityDescriptionRequestPacket {
+    constructor(id = 0, value = "") {
+        this._id = id;
+        this._value = value;
+    }
+    get PacketType() {
+        return McApiPacketType.SetEntityDescriptionRequest;
+    }
+    get Id() {
+        return this._id;
+    }
+    get Value() {
+        return this._value;
+    }
+    _id;
+    _value;
+    Serialize(writer) {
+        writer.PutInt(this.Id);
+        writer.PutString(this.Value, MaxDescriptionStringLength);
+    }
+    Deserialize(reader) {
+        this._id = reader.GetInt();
+        this._value = reader.GetString(MaxDescriptionStringLength);
+    }
+    Set(id = 0, value = "") {
+        this._id = id;
+        this._value = value;
+        return this;
+    }
+}

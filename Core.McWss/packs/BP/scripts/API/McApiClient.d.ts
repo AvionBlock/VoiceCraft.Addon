@@ -1,4 +1,3 @@
-import { Version } from "./Data/Version";
 import { McApiConnectionState } from "./Data/Enums";
 import { IMcApiPacket } from "./Network/McApiPackets/IMcApiPacket";
 import { Event } from "./Event";
@@ -7,7 +6,6 @@ export declare abstract class McApiClient {
     private _connectionState;
     private _token;
     protected LastPing: number;
-    Version: Version;
     get Token(): string | undefined;
     protected set Token(value: string | undefined);
     OnPacketReceived: Event<IMcApiPacket>;

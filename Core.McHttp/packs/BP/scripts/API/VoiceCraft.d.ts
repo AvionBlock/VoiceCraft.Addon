@@ -1,5 +1,7 @@
+import { McApiConnectionState } from "./Data/Enums";
 import { Event } from "./Event";
 import { IMcApiPacket } from "./Network/McApiPackets/IMcApiPacket";
+import { Version } from "./Data/Version";
 import { McApiAcceptResponsePacket } from "./Network/McApiPackets/Response/McApiAcceptResponsePacket";
 import { McApiDenyResponsePacket } from "./Network/McApiPackets/Response/McApiDenyResponsePacket";
 import { McApiPingResponsePacket } from "./Network/McApiPackets/Response/McApiPingResponsePacket";
@@ -48,16 +50,14 @@ import { McApiSetEntityDeafenRequestPacket } from "./Network/McApiPackets/Reques
 import { McApiOnEntityServerMuteUpdatedPacket } from "./Network/McApiPackets/Event/McApiOnEntityServerMuteUpdated";
 import { McApiOnEntityServerDeafenUpdatedPacket } from "./Network/McApiPackets/Event/McApiOnEntityServerDeafenUpdated";
 export declare class VoiceCraft {
-    static readonly MajorVersion: number;
-    static readonly MinorVersion: number;
-    static readonly PatchVersion: number;
+    static readonly Version: Version;
     static readonly Namespace: string;
     private _writer;
     private _reader;
     private _connectionState;
     private _token?;
     constructor();
-    get ConnectionState(): 0 | 1 | 2 | 3;
+    get ConnectionState(): McApiConnectionState;
     get Token(): string | undefined;
     readonly OnConnected: Event<string>;
     readonly OnDisconnected: Event<string>;

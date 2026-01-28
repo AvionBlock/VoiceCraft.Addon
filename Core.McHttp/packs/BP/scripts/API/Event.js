@@ -14,7 +14,7 @@ export class Event {
         const index = this._listeners.findIndex((x) => x === callback);
         if (index < 0)
             return;
-        this._listeners = this._listeners.splice(index, 1);
+        this._listeners.splice(index, 1);
     }
     /**
      * @description Triggers the event and calls all listeners.

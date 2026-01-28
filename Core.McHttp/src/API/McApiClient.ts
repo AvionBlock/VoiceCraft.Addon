@@ -1,4 +1,3 @@
-import {Version} from "./Data/Version";
 import {VoiceCraft} from "./VoiceCraft";
 import {McApiConnectionState, McApiPacketType} from "./Data/Enums";
 import {IMcApiPacket} from "./Network/McApiPackets/IMcApiPacket";
@@ -35,8 +34,6 @@ export abstract class McApiClient {
     private _connectionState: McApiConnectionState = McApiConnectionState.Disconnected;
     private _token: string | undefined;
     protected LastPing: number = 0;
-
-    public Version: Version = new Version(VoiceCraft.MajorVersion, VoiceCraft.MinorVersion, VoiceCraft.PatchVersion);
 
     public get Token(): string | undefined {
         return this._token;

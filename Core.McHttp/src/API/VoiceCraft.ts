@@ -1,10 +1,11 @@
 import {ScriptEventCommandMessageAfterEvent, system} from "@minecraft/server";
 import {Z85} from "./Encoders/Z85";
-import {McApiPacketType} from "./Data/Enums";
+import {McApiConnectionState, McApiPacketType} from "./Data/Enums";
 import {NetDataReader} from "./Data/NetDataReader";
 import {Event} from "./Event";
 import {NetDataWriter} from "./Data/NetDataWriter";
 import {IMcApiPacket} from "./Network/McApiPackets/IMcApiPacket";
+import {Version} from "./Data/Version";
 import {McApiAcceptResponsePacket} from "./Network/McApiPackets/Response/McApiAcceptResponsePacket";
 import {McApiDenyResponsePacket} from "./Network/McApiPackets/Response/McApiDenyResponsePacket";
 import {McApiPingResponsePacket} from "./Network/McApiPackets/Response/McApiPingResponsePacket";
@@ -66,14 +67,12 @@ import {McApiOnEntityServerMuteUpdatedPacket} from "./Network/McApiPackets/Event
 import {McApiOnEntityServerDeafenUpdatedPacket} from "./Network/McApiPackets/Event/McApiOnEntityServerDeafenUpdated";
 
 export class VoiceCraft {
-    public static readonly MajorVersion: number = 1;
-    public static readonly MinorVersion: number = 3;
-    public static readonly PatchVersion: number = 1;
+    public static readonly Version: Version = new Version(1, 4, 0);
     public static readonly Namespace: string = "voicecraft";
 
     private _writer: NetDataWriter = new NetDataWriter();
     private _reader: NetDataReader = new NetDataReader();
-    private _connectionState: 0 | 1 | 2 | 3 = 0; //0: Disconnected, 1: Connecting, 2: Connected, 3: Disconnecting
+    private _connectionState: McApiConnectionState = McApiConnectionState.Disconnected; //0: Disconnected, 1: Connecting, 2: Connected, 3: Disconnecting
     private _token?: string;
 
     constructor() {
@@ -81,7 +80,7 @@ export class VoiceCraft {
     }
 
     //Properties
-    public get ConnectionState(): 0 | 1 | 2 | 3 {
+    public get ConnectionState(): McApiConnectionState {
         return this._connectionState;
     }
 
@@ -200,7 +199,8 @@ export class VoiceCraft {
         new Event<McApiOnEntityAudioReceivedPacket>();
 
     public SendPacket(packet: IMcApiPacket) {
-        if (this._connectionState !== 2) throw new Error("Not connected!");
+        if (this._connectionState !== McApiConnectionState.Connected)
+            throw new Error("Not connected!");
 
         this._writer.Reset();
         this._writer.PutByte(packet.PacketType);
@@ -243,13 +243,13 @@ export class VoiceCraft {
 
     private HandleOnConnectedEvent(token: string) {
         this._token = token;
-        this._connectionState = 2;
+        this._connectionState = McApiConnectionState.Connected;
         this.OnConnected.Invoke(token);
     }
 
     private HandleOnDisconnectedEvent(reason: string) {
         this._token = undefined;
-        this._connectionState = 0;
+        this._connectionState = McApiConnectionState.Disconnected;
         this.OnDisconnected.Invoke(reason);
     }
 
