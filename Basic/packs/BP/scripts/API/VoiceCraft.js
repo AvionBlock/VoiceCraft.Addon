@@ -53,7 +53,7 @@ import { McApiSetEntityDeafenRequestPacket } from "./Network/McApiPackets/Reques
 import { McApiOnEntityServerMuteUpdatedPacket } from "./Network/McApiPackets/Event/McApiOnEntityServerMuteUpdated";
 import { McApiOnEntityServerDeafenUpdatedPacket } from "./Network/McApiPackets/Event/McApiOnEntityServerDeafenUpdated";
 export class VoiceCraft {
-    static Version = new Version(1, 5, 0);
+    static Version = new Version(1, 5, 1);
     static Namespace = "voicecraft";
     _writer = new NetDataWriter();
     _reader = new NetDataReader();
