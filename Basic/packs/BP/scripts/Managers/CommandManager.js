@@ -2,11 +2,11 @@ import { CommandPermissionLevel, CustomCommandParamType, CustomCommandStatus, Pl
 import { VoiceCraft } from "../API/VoiceCraft";
 export class CommandManager {
     _vc;
-    _bm;
+    _bs;
     _fm;
-    constructor(_vc, _bm, _fm) {
+    constructor(_vc, _bs, _fm) {
         this._vc = _vc;
-        this._bm = _bm;
+        this._bs = _bs;
         this._fm = _fm;
         system.beforeEvents.startup.subscribe((ev) => {
             this.RegisterCommands(ev.customCommandRegistry);
@@ -38,7 +38,7 @@ export class CommandManager {
                 status: CustomCommandStatus.Failure,
                 message: "Not connected! Cannot bind!"
             };
-        if (!this._bm.BindPlayer(bindingKey, origin.sourceEntity))
+        if (!this._bs.BindPlayer(bindingKey, origin.sourceEntity))
             return {
                 status: CustomCommandStatus.Failure,
                 message: "Could not bind! Binding key does not exist or already bound!"

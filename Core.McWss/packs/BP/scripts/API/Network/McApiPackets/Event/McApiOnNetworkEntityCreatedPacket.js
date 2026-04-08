@@ -33,10 +33,10 @@ export class McApiOnNetworkEntityCreatedPacket extends McApiOnEntityCreatedPacke
     _positioningType;
     Serialize(writer) {
         super.Serialize(writer);
-        writer.PutString(this._userGuid.toString(), MaxStringLength);
-        writer.PutString(this._serverUserGuid.toString(), MaxStringLength);
-        writer.PutString(this._locale, MaxStringLength);
-        writer.PutByte(this._positioningType);
+        writer.PutString(this.UserGuid.toString(), MaxStringLength);
+        writer.PutString(this.ServerUserGuid.toString(), MaxStringLength);
+        writer.PutString(this.Locale, MaxStringLength);
+        writer.PutByte(this.PositioningType);
     }
     Deserialize(reader) {
         super.Deserialize(reader);

@@ -1,7 +1,7 @@
 import { McApiPacketType } from "../../../Data/Enums";
 import { IMcApiPacket } from "../IMcApiPacket";
-import { NetDataWriter } from "../../NetDataWriter";
-import { NetDataReader } from "../../NetDataReader";
+import { NetDataWriter } from "../../../Data/NetDataWriter";
+import { NetDataReader } from "../../../Data/NetDataReader";
 import { MaxStringLength } from "../../../Data/Constants";
 import { IMcApiRIdPacket } from "../IMcApiRIdPacket";
 import { Version } from "../../../Data/Version";
@@ -31,11 +31,11 @@ export class McApiLoginRequestPacket implements IMcApiPacket, IMcApiRIdPacket {
   private _version: Version;
 
   public Serialize(writer: NetDataWriter) {
-    writer.PutString(this._requestId, MaxStringLength);
-    writer.PutString(this._token, MaxStringLength);
-    writer.PutInt(this._version.Major);
-    writer.PutInt(this._version.Minor);
-    writer.PutInt(this._version.Build);
+    writer.PutString(this.RequestId, MaxStringLength);
+    writer.PutString(this.Token, MaxStringLength);
+    writer.PutInt(this.Version.Major);
+    writer.PutInt(this.Version.Minor);
+    writer.PutInt(this.Version.Build);
   }
 
   public Deserialize(reader: NetDataReader) {

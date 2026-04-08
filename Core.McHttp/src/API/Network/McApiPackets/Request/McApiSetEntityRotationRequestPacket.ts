@@ -1,7 +1,7 @@
 import { McApiPacketType } from "../../../Data/Enums";
 import { IMcApiPacket } from "../IMcApiPacket";
-import { NetDataWriter } from "../../NetDataWriter";
-import { NetDataReader } from "../../NetDataReader";
+import { NetDataWriter } from "../../../Data/NetDataWriter";
+import { NetDataReader } from "../../../Data/NetDataReader";
 import { Vector2 } from "../../../Data/Vector2";
 
 export class McApiSetEntityRotationRequestPacket implements IMcApiPacket {
@@ -24,9 +24,9 @@ export class McApiSetEntityRotationRequestPacket implements IMcApiPacket {
   private _value: Vector2;
 
   public Serialize(writer: NetDataWriter) {
-    writer.PutInt(this._id);
-    writer.PutFloat(this._value.X);
-    writer.PutFloat(this._value.Y);
+    writer.PutInt(this.Id);
+    writer.PutFloat(this.Value.X);
+    writer.PutFloat(this.Value.Y);
   }
 
   public Deserialize(reader: NetDataReader) {

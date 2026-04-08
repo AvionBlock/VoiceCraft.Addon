@@ -1,3 +1,5 @@
+import { VoiceCraft } from "../API/VoiceCraft";
+import { world } from "@minecraft/server";
 import { ActionFormData, ModalFormData } from "@minecraft/server-ui";
 import { ProximityEffect } from "../API/Effects/ProximityEffect";
 import { VisibilityEffect } from "../API/Effects/VisibilityEffect";
@@ -7,14 +9,23 @@ import { ProximityEchoEffect } from "../API/Effects/ProximityEchoEffect";
 import { EchoEffect } from "../API/Effects/EchoEffect";
 import { ProximityMuffleEffect } from "../API/Effects/ProximityMuffleEffect";
 import { MuffleEffect } from "../API/Effects/MuffleEffect";
+import { McApiDestroyEntityRequestPacket } from "../API/Network/McApiPackets/Request/McApiDestroyEntityRequestPacket";
+import { Guid } from "../API/Data/Guid";
+import { McApiSetEntityMuteRequestPacket } from "../API/Network/McApiPackets/Request/McApiSetEntityMuteRequestPacket";
+import { McApiSetEntityDeafenRequestPacket } from "../API/Network/McApiPackets/Request/McApiSetEntityDeafenRequestPacket";
 export class FormManager {
     _vc;
-    _bm;
-    _em;
+    _bs;
+    _aes;
     _mainMenuSettingsForm = () => new ActionFormData()
         .title("Settings")
+        .button("General")
         .button("Effects")
         .button("Players");
+    _generalSettingsMenuForm = (caveEcho, underwaterMuffle) => new ModalFormData()
+        .title("General Settings")
+        .toggle("Enable Cave Echo", { defaultValue: caveEcho })
+        .toggle("Enable Underwater Muffle", { defaultValue: underwaterMuffle });
     _effectsMenuSettingsForm = () => new ActionFormData()
         .title("Effects")
         .button("Set Effect")
@@ -65,7 +76,7 @@ export class FormManager {
         const form = new ActionFormData()
             .title("Delete Effect");
         const bitmasks = [];
-        for (const effect of this._em.Effects.entries()) {
+        for (const effect of this._aes.Effects.entries()) {
             bitmasks.push(effect[0]);
             form.button(`${EffectType[effect[1].EffectType]}: ${effect[0]}`);
         }
@@ -74,7 +85,7 @@ export class FormManager {
     _selectPlayerMenuSettingsForm = () => {
         const form = new ActionFormData()
             .title("Select Player");
-        const players = this._bm.GetBindedPlayers();
+        const players = this._bs.BoundPlayers;
         for (const player of players) {
             form.button(`${player.name}`);
         }
@@ -83,12 +94,16 @@ export class FormManager {
     _selectPlayerActionMenuSettingsForm = (player) => {
         return new ActionFormData()
             .title(`${player.name}`)
-            .button("Kick");
+            .button("Kick")
+            .button("Mute")
+            .button("Unmute")
+            .button("Deafen")
+            .button("Undeafen");
     };
-    constructor(_vc, _bm, _em) {
+    constructor(_vc, _bs, _aes) {
         this._vc = _vc;
-        this._bm = _bm;
-        this._em = _em;
+        this._bs = _bs;
+        this._aes = _aes;
     }
     async ShowMainMenuSettingsFormAsync(player) {
         try {
@@ -97,9 +112,12 @@ export class FormManager {
                 return;
             switch (selection) {
                 case 0:
-                    await this.ShowEffectSettingsFormAsync(player);
+                    await this.ShowGeneralSettingsFormAsync(player);
                     break;
                 case 1:
+                    await this.ShowEffectSettingsFormAsync(player);
+                    break;
+                case 2:
                     await this.ShowSelectPlayerSettingsFormAsync(player);
                     break;
             }
@@ -107,6 +125,18 @@ export class FormManager {
         catch (error) {
             player.sendMessage(`§c${error}`);
         }
+    }
+    async ShowGeneralSettingsFormAsync(player) {
+        const caveEcho = world.getDynamicProperty(`${VoiceCraft.Namespace}:enableCaveEcho`) ?? false;
+        const underwaterMuffle = world.getDynamicProperty(`${VoiceCraft.Namespace}:enableUnderwaterMuffle`) ?? false;
+        const { cancelationReason, formValues } = await this._generalSettingsMenuForm(caveEcho, underwaterMuffle).show(player);
+        if (cancelationReason !== undefined || formValues === undefined)
+            return;
+        const [caveEchoValue, underwaterMuffleValue] = formValues;
+        if (typeof caveEchoValue !== "boolean" || typeof underwaterMuffleValue !== "boolean")
+            return;
+        world.setDynamicProperty(`${VoiceCraft.Namespace}:enableCaveEcho`, caveEchoValue);
+        world.setDynamicProperty(`${VoiceCraft.Namespace}:enableUnderwaterMuffle`, underwaterMuffleValue);
     }
     async ShowEffectSettingsFormAsync(player) {
         const { canceled, selection } = await this._effectsMenuSettingsForm().show(player);
@@ -157,7 +187,7 @@ export class FormManager {
         if (typeof bitmaskValue !== "string")
             return;
         const bitmask = Number.parseInt(bitmaskValue);
-        this._em.SetEffect(bitmask, new VisibilityEffect());
+        this._aes.SetEffect(bitmask, new VisibilityEffect());
     }
     async ShowSetProximityEffectMenuSettingsFormAsync(player) {
         const { cancelationReason, formValues } = await this._setProximityEffectMenuSettingsForm(0, 1, 0, 100).show(player);
@@ -172,7 +202,7 @@ export class FormManager {
         effect.WetDry = wetDry;
         effect.MinRange = minValue;
         effect.MaxRange = maxValue;
-        this._em.SetEffect(bitmask, effect);
+        this._aes.SetEffect(bitmask, effect);
     }
     async ShowSetDirectionalEffectMenuSettingsFormAsync(player) {
         const { cancelationReason, formValues } = await this._setDirectionalEffectMenuSettingsForm(0, 1).show(player);
@@ -185,7 +215,7 @@ export class FormManager {
         const wetDry = Number.parseFloat(wetDryValue);
         const effect = new DirectionalEffect();
         effect.WetDry = wetDry;
-        this._em.SetEffect(bitmask, effect);
+        this._aes.SetEffect(bitmask, effect);
     }
     async ShowSetProximityEchoEffectMenuSettingsFormAsync(player) {
         const { cancelationReason, formValues } = await this._setProximityEchoEffectMenuSettingsForm(0, 1, 0.5, 30).show(player);
@@ -201,7 +231,7 @@ export class FormManager {
         effect.WetDry = wetDry;
         effect.Delay = delay;
         effect.Range = rangeValue;
-        this._em.SetEffect(bitmask, effect);
+        this._aes.SetEffect(bitmask, effect);
     }
     async ShowSetEchoEffectMenuSettingsFormAsync(player) {
         const { cancelationReason, formValues } = await this._setEchoEffectMenuSettingsForm(0, 1, 0.5, 0.5).show(player);
@@ -218,7 +248,7 @@ export class FormManager {
         effect.WetDry = wetDry;
         effect.Delay = delay;
         effect.Feedback = feedback;
-        this._em.SetEffect(bitmask, effect);
+        this._aes.SetEffect(bitmask, effect);
     }
     async ShowSetProximityMuffleEffectMenuSettingsFormAsync(player) {
         const { cancelationReason, formValues } = await this._setProximityMuffleEffectMenuSettingsForm(0, 1).show(player);
@@ -231,7 +261,7 @@ export class FormManager {
         const wetDry = Number.parseFloat(wetDryValue);
         const effect = new ProximityMuffleEffect();
         effect.WetDry = wetDry;
-        this._em.SetEffect(bitmask, effect);
+        this._aes.SetEffect(bitmask, effect);
     }
     async ShowSetMuffleEffectMenuSettingsFormAsync(player) {
         const { cancelationReason, formValues } = await this._setMuffleEffectMenuSettingsForm(0, 1).show(player);
@@ -244,14 +274,14 @@ export class FormManager {
         const wetDry = Number.parseFloat(wetDryValue);
         const effect = new MuffleEffect();
         effect.WetDry = wetDry;
-        this._em.SetEffect(bitmask, effect);
+        this._aes.SetEffect(bitmask, effect);
     }
     async ShowDeleteEffectSettingsFormAsync(player) {
         const form = this._deleteEffectMenuSettingsForm();
         const { canceled, selection } = await form.form.show(player);
         if (canceled || selection === undefined)
             return;
-        this._em.SetEffect(form.bitmasks[selection], undefined);
+        this._aes.SetEffect(form.bitmasks[selection], undefined);
     }
     async ShowSelectPlayerSettingsFormAsync(player) {
         const form = this._selectPlayerMenuSettingsForm();
@@ -266,9 +296,38 @@ export class FormManager {
         const { canceled, selection } = await form.show(player);
         if (canceled || selection === undefined)
             return;
+        let entityId = undefined;
         switch (selection) {
             case 0:
-                throw new Error("Not implemented.");
+                entityId = this._bs.GetBoundEntity(selectedPlayer.id);
+                if (entityId === undefined)
+                    return;
+                this._vc.SendPacket(new McApiDestroyEntityRequestPacket(Guid.Create().toString(), entityId));
+                break;
+            case 1:
+                entityId = this._bs.GetBoundEntity(selectedPlayer.id);
+                if (entityId === undefined)
+                    return;
+                this._vc.SendPacket(new McApiSetEntityMuteRequestPacket(entityId, true));
+                break;
+            case 2:
+                entityId = this._bs.GetBoundEntity(selectedPlayer.id);
+                if (entityId === undefined)
+                    return;
+                this._vc.SendPacket(new McApiSetEntityMuteRequestPacket(entityId, false));
+                break;
+            case 3:
+                entityId = this._bs.GetBoundEntity(selectedPlayer.id);
+                if (entityId === undefined)
+                    return;
+                this._vc.SendPacket(new McApiSetEntityDeafenRequestPacket(entityId, true));
+                break;
+            case 4:
+                entityId = this._bs.GetBoundEntity(selectedPlayer.id);
+                if (entityId === undefined)
+                    return;
+                this._vc.SendPacket(new McApiSetEntityDeafenRequestPacket(entityId, false));
+                break;
         }
     }
 }

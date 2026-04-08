@@ -1,7 +1,7 @@
 import { McApiPacketType } from "../../../Data/Enums";
 import { Vector3 } from "../../../Data/Vector3";
-import { NetDataReader } from "../../NetDataReader";
-import { NetDataWriter } from "../../NetDataWriter";
+import { NetDataReader } from "../../../Data/NetDataReader";
+import { NetDataWriter } from "../../../Data/NetDataWriter";
 import { IMcApiPacket } from "../IMcApiPacket";
 export declare class McApiOnEntityPositionUpdatedPacket implements IMcApiPacket {
     constructor(id?: number, value?: Vector3);

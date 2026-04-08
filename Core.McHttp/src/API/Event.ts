@@ -15,7 +15,7 @@ export class Event<T> {
   public Unsubscribe(callback: (data: T) => void) {
     const index = this._listeners.findIndex((x) => x === callback);
     if (index < 0) return;
-    this._listeners = this._listeners.splice(index, 1);
+    this._listeners.splice(index, 1);
   }
 
   /**

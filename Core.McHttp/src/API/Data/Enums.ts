@@ -1,3 +1,10 @@
+export enum McApiConnectionState {
+    Disconnected,
+    Connecting,
+    Connected,
+    Disconnecting
+}
+
 export enum McApiPacketType {
     //Core
     //Requests DO NOT CHANGE!
@@ -11,12 +18,18 @@ export enum McApiPacketType {
 
     //Other/Changeable
     //Requests
+    ResetRequest,
     SetEffectRequest,
     ClearEffectsRequest,
+    CreateEntityRequest,
+    DestroyEntityRequest,
+    EntityAudioRequest,
     SetEntityTitleRequest,
     SetEntityDescriptionRequest,
     SetEntityWorldIdRequest,
     SetEntityNameRequest,
+    SetEntityMuteRequest,
+    SetEntityDeafenRequest,
     SetEntityTalkBitmaskRequest,
     SetEntityListenBitmaskRequest,
     SetEntityEffectBitmaskRequest,
@@ -26,6 +39,9 @@ export enum McApiPacketType {
     SetEntityMuffleFactorRequest,
 
     //Responses
+    ResetResponse,
+    CreateEntityResponse,
+    DestroyEntityResponse,
 
     //Events
     OnEffectUpdated,
@@ -37,6 +53,8 @@ export enum McApiPacketType {
     OnEntityNameUpdated,
     OnEntityMuteUpdated,
     OnEntityDeafenUpdated,
+    OnEntityServerMuteUpdated,
+    OnEntityServerDeafenUpdated,
     OnEntityTalkBitmaskUpdated,
     OnEntityListenBitmaskUpdated,
     OnEntityEffectBitmaskUpdated,

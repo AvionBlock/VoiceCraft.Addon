@@ -1,5 +1,5 @@
 import { McApiPacketType } from "../../Data/Enums";
-import { INetSerializable } from "../INetSerializable";
+import { INetSerializable } from "../../Interfaces/INetSerializable";
 
 export interface IMcApiPacket extends INetSerializable {
     get PacketType(): McApiPacketType;

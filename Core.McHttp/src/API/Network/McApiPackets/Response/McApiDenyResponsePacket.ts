@@ -1,7 +1,7 @@
 import { McApiPacketType } from "../../../Data/Enums";
 import { IMcApiPacket } from "../IMcApiPacket";
-import { NetDataWriter } from "../../NetDataWriter";
-import { NetDataReader } from "../../NetDataReader";
+import { NetDataWriter } from "../../../Data/NetDataWriter";
+import { NetDataReader } from "../../../Data/NetDataReader";
 import { MaxStringLength } from "../../../Data/Constants";
 import { IMcApiRIdPacket } from "../IMcApiRIdPacket";
 
@@ -25,8 +25,8 @@ export class McApiDenyResponsePacket implements IMcApiPacket, IMcApiRIdPacket {
   private _reason: string;
 
   public Serialize(writer: NetDataWriter) {
-    writer.PutString(this._requestId, MaxStringLength);
-    writer.PutString(this._reason, MaxStringLength);
+    writer.PutString(this.RequestId, MaxStringLength);
+    writer.PutString(this.Reason, MaxStringLength);
   }
 
   public Deserialize(reader: NetDataReader) {

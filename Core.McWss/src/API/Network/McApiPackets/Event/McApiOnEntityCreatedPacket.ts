@@ -2,8 +2,8 @@ import { MaxStringLength } from "../../../Data/Constants";
 import { McApiPacketType } from "../../../Data/Enums";
 import { Vector2 } from "../../../Data/Vector2";
 import { Vector3 } from "../../../Data/Vector3";
-import { NetDataReader } from "../../NetDataReader";
-import { NetDataWriter } from "../../NetDataWriter";
+import { NetDataReader } from "../../../Data/NetDataReader";
+import { NetDataWriter } from "../../../Data/NetDataWriter";
 import { IMcApiPacket } from "../IMcApiPacket";
 
 export class McApiOnEntityCreatedPacket implements IMcApiPacket {
@@ -124,8 +124,8 @@ export class McApiOnEntityCreatedPacket implements IMcApiPacket {
     this._id = reader.GetInt();
     this._loudness = reader.GetFloat();
     this._lastSpoke = reader.GetLong();
-    this._worldId = reader.GetString();
-    this._name = reader.GetString();
+    this._worldId = reader.GetString(MaxStringLength);
+    this._name = reader.GetString(MaxStringLength);
     this._muted = reader.GetBool();
     this._deafened = reader.GetBool();
     this._talkBitmask = reader.GetUshort();

@@ -101,8 +101,8 @@ export class McApiOnEntityCreatedPacket {
         this._id = reader.GetInt();
         this._loudness = reader.GetFloat();
         this._lastSpoke = reader.GetLong();
-        this._worldId = reader.GetString();
-        this._name = reader.GetString();
+        this._worldId = reader.GetString(MaxStringLength);
+        this._name = reader.GetString(MaxStringLength);
         this._muted = reader.GetBool();
         this._deafened = reader.GetBool();
         this._talkBitmask = reader.GetUshort();

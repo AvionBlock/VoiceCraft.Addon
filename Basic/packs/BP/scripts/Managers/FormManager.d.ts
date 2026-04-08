@@ -1,12 +1,13 @@
 import { VoiceCraft } from "../API/VoiceCraft";
-import { BindingManager } from "./BindingManager";
 import { Player } from "@minecraft/server";
-import { EffectsManager } from "./EffectsManager";
+import { AudioEffectSystem } from "../API/Systems/AudioEffectSystem";
+import { BindingSystem } from "../API/Systems/BindingSystem";
 export declare class FormManager {
     private _vc;
-    private _bm;
-    private _em;
+    private _bs;
+    private _aes;
     private _mainMenuSettingsForm;
+    private _generalSettingsMenuForm;
     private _effectsMenuSettingsForm;
     private _selectEffectMenuSettingsForm;
     private _setVisibilityEffectMenuSettingsForm;
@@ -19,8 +20,9 @@ export declare class FormManager {
     private _deleteEffectMenuSettingsForm;
     private _selectPlayerMenuSettingsForm;
     private _selectPlayerActionMenuSettingsForm;
-    constructor(_vc: VoiceCraft, _bm: BindingManager, _em: EffectsManager);
+    constructor(_vc: VoiceCraft, _bs: BindingSystem, _aes: AudioEffectSystem);
     ShowMainMenuSettingsFormAsync(player: Player): Promise<void>;
+    ShowGeneralSettingsFormAsync(player: Player): Promise<void>;
     ShowEffectSettingsFormAsync(player: Player): Promise<void>;
     ShowSelectEffectMenuSettingsFormAsync(player: Player): Promise<void>;
     ShowSetVisibilityEffectMenuSettingsFormAsync(player: Player): Promise<void>;

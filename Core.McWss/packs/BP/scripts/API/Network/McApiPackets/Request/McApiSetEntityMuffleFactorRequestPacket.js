@@ -16,8 +16,8 @@ export class McApiSetEntityMuffleFactorRequestPacket {
     _id;
     _value;
     Serialize(writer) {
-        writer.PutInt(this._id);
-        writer.PutFloat(this._value);
+        writer.PutInt(this.Id);
+        writer.PutFloat(this.Value);
     }
     Deserialize(reader) {
         this._id = reader.GetInt();

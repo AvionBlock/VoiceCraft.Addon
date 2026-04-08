@@ -17,8 +17,8 @@ export class McApiSetEntityDescriptionRequestPacket {
     _id;
     _value;
     Serialize(writer) {
-        writer.PutInt(this._id);
-        writer.PutString(this._value, MaxDescriptionStringLength);
+        writer.PutInt(this.Id);
+        writer.PutString(this.Value, MaxDescriptionStringLength);
     }
     Deserialize(reader) {
         this._id = reader.GetInt();

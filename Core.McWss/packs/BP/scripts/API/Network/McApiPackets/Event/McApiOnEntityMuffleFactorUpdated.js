@@ -17,7 +17,7 @@ export class McApiOnEntityMuffleFactorUpdatedPacket {
     _value;
     Serialize(writer) {
         writer.PutInt(this.Id);
-        writer.PutFloat(this._value);
+        writer.PutFloat(this.Value);
     }
     Deserialize(reader) {
         this._id = reader.GetInt();

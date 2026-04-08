@@ -1,7 +1,7 @@
 import { MaxStringLength } from "../../../Data/Constants";
 import { McApiPacketType } from "../../../Data/Enums";
-import { NetDataReader } from "../../NetDataReader";
-import { NetDataWriter } from "../../NetDataWriter";
+import { NetDataReader } from "../../../Data/NetDataReader";
+import { NetDataWriter } from "../../../Data/NetDataWriter";
 import { IMcApiPacket } from "../IMcApiPacket";
 
 export class McApiOnEntityNameUpdatedPacket implements IMcApiPacket {
@@ -25,7 +25,7 @@ export class McApiOnEntityNameUpdatedPacket implements IMcApiPacket {
 
   public Serialize(writer: NetDataWriter) {
     writer.PutInt(this.Id);
-    writer.PutString(this._value, MaxStringLength);
+    writer.PutString(this.Value, MaxStringLength);
   }
 
   public Deserialize(reader: NetDataReader) {

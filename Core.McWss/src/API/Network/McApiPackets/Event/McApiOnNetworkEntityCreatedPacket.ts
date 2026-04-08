@@ -3,8 +3,8 @@ import { McApiPacketType, PositioningType } from "../../../Data/Enums";
 import { Guid } from "../../../Data/Guid";
 import { Vector2 } from "../../../Data/Vector2";
 import { Vector3 } from "../../../Data/Vector3";
-import { NetDataReader } from "../../NetDataReader";
-import { NetDataWriter } from "../../NetDataWriter";
+import { NetDataReader } from "../../../Data/NetDataReader";
+import { NetDataWriter } from "../../../Data/NetDataWriter";
 import { McApiOnEntityCreatedPacket } from "./McApiOnEntityCreatedPacket";
 
 export class McApiOnNetworkEntityCreatedPacket extends McApiOnEntityCreatedPacket {
@@ -73,10 +73,10 @@ export class McApiOnNetworkEntityCreatedPacket extends McApiOnEntityCreatedPacke
 
   public override Serialize(writer: NetDataWriter) {
     super.Serialize(writer);
-    writer.PutString(this._userGuid.toString(), MaxStringLength);
-    writer.PutString(this._serverUserGuid.toString(), MaxStringLength);
-    writer.PutString(this._locale, MaxStringLength);
-    writer.PutByte(this._positioningType);
+    writer.PutString(this.UserGuid.toString(), MaxStringLength);
+    writer.PutString(this.ServerUserGuid.toString(), MaxStringLength);
+    writer.PutString(this.Locale, MaxStringLength);
+    writer.PutByte(this.PositioningType);
   }
 
   public override Deserialize(reader: NetDataReader) {

@@ -23,11 +23,11 @@ export class McApiLoginRequestPacket {
     _token;
     _version;
     Serialize(writer) {
-        writer.PutString(this._requestId, MaxStringLength);
-        writer.PutString(this._token, MaxStringLength);
-        writer.PutInt(this._version.Major);
-        writer.PutInt(this._version.Minor);
-        writer.PutInt(this._version.Build);
+        writer.PutString(this.RequestId, MaxStringLength);
+        writer.PutString(this.Token, MaxStringLength);
+        writer.PutInt(this.Version.Major);
+        writer.PutInt(this.Version.Minor);
+        writer.PutInt(this.Version.Build);
     }
     Deserialize(reader) {
         this._requestId = reader.GetString(MaxStringLength);

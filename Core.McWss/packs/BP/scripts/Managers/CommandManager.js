@@ -1,8 +1,8 @@
-import { CommandPermissionLevel, CustomCommandParamType, CustomCommandStatus, Player, system, } from "@minecraft/server";
-import { Z85 } from "../API/Encoders/Z85";
+import { CommandPermissionLevel, CustomCommandParamType, Player, system, } from "@minecraft/server";
 import { Locales } from "../API/Locales";
 import { VoiceCraft } from "../API/VoiceCraft";
 import "../Extensions";
+import { McApiConnectionState } from "../API/Data/Enums";
 export class CommandManager {
     _mcapi;
     constructor(_mcapi) {
@@ -20,27 +20,26 @@ export class CommandManager {
                 { name: "token", type: CustomCommandParamType.String },
             ],
         }, (origin, token) => this.ConnectCommand(origin, token));
-        registry.registerCommand({
-            name: `${VoiceCraft.Namespace}:data_tunnel`,
-            description: "Data transfer tunnel between servers",
-            permissionLevel: CommandPermissionLevel.Host,
-            optionalParameters: [
-                { name: "data", type: CustomCommandParamType.String },
-            ],
-        }, (origin, data) => this.SendCommandTunnel(origin, data));
     }
     ConnectCommand(origin, token) {
-        if (!(origin.sourceEntity instanceof Player))
-            return {
-                status: CustomCommandStatus.Failure,
-                message: "Command origin must be of type player!"
-            };
+        if (origin.sourceEntity === undefined ||
+            !(origin.sourceEntity instanceof Player))
+            throw new Error("Command origin must be of type player!");
+        if (this._mcapi.ConnectionState != McApiConnectionState.Disconnected)
+            throw new Error("Already in a connected/connecting state!");
         system.run(async () => {
             const player = origin.sourceEntity;
+            const connectedCallback = this._mcapi.OnConnected.Subscribe((_) => {
+                player.translateMessage(Locales.VcMcApi.Status.Connected);
+            });
+            const disconnectedCallback = this._mcapi.OnDisconnected.Subscribe((reason) => {
+                player.translateMessage(Locales.VcMcApi.Status.Disconnected, {
+                    rawtext: [{ translate: reason }],
+                });
+            });
             try {
                 player.translateMessage(Locales.VcMcApi.Status.Connecting);
-                await this._mcapi.ConnectAsync(token);
-                player.translateMessage(Locales.VcMcApi.Status.Connected);
+                await this._mcapi.ConnectAsync("", 0, token);
             }
             catch (ex) {
                 if (ex instanceof Error)
@@ -48,35 +47,11 @@ export class CommandManager {
                         rawtext: [{ translate: ex.message }],
                     });
             }
+            finally {
+                this._mcapi.OnConnected.Unsubscribe(connectedCallback);
+                this._mcapi.OnDisconnected.Unsubscribe(disconnectedCallback);
+            }
         });
         return undefined;
-    }
-    SendCommandTunnel(_, data) {
-        if (data.length > 0) {
-            system.run(async () => {
-                let packets = data.split("|");
-                for (const packet of packets) {
-                    await this._mcapi.ReceivePacketAsync(packet);
-                }
-            });
-        }
-        let packetData = this._mcapi.OutboundQueue.dequeue();
-        if (packetData === undefined)
-            return {
-                status: CustomCommandStatus.Success,
-                message: ""
-            };
-        let stringData = Z85.GetStringWithPadding(packetData);
-        while (stringData.length < 1000) {
-            packetData = this._mcapi.OutboundQueue.dequeue();
-            if (packetData === undefined)
-                break;
-            stringData += `|${Z85.GetStringWithPadding(packetData)}`;
-        }
-        stringData = stringData.replaceAll("%", "%%");
-        return {
-            status: CustomCommandStatus.Success,
-            message: stringData,
-        };
     }
 }

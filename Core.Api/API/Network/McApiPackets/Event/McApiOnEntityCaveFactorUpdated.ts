@@ -1,6 +1,6 @@
 import { McApiPacketType } from "../../../Data/Enums";
-import { NetDataReader } from "../../NetDataReader";
-import { NetDataWriter } from "../../NetDataWriter";
+import { NetDataReader } from "../../../Data/NetDataReader";
+import { NetDataWriter } from "../../../Data/NetDataWriter";
 import { IMcApiPacket } from "../IMcApiPacket";
 
 export class McApiOnEntityCaveFactorUpdatedPacket implements IMcApiPacket {
@@ -24,7 +24,7 @@ export class McApiOnEntityCaveFactorUpdatedPacket implements IMcApiPacket {
 
   public Serialize(writer: NetDataWriter) {
     writer.PutInt(this.Id);
-    writer.PutFloat(this._value);
+    writer.PutFloat(this.Value);
   }
 
   public Deserialize(reader: NetDataReader) {

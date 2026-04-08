@@ -1,7 +1,7 @@
 import { McApiPacketType } from "../../../Data/Enums";
 import { IMcApiPacket } from "../IMcApiPacket";
-import { NetDataWriter } from "../../NetDataWriter";
-import { NetDataReader } from "../../NetDataReader";
+import { NetDataWriter } from "../../../Data/NetDataWriter";
+import { NetDataReader } from "../../../Data/NetDataReader";
 
 export class McApiSetEntityTalkBitmaskRequestPacket implements IMcApiPacket {
   constructor(id: number = 0, value: number = 0) {
@@ -23,8 +23,8 @@ export class McApiSetEntityTalkBitmaskRequestPacket implements IMcApiPacket {
   private _value: number;
 
   public Serialize(writer: NetDataWriter) {
-    writer.PutInt(this._id);
-    writer.PutUshort(this._value);
+    writer.PutInt(this.Id);
+    writer.PutUshort(this.Value);
   }
 
   public Deserialize(reader: NetDataReader) {

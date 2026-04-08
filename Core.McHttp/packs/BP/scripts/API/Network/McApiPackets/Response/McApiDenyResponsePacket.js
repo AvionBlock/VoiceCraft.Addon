@@ -17,8 +17,8 @@ export class McApiDenyResponsePacket {
     _requestId;
     _reason;
     Serialize(writer) {
-        writer.PutString(this._requestId, MaxStringLength);
-        writer.PutString(this._reason, MaxStringLength);
+        writer.PutString(this.RequestId, MaxStringLength);
+        writer.PutString(this.Reason, MaxStringLength);
     }
     Deserialize(reader) {
         this._requestId = reader.GetString(MaxStringLength);

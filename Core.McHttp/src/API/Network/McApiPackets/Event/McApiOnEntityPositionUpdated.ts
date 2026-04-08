@@ -1,7 +1,7 @@
 import { McApiPacketType } from "../../../Data/Enums";
 import { Vector3 } from "../../../Data/Vector3";
-import { NetDataReader } from "../../NetDataReader";
-import { NetDataWriter } from "../../NetDataWriter";
+import { NetDataReader } from "../../../Data/NetDataReader";
+import { NetDataWriter } from "../../../Data/NetDataWriter";
 import { IMcApiPacket } from "../IMcApiPacket";
 
 export class McApiOnEntityPositionUpdatedPacket implements IMcApiPacket {
@@ -25,9 +25,9 @@ export class McApiOnEntityPositionUpdatedPacket implements IMcApiPacket {
 
   public Serialize(writer: NetDataWriter) {
     writer.PutInt(this.Id);
-    writer.PutFloat(this._value.X);
-    writer.PutFloat(this._value.Y);
-    writer.PutFloat(this._value.Z);
+    writer.PutFloat(this.Value.X);
+    writer.PutFloat(this.Value.Y);
+    writer.PutFloat(this.Value.Z);
   }
 
   public Deserialize(reader: NetDataReader) {

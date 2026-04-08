@@ -1,7 +1,7 @@
 import {EffectType, McApiPacketType} from "../../../Data/Enums";
 import {IMcApiPacket} from "../IMcApiPacket";
-import {NetDataWriter} from "../../NetDataWriter";
-import {NetDataReader} from "../../NetDataReader";
+import {NetDataWriter} from "../../../Data/NetDataWriter";
+import {NetDataReader} from "../../../Data/NetDataReader";
 import {IAudioEffect} from "../../../Interfaces/IAudioEffect";
 
 export class McApiSetEffectRequestPacket implements IMcApiPacket {
@@ -32,8 +32,8 @@ export class McApiSetEffectRequestPacket implements IMcApiPacket {
     private _effect?: IAudioEffect;
 
     public Serialize(writer: NetDataWriter) {
-        writer.PutUshort(this._bitmask);
-        writer.PutByte(this._effect?.EffectType ?? EffectType.None);
+        writer.PutUshort(this.Bitmask);
+        writer.PutByte(this.Effect?.EffectType ?? EffectType.None);
         if (this._effect !== undefined)
             this._effect.Serialize(writer);
     }
