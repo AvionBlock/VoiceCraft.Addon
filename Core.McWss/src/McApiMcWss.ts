@@ -11,7 +11,7 @@ import {
     CustomCommandStatus,
     system
 } from "@minecraft/server";
-import {McApiConnectionState} from "./API/Data/Enums";
+import {McApiConnectionState, McApiPacketType} from "./API/Data/Enums";
 import {Guid} from "./API/Data/Guid";
 import {McApiLoginRequestPacket} from "./API/Network/McApiPackets/Request/McApiLoginRequestPacket";
 import {VoiceCraft} from "./API/VoiceCraft";
@@ -75,6 +75,7 @@ export class McApiMcWss extends McApiClient {
             this._writer.PutPacket(packet);
             this.OutboundQueue.enqueue(this._writer.CopyData());
             const response = await this.GetResponseAsync<McApiAcceptResponsePacket, string>(
+                McApiPacketType.AcceptResponse,
                 requestId,
                 response => response.Token,
                 160
@@ -166,6 +167,7 @@ export class McApiMcWss extends McApiClient {
     }
 
     private async GetResponseAsync<TPacket extends IMcApiPacket & IMcApiRIdPacket, TResult>(
+        packetType: McApiPacketType,
         requestId: string,
         selector: (packet: TPacket) => TResult,
         timeoutTicks: number,
@@ -206,7 +208,7 @@ export class McApiMcWss extends McApiClient {
         }
 
         function EventCallback(packet: IMcApiPacket) {
-            if ("RequestId" in packet && packet.RequestId === requestId)
+            if (packet.PacketType === packetType && "RequestId" in packet && packet.RequestId === requestId)
                 try {
                     tcs.resolve(selector(packet as TPacket));
                 } catch (err) {
@@ -220,9 +222,7 @@ export class McApiMcWss extends McApiClient {
     }
 
     private HandleDataTunnelCommand(_: CustomCommandOrigin, maxStringLength: number, data: string): CustomCommandResult {
-        system.run(() => {
-            this.ReceivePacketsLogic(data);
-        });
+        this.ReceivePacketsLogic(data);
         return {status: CustomCommandStatus.Success, message: this.SendPacketsLogic(maxStringLength)};
     }
 

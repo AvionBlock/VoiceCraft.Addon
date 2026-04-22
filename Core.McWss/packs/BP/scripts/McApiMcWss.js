@@ -4,7 +4,7 @@ import { NetDataWriter } from "./API/Data/NetDataWriter";
 import { NetDataReader } from "./API/Data/NetDataReader";
 import { McApiClient } from "./API/McApiClient";
 import { CommandPermissionLevel, CustomCommandParamType, CustomCommandStatus, system } from "@minecraft/server";
-import { McApiConnectionState } from "./API/Data/Enums";
+import { McApiConnectionState, McApiPacketType } from "./API/Data/Enums";
 import { Guid } from "./API/Data/Guid";
 import { McApiLoginRequestPacket } from "./API/Network/McApiPackets/Request/McApiLoginRequestPacket";
 import { VoiceCraft } from "./API/VoiceCraft";
@@ -56,7 +56,7 @@ export class McApiMcWss extends McApiClient {
             this._writer.PutByte(packet.PacketType);
             this._writer.PutPacket(packet);
             this.OutboundQueue.enqueue(this._writer.CopyData());
-            const response = await this.GetResponseAsync(requestId, response => response.Token, 160);
+            const response = await this.GetResponseAsync(McApiPacketType.AcceptResponse, requestId, response => response.Token, 160);
             this.ConnectionState = McApiConnectionState.Connected;
             this._pinger = system.runInterval(() => {
                 if (this.ConnectionState === McApiConnectionState.Connected) {
@@ -138,7 +138,7 @@ export class McApiMcWss extends McApiClient {
         if (this._pinger !== undefined)
             system.clearRun(this._pinger);
     }
-    async GetResponseAsync(requestId, selector, timeoutTicks, token) {
+    async GetResponseAsync(packetType, requestId, selector, timeoutTicks, token) {
         const tcs = Promise.withResolvers();
         const dTcs = Promise.withResolvers();
         const timeoutId = system.runTimeout(() => {
@@ -171,7 +171,7 @@ export class McApiMcWss extends McApiClient {
             this.OnDisconnected.Unsubscribe(OnDisconnectedCallback);
         }
         function EventCallback(packet) {
-            if ("RequestId" in packet && packet.RequestId === requestId)
+            if (packet.PacketType === packetType && "RequestId" in packet && packet.RequestId === requestId)
                 try {
                     tcs.resolve(selector(packet));
                 }
@@ -184,9 +184,7 @@ export class McApiMcWss extends McApiClient {
         }
     }
     HandleDataTunnelCommand(_, maxStringLength, data) {
-        system.run(() => {
-            this.ReceivePacketsLogic(data);
-        });
+        this.ReceivePacketsLogic(data);
         return { status: CustomCommandStatus.Success, message: this.SendPacketsLogic(maxStringLength) };
     }
     SendPacketsLogic(maxStringLength) {
