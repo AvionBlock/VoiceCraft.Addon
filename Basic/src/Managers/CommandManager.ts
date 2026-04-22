@@ -11,6 +11,7 @@ import {
 import {VoiceCraft} from "../API/VoiceCraft";
 import {FormManager} from "./FormManager";
 import {BindingSystem} from "../API/Systems/BindingSystem";
+import {UTF8} from "../API/Encoders/UTF8";
 
 export class CommandManager {
     constructor(private _vc: VoiceCraft, private _bs: BindingSystem, private _fm: FormManager) {
@@ -39,6 +40,15 @@ export class CommandManager {
                 permissionLevel: CommandPermissionLevel.GameDirectors
             },
             (origin) => this.SettingsCommand(origin)
+        )
+
+        registry.registerCommand(
+            {
+                name: `${VoiceCraft.Namespace}:vctest`,
+                description: "Test Command.",
+                permissionLevel: CommandPermissionLevel.GameDirectors
+            },
+            (origin) => this.TestCommand(origin)
         )
     }
 
@@ -80,5 +90,15 @@ export class CommandManager {
             await this._fm.ShowMainMenuSettingsFormAsync(player);
         })
         return undefined;
+    }
+
+    private TestCommand(_: CustomCommandOrigin): CustomCommandResult | undefined {
+        let encoded = UTF8.GetBytes("Testing 123");
+        if(encoded === undefined) return undefined;
+        let decoded = UTF8.GetString(encoded, 0, encoded.length);
+        return {
+            status: CustomCommandStatus.Success,
+            message: decoded
+        };
     }
 }

@@ -9,4 +9,5 @@ export declare class CommandManager {
     private RegisterCommands;
     private BindCommand;
     private SettingsCommand;
+    private TestCommand;
 }

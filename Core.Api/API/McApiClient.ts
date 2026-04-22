@@ -1,4 +1,3 @@
-import {VoiceCraft} from "./VoiceCraft";
 import {McApiConnectionState, McApiPacketType} from "./Data/Enums";
 import {IMcApiPacket} from "./Network/McApiPackets/IMcApiPacket";
 import {Event} from "./Event";
@@ -28,24 +27,35 @@ import {McApiOnEntityRotationUpdatedPacket} from "./Network/McApiPackets/Event/M
 import {McApiOnEntityCaveFactorUpdatedPacket} from "./Network/McApiPackets/Event/McApiOnEntityCaveFactorUpdated";
 import {McApiOnEntityMuffleFactorUpdatedPacket} from "./Network/McApiPackets/Event/McApiOnEntityMuffleFactorUpdated";
 import {McApiOnEntityAudioReceivedPacket} from "./Network/McApiPackets/Event/McApiOnEntityAudioReceivedPacket";
-import {system} from "@minecraft/server";
+import {Queue} from "./Data/Queue";
 
 export abstract class McApiClient {
     private _connectionState: McApiConnectionState = McApiConnectionState.Disconnected;
     private _token: string | undefined;
-    protected LastPing: number = 0;
+    private _lastPing: number = 0;
+    public OutboundQueue: Queue<Uint8Array> = new Queue<Uint8Array>();
+    public InboundQueue: Queue<Uint8Array> = new Queue<Uint8Array>();
 
     public get Token(): string | undefined {
         return this._token;
     }
+
     protected set Token(value: string | undefined) {
         this._token = value;
+    }
+
+    protected get LastPing(): number {
+        return this._lastPing;
+    }
+
+    protected set LastPing(value: number) {
+        this._lastPing = value;
     }
 
     //Events
     public OnPacketReceived: Event<IMcApiPacket> = new Event<IMcApiPacket>();
     public OnConnected: Event<string> = new Event<string>();
-    public OnDisconnected: Event<string | undefined> = new Event<string | undefined>();
+    public OnDisconnected: Event<string> = new Event<string>();
 
     public get ConnectionState() {
         return this._connectionState;
@@ -57,7 +67,9 @@ export abstract class McApiClient {
 
     public abstract ConnectAsync(ip: string, port: number, loginToken: string): Promise<void>;
 
-    public abstract DisconnectAsync(reason: string | undefined, force: boolean): Promise<void>;
+    public abstract Update(): void;
+
+    public abstract DisconnectAsync(reason: string | undefined): Promise<void>;
 
     public abstract SendPacket(packet: IMcApiPacket): boolean;
 
@@ -65,181 +77,117 @@ export abstract class McApiClient {
         const packetType = reader.GetByte() as McApiPacketType;
         switch (packetType) {
             case McApiPacketType.AcceptResponse:
-                const acceptResponsePacket = new McApiAcceptResponsePacket();
-                acceptResponsePacket.Deserialize(reader);
-                this.OnPacketReceived.Invoke(acceptResponsePacket);
-                onParsed(acceptResponsePacket);
+                this.ProcessPacketType<McApiAcceptResponsePacket>(reader, onParsed, () => new McApiAcceptResponsePacket());
                 break;
             case McApiPacketType.DenyResponse:
-                const denyResponsePacket = new McApiDenyResponsePacket();
-                denyResponsePacket.Deserialize(reader);
-                this.OnPacketReceived.Invoke(denyResponsePacket);
-                onParsed(denyResponsePacket);
+                this.ProcessPacketType<McApiDenyResponsePacket>(reader, onParsed, () => new McApiDenyResponsePacket());
                 break;
             case McApiPacketType.PingResponse:
-                const pingResponsePacket = new McApiPingResponsePacket();
-                pingResponsePacket.Deserialize(reader);
-                this.OnPacketReceived.Invoke(pingResponsePacket);
-                onParsed(pingResponsePacket);
+                this.ProcessPacketType<McApiPingResponsePacket>(reader, onParsed, () => new McApiPingResponsePacket());
                 break;
             case McApiPacketType.ResetResponse:
-                const resetResponsePacket = new McApiResetResponsePacket();
-                resetResponsePacket.Deserialize(reader);
-                this.OnPacketReceived.Invoke(resetResponsePacket);
-                onParsed(resetResponsePacket);
+                this.ProcessPacketType<McApiResetResponsePacket>(reader, onParsed, () => new McApiResetResponsePacket());
                 break;
             case McApiPacketType.CreateEntityResponse:
-                const createEntityResponsePacket = new McApiCreateEntityResponsePacket();
-                createEntityResponsePacket.Deserialize(reader);
-                this.OnPacketReceived.Invoke(createEntityResponsePacket);
-                onParsed(createEntityResponsePacket);
+                this.ProcessPacketType<McApiCreateEntityResponsePacket>(reader, onParsed, () => new McApiCreateEntityResponsePacket());
                 break;
             case McApiPacketType.DestroyEntityResponse:
-                const destroyEntityResponsePacket = new McApiDestroyEntityResponsePacket();
-                destroyEntityResponsePacket.Deserialize(reader);
-                this.OnPacketReceived.Invoke(destroyEntityResponsePacket);
-                onParsed(destroyEntityResponsePacket);
+                this.ProcessPacketType<McApiDestroyEntityResponsePacket>(reader, onParsed, () => new McApiDestroyEntityResponsePacket());
                 break;
             case McApiPacketType.OnEffectUpdated:
-                const onEffectUpdatedPacket = new McApiOnEffectUpdatedPacket();
-                onEffectUpdatedPacket.Deserialize(reader);
-                this.OnPacketReceived.Invoke(onEffectUpdatedPacket);
-                onParsed(onEffectUpdatedPacket);
+                this.ProcessPacketType<McApiOnEffectUpdatedPacket>(reader, onParsed, () => new McApiOnEffectUpdatedPacket());
                 break;
             case McApiPacketType.OnEntityCreated:
-                const onEntityCreatedPacket = new McApiOnEntityCreatedPacket();
-                onEntityCreatedPacket.Deserialize(reader);
-                this.OnPacketReceived.Invoke(onEntityCreatedPacket);
-                onParsed(onEntityCreatedPacket);
+                this.ProcessPacketType<McApiOnEntityCreatedPacket>(reader, onParsed, () => new McApiOnEntityCreatedPacket());
                 break;
             case McApiPacketType.OnNetworkEntityCreated:
-                const onNetworkEntityCreatedPacket = new McApiOnNetworkEntityCreatedPacket();
-                onNetworkEntityCreatedPacket.Deserialize(reader);
-                this.OnPacketReceived.Invoke(onNetworkEntityCreatedPacket);
-                onParsed(onNetworkEntityCreatedPacket);
+                this.ProcessPacketType<McApiOnNetworkEntityCreatedPacket>(reader, onParsed, () => new McApiOnNetworkEntityCreatedPacket());
                 break;
             case McApiPacketType.OnEntityDestroyed:
-                const onEntityDestroyedPacket = new McApiOnEntityDestroyedPacket();
-                onEntityDestroyedPacket.Deserialize(reader);
-                this.OnPacketReceived.Invoke(onEntityDestroyedPacket);
-                onParsed(onEntityDestroyedPacket);
+                this.ProcessPacketType<McApiOnEntityDestroyedPacket>(reader, onParsed, () => new McApiOnEntityDestroyedPacket());
                 break;
             case McApiPacketType.OnEntityVisibilityUpdated:
-                const onEntityVisibilityUpdatedPacket = new McApiOnEntityVisibilityUpdatedPacket();
-                onEntityVisibilityUpdatedPacket.Deserialize(reader);
-                this.OnPacketReceived.Invoke(onEntityVisibilityUpdatedPacket);
-                onParsed(onEntityVisibilityUpdatedPacket);
+                this.ProcessPacketType<McApiOnEntityVisibilityUpdatedPacket>(reader, onParsed, () => new McApiOnEntityVisibilityUpdatedPacket());
                 break;
             case McApiPacketType.OnEntityWorldIdUpdated:
-                const onEntityWorldIdUpdatedPacket = new McApiOnEntityWorldIdUpdatedPacket();
-                onEntityWorldIdUpdatedPacket.Deserialize(reader);
-                this.OnPacketReceived.Invoke(onEntityWorldIdUpdatedPacket);
-                onParsed(onEntityWorldIdUpdatedPacket);
+                this.ProcessPacketType<McApiOnEntityWorldIdUpdatedPacket>(reader, onParsed, () => new McApiOnEntityWorldIdUpdatedPacket());
                 break;
             case McApiPacketType.OnEntityNameUpdated:
-                const onEntityNameUpdatedPacket = new McApiOnEntityNameUpdatedPacket();
-                onEntityNameUpdatedPacket.Deserialize(reader);
-                this.OnPacketReceived.Invoke(onEntityNameUpdatedPacket);
-                onParsed(onEntityNameUpdatedPacket);
+                this.ProcessPacketType<McApiOnEntityNameUpdatedPacket>(reader, onParsed, () => new McApiOnEntityNameUpdatedPacket());
                 break;
             case McApiPacketType.OnEntityMuteUpdated:
-                const onEntityMuteUpdatedPacket = new McApiOnEntityMuteUpdatedPacket();
-                onEntityMuteUpdatedPacket.Deserialize(reader);
-                this.OnPacketReceived.Invoke(onEntityMuteUpdatedPacket);
-                onParsed(onEntityMuteUpdatedPacket);
+                this.ProcessPacketType<McApiOnEntityMuteUpdatedPacket>(reader, onParsed, () => new McApiOnEntityMuteUpdatedPacket());
                 break;
             case McApiPacketType.OnEntityDeafenUpdated:
-                const onEntityDeafenUpdatedPacket = new McApiOnEntityDeafenUpdatedPacket();
-                onEntityDeafenUpdatedPacket.Deserialize(reader);
-                this.OnPacketReceived.Invoke(onEntityDeafenUpdatedPacket);
-                onParsed(onEntityDeafenUpdatedPacket);
+                this.ProcessPacketType<McApiOnEntityDeafenUpdatedPacket>(reader, onParsed, () => new McApiOnEntityDeafenUpdatedPacket());
                 break;
             case McApiPacketType.OnEntityServerMuteUpdated:
-                const onEntityServerMuteUpdatedPacket = new McApiOnEntityServerMuteUpdatedPacket();
-                onEntityServerMuteUpdatedPacket.Deserialize(reader);
-                this.OnPacketReceived.Invoke(onEntityServerMuteUpdatedPacket);
-                onParsed(onEntityServerMuteUpdatedPacket);
+                this.ProcessPacketType<McApiOnEntityServerMuteUpdatedPacket>(reader, onParsed, () => new McApiOnEntityServerMuteUpdatedPacket());
                 break;
             case McApiPacketType.OnEntityServerDeafenUpdated:
-                const onEntityServerDeafenUpdatedPacket = new McApiOnEntityServerDeafenUpdatedPacket();
-                onEntityServerDeafenUpdatedPacket.Deserialize(reader);
-                this.OnPacketReceived.Invoke(onEntityServerDeafenUpdatedPacket);
-                onParsed(onEntityServerDeafenUpdatedPacket);
+                this.ProcessPacketType<McApiOnEntityServerDeafenUpdatedPacket>(reader, onParsed, () => new McApiOnEntityServerDeafenUpdatedPacket());
                 break;
             case McApiPacketType.OnEntityTalkBitmaskUpdated:
-                const onEntityTalkBitmaskUpdatedPacket = new McApiOnEntityTalkBitmaskUpdatedPacket();
-                onEntityTalkBitmaskUpdatedPacket.Deserialize(reader);
-                this.OnPacketReceived.Invoke(onEntityTalkBitmaskUpdatedPacket);
-                onParsed(onEntityTalkBitmaskUpdatedPacket);
+                this.ProcessPacketType<McApiOnEntityTalkBitmaskUpdatedPacket>(reader, onParsed, () => new McApiOnEntityTalkBitmaskUpdatedPacket());
                 break;
             case McApiPacketType.OnEntityListenBitmaskUpdated:
-                const onEntityListenBitmaskUpdatedPacket = new McApiOnEntityListenBitmaskUpdatedPacket();
-                onEntityListenBitmaskUpdatedPacket.Deserialize(reader);
-                this.OnPacketReceived.Invoke(onEntityListenBitmaskUpdatedPacket);
-                onParsed(onEntityListenBitmaskUpdatedPacket);
+                this.ProcessPacketType<McApiOnEntityListenBitmaskUpdatedPacket>(reader, onParsed, () => new McApiOnEntityListenBitmaskUpdatedPacket());
                 break;
             case McApiPacketType.OnEntityEffectBitmaskUpdated:
-                const onEntityEffectBitmaskUpdatedPacket = new McApiOnEntityEffectBitmaskUpdatedPacket();
-                onEntityEffectBitmaskUpdatedPacket.Deserialize(reader);
-                this.OnPacketReceived.Invoke(onEntityEffectBitmaskUpdatedPacket);
-                onParsed(onEntityEffectBitmaskUpdatedPacket);
+                this.ProcessPacketType<McApiOnEntityEffectBitmaskUpdatedPacket>(reader, onParsed, () => new McApiOnEntityEffectBitmaskUpdatedPacket());
                 break;
             case McApiPacketType.OnEntityPositionUpdated:
-                const onEntityPositionUpdatedPacket = new McApiOnEntityPositionUpdatedPacket();
-                onEntityPositionUpdatedPacket.Deserialize(reader);
-                this.OnPacketReceived.Invoke(onEntityPositionUpdatedPacket);
-                onParsed(onEntityPositionUpdatedPacket);
+                this.ProcessPacketType<McApiOnEntityPositionUpdatedPacket>(reader, onParsed, () => new McApiOnEntityPositionUpdatedPacket());
                 break;
             case McApiPacketType.OnEntityRotationUpdated:
-                const onEntityRotationUpdatedPacket = new McApiOnEntityRotationUpdatedPacket();
-                onEntityRotationUpdatedPacket.Deserialize(reader);
-                this.OnPacketReceived.Invoke(onEntityRotationUpdatedPacket);
-                onParsed(onEntityRotationUpdatedPacket);
+                this.ProcessPacketType<McApiOnEntityRotationUpdatedPacket>(reader, onParsed, () => new McApiOnEntityRotationUpdatedPacket());
                 break;
             case McApiPacketType.OnEntityCaveFactorUpdated:
-                const onEntityCaveFactorUpdatedPacket = new McApiOnEntityCaveFactorUpdatedPacket();
-                onEntityCaveFactorUpdatedPacket.Deserialize(reader);
-                this.OnPacketReceived.Invoke(onEntityCaveFactorUpdatedPacket);
-                onParsed(onEntityCaveFactorUpdatedPacket);
+                this.ProcessPacketType<McApiOnEntityCaveFactorUpdatedPacket>(reader, onParsed, () => new McApiOnEntityCaveFactorUpdatedPacket());
                 break;
             case McApiPacketType.OnEntityMuffleFactorUpdated:
-                const onEntityMuffleFactorUpdatedPacket = new McApiOnEntityMuffleFactorUpdatedPacket();
-                onEntityMuffleFactorUpdatedPacket.Deserialize(reader);
-                this.OnPacketReceived.Invoke(onEntityMuffleFactorUpdatedPacket);
-                onParsed(onEntityMuffleFactorUpdatedPacket);
+                this.ProcessPacketType<McApiOnEntityMuffleFactorUpdatedPacket>(reader, onParsed, () => new McApiOnEntityMuffleFactorUpdatedPacket());
                 break;
             case McApiPacketType.OnEntityAudioReceived:
-                const onEntityAudioReceivedPacket = new McApiOnEntityAudioReceivedPacket();
-                onEntityAudioReceivedPacket.Deserialize(reader);
-                this.OnPacketReceived.Invoke(onEntityAudioReceivedPacket);
-                onParsed(onEntityAudioReceivedPacket);
+                this.ProcessPacketType<McApiOnEntityAudioReceivedPacket>(reader, onParsed, () => new McApiOnEntityAudioReceivedPacket());
                 break;
             default:
                 return;
         }
     }
 
+
     protected ExecutePacket(packet: IMcApiPacket): void {
         switch (packet.constructor) {
-            case McApiAcceptResponsePacket:
-                this.HandleAcceptResponsePacket(packet as McApiAcceptResponsePacket);
-                break;
             case McApiDenyResponsePacket:
                 this.HandleDenyResponsePacket(packet as McApiDenyResponsePacket);
                 break;
         }
     }
 
-    private HandleAcceptResponsePacket(packet: McApiAcceptResponsePacket) {
-        if(this.ConnectionState != McApiConnectionState.Connecting) return;
-        this._token = packet.Token;
-        this._connectionState = McApiConnectionState.Connected;
-        this.OnConnected?.Invoke(packet.Token);
-        system.sendScriptEvent(`${VoiceCraft.Namespace}:onConnected`, packet.Token);
+    protected AuthorizePacket(packet: IMcApiPacket, token: string) {
+        switch (packet.constructor) {
+            case McApiAcceptResponsePacket:
+            case McApiDenyResponsePacket:
+                return true;
+            default:
+                return this.ConnectionState === McApiConnectionState.Connected && token === this.Token
+        }
+    }
+
+    private ProcessPacketType<T extends IMcApiPacket>(
+        reader: NetDataReader,
+        onParsed: (packet: IMcApiPacket) => void,
+        packetFactory: () => T) {
+        const packet = packetFactory();
+
+        packet.Deserialize(reader);
+        this.OnPacketReceived?.Invoke(packet);
+        onParsed(packet);
     }
 
     private HandleDenyResponsePacket(packet: McApiDenyResponsePacket): void {
-        if(this.ConnectionState != McApiConnectionState.Connecting) return;
-        this.DisconnectAsync(packet.Reason, true).then();
+        if (this.ConnectionState !== McApiConnectionState.Connecting) return;
+        this.DisconnectAsync(packet.Reason).then();
     }
 }

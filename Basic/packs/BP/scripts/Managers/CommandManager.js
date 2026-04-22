@@ -1,5 +1,6 @@
 import { CommandPermissionLevel, CustomCommandParamType, CustomCommandStatus, Player, system, } from "@minecraft/server";
 import { VoiceCraft } from "../API/VoiceCraft";
+import { UTF8 } from "../API/Encoders/UTF8";
 export class CommandManager {
     _vc;
     _bs;
@@ -26,6 +27,11 @@ export class CommandManager {
             description: "Shows voicecraft settings.",
             permissionLevel: CommandPermissionLevel.GameDirectors
         }, (origin) => this.SettingsCommand(origin));
+        registry.registerCommand({
+            name: `${VoiceCraft.Namespace}:vctest`,
+            description: "Test Command.",
+            permissionLevel: CommandPermissionLevel.GameDirectors
+        }, (origin) => this.TestCommand(origin));
     }
     BindCommand(origin, bindingKey) {
         if (!(origin.sourceEntity instanceof Player))
@@ -59,5 +65,15 @@ export class CommandManager {
             await this._fm.ShowMainMenuSettingsFormAsync(player);
         });
         return undefined;
+    }
+    TestCommand(_) {
+        let encoded = UTF8.GetBytes("Testing 123");
+        if (encoded === undefined)
+            return undefined;
+        let decoded = UTF8.GetString(encoded, 0, encoded.length);
+        return {
+            status: CustomCommandStatus.Success,
+            message: decoded
+        };
     }
 }

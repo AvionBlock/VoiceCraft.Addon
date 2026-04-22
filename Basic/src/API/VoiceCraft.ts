@@ -67,7 +67,7 @@ import {McApiOnEntityServerMuteUpdatedPacket} from "./Network/McApiPackets/Event
 import {McApiOnEntityServerDeafenUpdatedPacket} from "./Network/McApiPackets/Event/McApiOnEntityServerDeafenUpdated";
 
 export class VoiceCraft {
-    public static readonly Version: Version = new Version(1, 5, 1);
+    public static readonly Version: Version = new Version(1, 6, 0);
     public static readonly Namespace: string = "voicecraft";
 
     private _writer: NetDataWriter = new NetDataWriter();

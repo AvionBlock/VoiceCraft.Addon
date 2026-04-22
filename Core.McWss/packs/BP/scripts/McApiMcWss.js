@@ -1,6 +1,5 @@
 import "./Extensions";
 import { CommandManager } from "./Managers/CommandManager";
-import { Queue } from "./API/Data/Queue";
 import { NetDataWriter } from "./API/Data/NetDataWriter";
 import { NetDataReader } from "./API/Data/NetDataReader";
 import { McApiClient } from "./API/McApiClient";
@@ -14,21 +13,21 @@ import { McApiLogoutRequestPacket } from "./API/Network/McApiPackets/Request/McA
 import { Z85 } from "./API/Encoders/Z85";
 import { McApiPingRequestPacket } from "./API/Network/McApiPackets/Request/McApiPingRequestPacket";
 export class McApiMcWss extends McApiClient {
-    _cm = new CommandManager(this);
     _timeoutMs = 10000;
-    _lastPingPacket = 0;
-    _updater;
-    _outboundQueue = new Queue();
+    _pinger;
+    _mcWssWriter = new NetDataWriter();
+    _mcWssReader = new NetDataReader();
     _writer = new NetDataWriter();
     _reader = new NetDataReader();
     constructor() {
         super();
+        new CommandManager(this);
         system.afterEvents.scriptEventReceive.subscribe((ev) => {
             switch (ev.id) {
                 case `${VoiceCraft.Namespace}:sendPacket`:
-                    if (this.ConnectionState != McApiConnectionState.Connected)
+                    if (this.ConnectionState !== McApiConnectionState.Connected)
                         return;
-                    this._outboundQueue.enqueue(ev.message);
+                    this.OutboundQueue.enqueue(Z85.GetBytesWithPadding(ev.message));
                     break;
             }
         });
@@ -45,92 +44,143 @@ export class McApiMcWss extends McApiClient {
             }, (origin, maxStringLength, data) => this.HandleDataTunnelCommand(origin, maxStringLength, data));
         });
     }
-    async ConnectAsync(ip, _, loginToken) {
-        if (this.ConnectionState != McApiConnectionState.Disconnected)
+    async ConnectAsync(_, __, loginToken) {
+        if (this.ConnectionState !== McApiConnectionState.Disconnected)
             return;
         this.ConnectionState = McApiConnectionState.Connecting;
-        this.Token = undefined;
-        this.LastPing = 0;
-        this._lastPingPacket = 0;
-        this._outboundQueue.clear();
-        this.StopUpdater();
-        this.StartUpdater();
+        this.Reset();
         const requestId = Guid.Create().toString();
         const packet = new McApiLoginRequestPacket(requestId, loginToken, VoiceCraft.Version);
         try {
-            this.SendPacket(packet);
-            const startTime = Date.now();
-            while (this.ConnectionState == McApiConnectionState.Connecting) {
-                await system.waitTicks(1);
-                if (Date.now() - startTime >= this._timeoutMs) {
-                    await this.DisconnectAsync(Locales.VcMcApi.DisconnectReason.Timeout, true);
-                    return;
+            this._writer.Reset();
+            this._writer.PutByte(packet.PacketType);
+            this._writer.PutPacket(packet);
+            this.OutboundQueue.enqueue(this._writer.CopyData());
+            const response = await this.GetResponseAsync(requestId, response => response.Token, 160);
+            this.ConnectionState = McApiConnectionState.Connected;
+            this._pinger = system.runInterval(() => {
+                if (this.ConnectionState === McApiConnectionState.Connected) {
+                    this.SendPacket(new McApiPingRequestPacket());
                 }
-            }
+            }, 20);
+            this.Token = packet.Token;
+            this.ConnectionState = McApiConnectionState.Connected;
+            this.OnConnected?.Invoke(response);
         }
         catch (ex) {
-            await this.DisconnectAsync(`${ex}`, true);
+            let error = "";
+            if (ex instanceof Error) {
+                error = ex.message;
+            }
+            await this.DisconnectAsync(error).then();
+            throw ex;
         }
     }
-    async DisconnectAsync(reason, force = false) {
-        if (this.ConnectionState == McApiConnectionState.Disconnected ||
-            this.ConnectionState == McApiConnectionState.Disconnecting)
-            return;
-        if (force) {
-            this.ConnectionState = McApiConnectionState.Disconnected;
-            this.OnDisconnected.Invoke(reason);
-            system.sendScriptEvent(`${VoiceCraft.Namespace}:onDisconnected`, reason ?? Locales.VcMcApi.DisconnectReason.Manual);
+    Update() {
+        if (this.ConnectionState === McApiConnectionState.Disconnected) {
             return;
         }
-        this.SendPacket(new McApiLogoutRequestPacket(this.Token ?? ""));
-        this.ConnectionState = McApiConnectionState.Disconnecting;
-        while (this.ConnectionState == McApiConnectionState.Disconnecting) {
-            await system.waitTicks(1);
+        if (Date.now() - this.LastPing >= this._timeoutMs &&
+            this.ConnectionState !== McApiConnectionState.Disconnecting &&
+            this.ConnectionState !== McApiConnectionState.Connecting) {
+            this.DisconnectAsync(Locales.VcMcApi.DisconnectReason.Timeout).then();
+            return;
         }
+        let packet = this.InboundQueue.dequeue();
+        while (packet !== undefined) {
+            try {
+                this.Token;
+                this._reader.Clear();
+                this._reader.SetBufferSource(packet);
+                this.ProcessPacket(this._reader, (mcApiPacket) => {
+                    this.LastPing = Date.now();
+                    if (!this.AuthorizePacket(mcApiPacket, this.Token ?? ""))
+                        return;
+                    this.ExecutePacket(mcApiPacket);
+                });
+            }
+            catch {
+                //Do Nothing
+            }
+            packet = this.InboundQueue.dequeue();
+        }
+    }
+    async DisconnectAsync(reason) {
+        if (this.ConnectionState === McApiConnectionState.Disconnected ||
+            this.ConnectionState === McApiConnectionState.Disconnecting)
+            return;
+        if (this.ConnectionState !== McApiConnectionState.Connecting) {
+            this.ConnectionState = McApiConnectionState.Disconnecting;
+            this.SendPacket(new McApiLogoutRequestPacket(this.Token ?? ""));
+            while (this.ConnectionState === McApiConnectionState.Disconnecting) {
+                await system.waitTicks(1);
+            }
+        }
+        this.Reset();
         this.ConnectionState = McApiConnectionState.Disconnected;
-        this.OnDisconnected.Invoke(reason);
-        system.sendScriptEvent(`${VoiceCraft.Namespace}:onDisconnected`, reason ?? Locales.VcMcApi.DisconnectReason.Manual);
+        this.OnDisconnected.Invoke(reason ?? Locales.VcMcApi.DisconnectReason.Manual);
     }
     SendPacket(packet) {
-        if (this.ConnectionState == McApiConnectionState.Disconnected ||
-            this.ConnectionState == McApiConnectionState.Disconnecting)
+        if (this.ConnectionState === McApiConnectionState.Disconnected ||
+            this.ConnectionState === McApiConnectionState.Disconnecting)
             return false;
         this._writer.Reset();
         this._writer.PutByte(packet.PacketType);
         this._writer.PutPacket(packet);
-        this._outboundQueue.enqueue(Z85.GetStringWithPadding(this._writer.CopyData()));
+        this.OutboundQueue.enqueue(this._writer.CopyData());
         return true;
     }
-    StartUpdater() {
-        this._updater = system.runInterval(async () => await this.McWssUpdaterLogic());
+    Reset() {
+        this.Token = undefined;
+        this.LastPing = 0;
+        this.OutboundQueue.clear();
+        this.InboundQueue.clear();
+        if (this._pinger !== undefined)
+            system.clearRun(this._pinger);
     }
-    StopUpdater() {
-        if (this._updater == undefined)
-            return;
-        system.clearRun(this._updater);
-    }
-    async McWssUpdaterLogic() {
+    async GetResponseAsync(requestId, selector, timeoutTicks, token) {
+        const tcs = Promise.withResolvers();
+        const dTcs = Promise.withResolvers();
+        const timeoutId = system.runTimeout(() => {
+            tcs.reject(new Error("TimeoutException"));
+        }, timeoutTicks);
+        if (token !== undefined)
+            token.onabort = (_) => tcs.reject(new Error("OperationCanceledException"));
+        this.OnPacketReceived.Subscribe(EventCallback);
+        this.OnDisconnected.Subscribe(OnDisconnectedCallback);
         try {
-            if (this.ConnectionState == McApiConnectionState.Disconnected) {
-                this.StopUpdater();
-                return;
-            }
-            if (Date.now() - this.LastPing >= this._timeoutMs &&
-                this.ConnectionState != McApiConnectionState.Disconnecting &&
-                this.ConnectionState != McApiConnectionState.Connecting) {
-                this.DisconnectAsync(Locales.VcMcApi.DisconnectReason.Timeout, true).then();
-                this.StopUpdater();
-                return;
-            }
-            if (Date.now() - this._lastPingPacket >= this._timeoutMs / 8 &&
-                this.ConnectionState == McApiConnectionState.Connected) {
-                this.SendPacket(new McApiPingRequestPacket());
-                this._lastPingPacket = Date.now();
-            }
+            let result;
+            let disconnectResult;
+            await Promise.race([
+                tcs.promise.then(x => {
+                    result = x;
+                }),
+                dTcs.promise.then(x => {
+                    disconnectResult = x;
+                })
+            ]);
+            if (result !== undefined)
+                return result;
+            throw new Error(disconnectResult ?? "Disconnected");
         }
-        catch (ex) {
-            console.error(ex);
-            //Do Nothing.
+        finally {
+            system.clearRun(timeoutId);
+            if (token !== undefined)
+                token.onabort = null;
+            this.OnPacketReceived.Unsubscribe(EventCallback);
+            this.OnDisconnected.Unsubscribe(OnDisconnectedCallback);
+        }
+        function EventCallback(packet) {
+            if ("RequestId" in packet && packet.RequestId === requestId)
+                try {
+                    tcs.resolve(selector(packet));
+                }
+                catch (err) {
+                    tcs.reject(err);
+                }
+        }
+        function OnDisconnectedCallback(reason) {
+            dTcs.resolve(reason);
         }
     }
     HandleDataTunnelCommand(_, maxStringLength, data) {
@@ -140,31 +190,33 @@ export class McApiMcWss extends McApiClient {
         return { status: CustomCommandStatus.Success, message: this.SendPacketsLogic(maxStringLength) };
     }
     SendPacketsLogic(maxStringLength) {
-        let stringData = "";
-        let packetData = this._outboundQueue.dequeue();
-        if (packetData === undefined)
-            return stringData;
-        stringData = packetData;
-        while (stringData.length < maxStringLength) {
-            packetData = this._outboundQueue.dequeue();
-            if (packetData == undefined)
-                break;
-            stringData += `|${packetData}`;
+        let packetData = this.OutboundQueue.dequeue();
+        this._mcWssWriter.Reset();
+        while (this._mcWssWriter.Length < maxStringLength && packetData !== undefined) {
+            this._mcWssWriter.PutUshort(packetData.length);
+            this._mcWssWriter.PutBytes(packetData, 0, packetData.length);
+            packetData = this.OutboundQueue.dequeue();
         }
-        return stringData.replaceAll("%", "%%");
+        return Z85.GetStringWithPadding(this._mcWssWriter.CopyData()).replaceAll("%", "%%");
     }
     ReceivePacketsLogic(data) {
-        const packets = data.split('|');
-        for (const packetString of packets) {
-            if (packetString.length <= 0)
-                continue;
-            const source = Z85.GetBytesWithPadding(packetString);
-            this._reader.SetBufferSource(source);
-            this.ProcessPacket(this._reader, (packet) => {
-                this.LastPing = Date.now();
-                system.sendScriptEvent(`${VoiceCraft.Namespace}:onPacket`, packetString);
-                this.ExecutePacket(packet);
-            });
+        if (data.length <= 0)
+            return;
+        const packedPackets = Z85.GetBytesWithPadding(data);
+        this._mcWssReader.Clear();
+        this._mcWssReader.SetBufferSource(packedPackets);
+        while (!this._mcWssReader.EndOfData) {
+            const size = this._mcWssReader.GetUshort();
+            try {
+                if (size <= 0)
+                    continue;
+                const data = new Uint8Array(size);
+                this._mcWssReader.GetBytes(data, size);
+                this.InboundQueue.enqueue(data);
+            }
+            catch {
+                //Do Nothing
+            }
         }
     }
 }
