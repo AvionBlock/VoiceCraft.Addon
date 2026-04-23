@@ -114,7 +114,6 @@ export class McApiMcWss extends McApiClient {
         let packet = this.InboundQueue.dequeue();
         while (packet !== undefined) {
             try {
-                this.Token
                 this._reader.Clear();
                 this._reader.SetBufferSource(packet);
                 this.ProcessPacket(this._reader, (mcApiPacket) => {
