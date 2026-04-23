@@ -52,11 +52,11 @@ export class McApiMcWss extends McApiClient {
                     description: "Data transfer tunnel between servers",
                     permissionLevel: CommandPermissionLevel.Host,
                     optionalParameters: [
-                        {name: "max_string_length", type: CustomCommandParamType.Integer},
+                        {name: "max_byte_length", type: CustomCommandParamType.Integer},
                         {name: "data", type: CustomCommandParamType.String},
                     ],
                 },
-                (origin, maxStringLength, data) => this.HandleDataTunnelCommand(origin, maxStringLength, data)
+                (origin, maxByteLength, data) => this.HandleDataTunnelCommand(origin, maxByteLength, data)
             );
         });
     }
@@ -221,16 +221,16 @@ export class McApiMcWss extends McApiClient {
         }
     }
 
-    private HandleDataTunnelCommand(_: CustomCommandOrigin, maxStringLength: number, data: string): CustomCommandResult {
+    private HandleDataTunnelCommand(_: CustomCommandOrigin, maxByteLength: number, data: string): CustomCommandResult {
         this.ReceivePacketsLogic(data);
-        return {status: CustomCommandStatus.Success, message: this.SendPacketsLogic(maxStringLength)};
+        return {status: CustomCommandStatus.Success, message: this.SendPacketsLogic(maxByteLength)};
     }
 
-    private SendPacketsLogic(maxStringLength: number): string | undefined {
+    private SendPacketsLogic(maxByteLength: number): string | undefined {
         let packetData = this.OutboundQueue.dequeue();
         this._mcWssWriter.Reset();
 
-        while (this._mcWssWriter.Length < maxStringLength && packetData !== undefined) {
+        while (this._mcWssWriter.Length < maxByteLength && packetData !== undefined) {
             this._mcWssWriter.PutUshort(packetData.length);
             this._mcWssWriter.PutBytes(packetData, 0, packetData.length);
             packetData = this.OutboundQueue.dequeue();
