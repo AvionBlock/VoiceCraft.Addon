@@ -13,10 +13,10 @@ export declare class McApiMcHttp extends McApiClient {
     constructor();
     ConnectAsync(ip: string, _: number, loginToken: string): Promise<void>;
     Update(): void;
-    DisconnectAsync(reason?: string): Promise<void>;
+    DisconnectAsync(reason?: string, force?: boolean): Promise<void>;
     SendPacket(packet: IMcApiPacket): boolean;
     private Reset;
-    private SendPacketsLogic;
     private GetResponseAsync;
+    private SendPacketsLogic;
     private ReceivePacketsLogic;
 }

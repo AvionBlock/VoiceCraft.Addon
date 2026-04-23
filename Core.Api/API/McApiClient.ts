@@ -69,7 +69,7 @@ export abstract class McApiClient {
 
     public abstract Update(): void;
 
-    public abstract DisconnectAsync(reason: string | undefined): Promise<void>;
+    public abstract DisconnectAsync(reason?: string, force?: boolean): Promise<void>;
 
     public abstract SendPacket(packet: IMcApiPacket): boolean;
 
@@ -188,6 +188,6 @@ export abstract class McApiClient {
 
     private HandleDenyResponsePacket(packet: McApiDenyResponsePacket): void {
         if (this.ConnectionState !== McApiConnectionState.Connecting) return;
-        this.DisconnectAsync(packet.Reason).then();
+        this.DisconnectAsync(packet.Reason, true).then();
     }
 }

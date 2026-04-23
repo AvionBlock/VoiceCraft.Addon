@@ -161,6 +161,6 @@ export class McApiClient {
     HandleDenyResponsePacket(packet) {
         if (this.ConnectionState !== McApiConnectionState.Connecting)
             return;
-        this.DisconnectAsync(packet.Reason).then();
+        this.DisconnectAsync(packet.Reason, true).then();
     }
 }

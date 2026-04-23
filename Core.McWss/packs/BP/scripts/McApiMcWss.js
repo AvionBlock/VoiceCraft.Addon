@@ -72,7 +72,7 @@ export class McApiMcWss extends McApiClient {
             if (ex instanceof Error) {
                 error = ex.message;
             }
-            await this.DisconnectAsync(error).then();
+            await this.DisconnectAsync(error, true).then();
             throw ex;
         }
     }
@@ -83,7 +83,7 @@ export class McApiMcWss extends McApiClient {
         if (Date.now() - this.LastPing >= this._timeoutMs &&
             this.ConnectionState !== McApiConnectionState.Disconnecting &&
             this.ConnectionState !== McApiConnectionState.Connecting) {
-            this.DisconnectAsync(Locales.VcMcApi.DisconnectReason.Timeout).then();
+            this.DisconnectAsync(Locales.VcMcApi.DisconnectReason.Timeout, true).then();
             return;
         }
         let packet = this.InboundQueue.dequeue();
@@ -104,19 +104,22 @@ export class McApiMcWss extends McApiClient {
             packet = this.InboundQueue.dequeue();
         }
     }
-    async DisconnectAsync(reason) {
+    async DisconnectAsync(reason, force) {
         if (this.ConnectionState === McApiConnectionState.Disconnected ||
             this.ConnectionState === McApiConnectionState.Disconnecting)
             return;
-        if (this.ConnectionState !== McApiConnectionState.Connecting) {
-            this.ConnectionState = McApiConnectionState.Disconnecting;
-            this.SendPacket(new McApiLogoutRequestPacket(this.Token ?? ""));
-            while (this.ConnectionState === McApiConnectionState.Disconnecting) {
-                await system.waitTicks(1);
-            }
+        if (force) {
+            this.Reset();
+            this.ConnectionState = McApiConnectionState.Disconnected;
+            this.OnDisconnected.Invoke(reason ?? Locales.VcMcApi.DisconnectReason.Manual);
+            return;
+        }
+        this.ConnectionState = McApiConnectionState.Disconnecting;
+        this.SendPacket(new McApiLogoutRequestPacket(this.Token ?? ""));
+        while (this.ConnectionState === McApiConnectionState.Disconnecting) {
+            await system.waitTicks(1);
         }
         this.Reset();
-        this.ConnectionState = McApiConnectionState.Disconnected;
         this.OnDisconnected.Invoke(reason ?? Locales.VcMcApi.DisconnectReason.Manual);
     }
     SendPacket(packet) {

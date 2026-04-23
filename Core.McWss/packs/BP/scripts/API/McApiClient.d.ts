@@ -20,7 +20,7 @@ export declare abstract class McApiClient {
     protected set ConnectionState(value: McApiConnectionState);
     abstract ConnectAsync(ip: string, port: number, loginToken: string): Promise<void>;
     abstract Update(): void;
-    abstract DisconnectAsync(reason: string | undefined): Promise<void>;
+    abstract DisconnectAsync(reason?: string, force?: boolean): Promise<void>;
     abstract SendPacket(packet: IMcApiPacket): boolean;
     protected ProcessPacket(reader: NetDataReader, onParsed: (packet: IMcApiPacket) => void): void;
     protected ExecutePacket(packet: IMcApiPacket): void;

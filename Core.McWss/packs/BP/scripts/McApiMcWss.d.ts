@@ -11,7 +11,7 @@ export declare class McApiMcWss extends McApiClient {
     constructor();
     ConnectAsync(_: string, __: number, loginToken: string): Promise<void>;
     Update(): void;
-    DisconnectAsync(reason?: string): Promise<void>;
+    DisconnectAsync(reason?: string, force?: boolean): Promise<void>;
     SendPacket(packet: IMcApiPacket): boolean;
     private Reset;
     private GetResponseAsync;

@@ -67,7 +67,7 @@ export class McApiMcHttp extends McApiClient {
                     this.SendPacket(new McApiPingRequestPacket());
                 }
             }, 20);
-            this.Token = packet.Token;
+            this.Token = response;
             this.ConnectionState = McApiConnectionState.Connected;
             this.OnConnected?.Invoke(response);
         } catch (ex) {
@@ -75,7 +75,7 @@ export class McApiMcHttp extends McApiClient {
             if (ex instanceof Error) {
                 error = ex.message;
             }
-            await this.DisconnectAsync(error).then();
+            await this.DisconnectAsync(error, true).then();
             throw ex;
         }
     }
@@ -88,7 +88,7 @@ export class McApiMcHttp extends McApiClient {
         if (Date.now() - this.LastPing >= this._timeoutMs &&
             this.ConnectionState !== McApiConnectionState.Disconnecting &&
             this.ConnectionState !== McApiConnectionState.Connecting) {
-            this.DisconnectAsync(Locales.VcMcApi.DisconnectReason.Timeout).then();
+            this.DisconnectAsync(Locales.VcMcApi.DisconnectReason.Timeout, true).then();
             return;
         }
 
@@ -112,21 +112,25 @@ export class McApiMcHttp extends McApiClient {
         }
     }
 
-    public async DisconnectAsync(reason?: string): Promise<void> {
+    public async DisconnectAsync(reason?: string, force?: boolean): Promise<void> {
         if (this.ConnectionState === McApiConnectionState.Disconnected ||
             this.ConnectionState === McApiConnectionState.Disconnecting) return;
 
-        if (this.ConnectionState !== McApiConnectionState.Connecting) {
-            this.ConnectionState = McApiConnectionState.Disconnecting;
-            this.SendPacket(new McApiLogoutRequestPacket(this.Token ?? ""));
+        if (force) {
+            this.Reset();
+            this.ConnectionState = McApiConnectionState.Disconnected;
+            this.OnDisconnected.Invoke(reason ?? Locales.VcMcApi.DisconnectReason.Manual);
+            return;
+        }
 
-            while (this.ConnectionState === McApiConnectionState.Disconnecting) {
-                await system.waitTicks(1);
-            }
+        this.ConnectionState = McApiConnectionState.Disconnecting;
+        this.SendPacket(new McApiLogoutRequestPacket(this.Token ?? ""));
+
+        while (this.ConnectionState === McApiConnectionState.Disconnecting) {
+            await system.waitTicks(1);
         }
 
         this.Reset();
-        this.ConnectionState = McApiConnectionState.Disconnected;
         this.OnDisconnected.Invoke(reason ?? Locales.VcMcApi.DisconnectReason.Manual);
     }
 
@@ -145,40 +149,11 @@ export class McApiMcHttp extends McApiClient {
         this.LastPing = 0;
         this.OutboundQueue.clear();
         this.InboundQueue.clear();
+        this._hostname = undefined;
         if (this._pinger !== undefined)
             system.clearRun(this._pinger);
         if(this._httpRequestPromise !== undefined)
             http.cancelAll("Reset Called");
-    }
-
-    private SendPacketsLogic(hostname: string): void {
-        if(this._httpRequestPromise !== undefined) return;
-
-        let packetData = this.OutboundQueue.dequeue();
-        this._httpWriter.Reset();
-
-        while (packetData !== undefined) {
-            this._httpWriter.PutUshort(packetData.length);
-            this._httpWriter.PutBytes(packetData, 0, packetData.length);
-            packetData = this.OutboundQueue.dequeue();
-        }
-
-        const request = new HttpRequest(hostname);
-        request.setBody(Z85.GetStringWithPadding(this._httpWriter.CopyData()));
-        //@ts-ignore
-        request.setMethod(HttpRequestMethod.Post);
-        request.setHeaders([
-            new HttpHeader('Content-Type', 'text/plain; charset=utf-8'),
-            new HttpHeader('Authorization', `Bearer ${this.Token}`)
-        ]);
-        request.setTimeout(8000); //8 Second timeout. Less than the normal HTTP timeout.
-        this._httpRequestPromise = http.request(request);
-        this._httpRequestPromise.then((res: HttpResponse) => {
-            this._httpRequestPromise = undefined;
-            this.ReceivePacketsLogic(res);
-        }).catch((_) => {
-            this._httpRequestPromise = undefined;
-        });
     }
 
     private async GetResponseAsync<TPacket extends IMcApiPacket & IMcApiRIdPacket, TResult>(
@@ -234,6 +209,41 @@ export class McApiMcHttp extends McApiClient {
         function OnDisconnectedCallback(reason: string | undefined) {
             dTcs.resolve(reason);
         }
+    }
+
+    private SendPacketsLogic(hostname: string): void {
+        if(this._httpRequestPromise !== undefined) return;
+
+        let packetData = this.OutboundQueue.dequeue();
+        this._httpWriter.Reset();
+
+        while (packetData !== undefined) {
+            this._httpWriter.PutUshort(packetData.length);
+            this._httpWriter.PutBytes(packetData, 0, packetData.length);
+            packetData = this.OutboundQueue.dequeue();
+        }
+
+        const request = new HttpRequest(hostname);
+        request.setBody(Z85.GetStringWithPadding(this._httpWriter.CopyData()));
+        //@ts-ignore
+        request.setMethod(HttpRequestMethod.Post);
+        request.setHeaders([
+            new HttpHeader('Content-Type', 'text/plain; charset=utf-8'),
+            new HttpHeader('Authorization', `Bearer ${this.Token}`)
+        ]);
+        request.setTimeout(8000); //8 Second timeout. Less than the normal HTTP timeout.
+        this._httpRequestPromise = http.request(request);
+        this._httpRequestPromise.then((res: HttpResponse) => {
+            if(res.status !== 200) {
+                this.DisconnectAsync(`HTTP Error: ${res.status}`, true).then();
+                return;
+            }
+            this._httpRequestPromise = undefined;
+            this.ReceivePacketsLogic(res);
+        }).catch((ex) => {
+            this.DisconnectAsync(`HTTP Error: ${ex}`, true).then();
+            this._httpRequestPromise = undefined;
+        });
     }
 
     private ReceivePacketsLogic(response: HttpResponse): void {
