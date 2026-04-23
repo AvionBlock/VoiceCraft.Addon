@@ -16,6 +16,7 @@ vc.OnDisconnected.Subscribe((ev) => {
 });
 vc.OnPacketReceived.Subscribe((ev) => {
     writer.Reset();
+    writer.PutByte(ev.PacketType);
     writer.PutPacket(ev);
     system.sendScriptEvent(`${VoiceCraft.Namespace}:onPacket`, Z85.GetStringWithPadding(writer.CopyData()));
 });
