@@ -76,7 +76,6 @@ export class McApiMcHttp extends McApiClient {
             this.ConnectionState !== McApiConnectionState.Disconnecting &&
             this.ConnectionState !== McApiConnectionState.Connecting) {
             this.DisconnectAsync(Locales.VcMcApi.DisconnectReason.Timeout, true).then();
-            console.log("Disconnected!");
             return;
         }
         if (this._hostname !== undefined)
