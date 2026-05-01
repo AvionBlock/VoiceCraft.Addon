@@ -5,4 +5,5 @@ export declare class CommandManager {
     constructor(_mcApi: McApiMcWss);
     private RegisterCommands;
     private ConnectCommand;
+    private ConnectRawCommand;
 }

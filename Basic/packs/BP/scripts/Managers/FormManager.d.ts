@@ -16,6 +16,7 @@ export declare class FormManager {
     private _mainMenuSettingsForm;
     private _generalSettingsMenuForm;
     private _effectsMenuSettingsForm;
+    private _autoConnectMenuSettingsForm;
     private _selectEffectMenuSettingsForm;
     private _setVisibilityEffectMenuSettingsForm;
     private _setProximityEffectMenuSettingsForm;
@@ -65,4 +66,5 @@ export declare class FormManager {
     ShowDeleteEffectSettingsFormAsync(player: Player): Promise<void>;
     ShowSelectPlayerSettingsFormAsync(player: Player): Promise<void>;
     ShowPlayerActionsSettingsFormAsync(player: Player, selectedPlayer: Player): Promise<void>;
+    ShowAutoConnectSettingsFormAsync(player: Player): Promise<void>;
 }

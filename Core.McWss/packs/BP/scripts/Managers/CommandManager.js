@@ -20,6 +20,16 @@ export class CommandManager {
                 { name: "token", type: CustomCommandParamType.String },
             ],
         }, (origin, token) => this.ConnectCommand(origin, token));
+        registry.registerCommand({
+            name: `${VoiceCraft.Namespace}:vcconnect_raw`,
+            description: "Attempts a connection to the McHttp server using raw IP and Port values. (Used for AutoConnect)",
+            permissionLevel: CommandPermissionLevel.GameDirectors,
+            mandatoryParameters: [
+                { name: "ip", type: CustomCommandParamType.String },
+                { name: "port", type: CustomCommandParamType.Integer },
+                { name: "token", type: CustomCommandParamType.String },
+            ],
+        }, (origin, ip, port, token) => this.ConnectRawCommand(origin, ip, port, token));
     }
     ConnectCommand(origin, token) {
         if (origin.sourceEntity === undefined ||
@@ -40,6 +50,16 @@ export class CommandManager {
                         rawtext: [{ translate: ex.message }],
                     });
             }
+        });
+        return undefined;
+    }
+    ConnectRawCommand(_, ip, port, token) {
+        if (port < 1 || port > 65535)
+            throw new Error("Invalid Port!");
+        if (this._mcApi.ConnectionState !== McApiConnectionState.Disconnected)
+            return undefined;
+        system.run(async () => {
+            await this._mcApi.ConnectAsync(ip, port, token);
         });
         return undefined;
     }

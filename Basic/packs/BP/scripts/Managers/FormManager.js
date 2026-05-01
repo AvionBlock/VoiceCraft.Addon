@@ -21,7 +21,8 @@ export class FormManager {
         .title("Settings")
         .button("General")
         .button("Effects")
-        .button("Players");
+        .button("Players")
+        .button("Auto Connect");
     _generalSettingsMenuForm = (caveEcho, underwaterMuffle) => new ModalFormData()
         .title("General Settings")
         .toggle("Enable Cave Echo", { defaultValue: caveEcho })
@@ -31,6 +32,13 @@ export class FormManager {
         .button("Set Effect")
         .button("Edit Effect")
         .button("Delete Effect");
+    _autoConnectMenuSettingsForm = (ip, port, loginKey, startup, reconnect) => new ModalFormData()
+        .title("Auto Connect")
+        .textField("IP", "127.0.0.1", { defaultValue: ip })
+        .textField("Port", "9050", { defaultValue: port.toString() })
+        .textField("Login Key", "00000000-0000-0000-0000-000000000000", { defaultValue: loginKey })
+        .toggle("Connect On Startup", { defaultValue: startup })
+        .toggle("Auto Reconnect", { defaultValue: reconnect });
     _selectEffectMenuSettingsForm = () => new ActionFormData()
         .title("Select Effect")
         .button("Visibility")
@@ -132,6 +140,9 @@ export class FormManager {
                     break;
                 case 2:
                     await this.ShowSelectPlayerSettingsFormAsync(player);
+                    break;
+                case 3:
+                    await this.ShowAutoConnectSettingsFormAsync(player);
                     break;
             }
         }
@@ -426,5 +437,26 @@ export class FormManager {
                 this._vc.SendPacket(new McApiSetEntityDeafenRequestPacket(entityId, false));
                 break;
         }
+    }
+    async ShowAutoConnectSettingsFormAsync(player) {
+        const form = this._autoConnectMenuSettingsForm(world.getDynamicProperty("autoConnect:ip") ?? "", world.getDynamicProperty("autoConnect:port") ?? 0, world.getDynamicProperty("autoConnect:loginKey") ?? "", world.getDynamicProperty("autoConnect:startup") ?? false, world.getDynamicProperty("autoConnect:reconnect") ?? false);
+        const { canceled, formValues } = await form.show(player);
+        if (canceled || formValues === undefined)
+            return;
+        const [ipValue, portValue, loginKeyValue, startupValue, reconnectValue] = formValues;
+        if (typeof ipValue !== "string" ||
+            typeof portValue !== "string" ||
+            typeof loginKeyValue !== "string" ||
+            typeof startupValue !== "boolean" ||
+            typeof reconnectValue !== "boolean")
+            return;
+        const port = Number.parseInt(portValue);
+        if (port < 1 || port > 65535)
+            throw new Error("Invalid Port!");
+        world.setDynamicProperty("autoConnect:ip", ipValue);
+        world.setDynamicProperty("autoConnect:port", port);
+        world.setDynamicProperty("autoConnect:loginKey", loginKeyValue);
+        world.setDynamicProperty("autoConnect:startup", startupValue);
+        world.setDynamicProperty("autoConnect:reconnect", reconnectValue);
     }
 }

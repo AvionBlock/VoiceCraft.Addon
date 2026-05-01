@@ -33,7 +33,23 @@ const vc = new VoiceCraft();
 const bs = new BindingSystem(vc);
 const aes = new AudioEffectSystem(vc);
 const fm = new FormManager(vc, bs, aes);
+let connectionAttempted = false;
 new CommandManager(vc, bs, fm);
+
+vc.OnDisconnected.Subscribe(_ => {
+    if(!world.getDynamicProperty("autoConnect:reconnect") || connectionAttempted) return;
+    connectionAttempted = true;
+    const ip = world.getDynamicProperty("autoConnect:ip");
+    const port = world.getDynamicProperty("autoConnect:port");
+    const loginKey = world.getDynamicProperty("autoConnect:loginKey");
+
+    if(typeof ip != "string" || typeof port != "number" || typeof loginKey != "string")
+    world.getDimension("minecraft:overworld").runCommand(`vcconnect_raw \"${ip}\" ${port} \"${loginKey}\"`);
+})
+
+vc.OnConnected.Subscribe(_ => {
+    connectionAttempted = false;
+})
 
 system.runInterval(() => IntervalLogic(), 0);
 
