@@ -3,7 +3,6 @@ import { McApiClient } from "./API/McApiClient";
 import { IMcApiPacket } from "./API/Network/McApiPackets/IMcApiPacket";
 export declare class McApiMcHttp extends McApiClient {
     private _timeoutMs;
-    private _pinger;
     private _hostname;
     private _httpRequestPromise;
     private readonly _httpWriter;

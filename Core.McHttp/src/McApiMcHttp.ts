@@ -19,7 +19,6 @@ import {IMcApiRIdPacket} from "./API/Network/McApiPackets/IMcApiRIdPacket";
 
 export class McApiMcHttp extends McApiClient {
     private _timeoutMs: number = 10000;
-    private _pinger: number | undefined;
     private _hostname: string | undefined;
     private _httpRequestPromise: Promise<HttpResponse> | undefined;
     private readonly _httpWriter: NetDataWriter = new NetDataWriter();
@@ -30,6 +29,12 @@ export class McApiMcHttp extends McApiClient {
     constructor() {
         super();
         new CommandManager(this);
+
+        system.runInterval(() => {
+            if (this.ConnectionState === McApiConnectionState.Connected) {
+                this.SendPacket(new McApiPingRequestPacket());
+            }
+        }, 20);
 
         system.afterEvents.scriptEventReceive.subscribe((ev) => {
             switch (ev.id) {
@@ -47,7 +52,6 @@ export class McApiMcHttp extends McApiClient {
         this.ConnectionState = McApiConnectionState.Connecting;
         this.Reset();
 
-        this._hostname = ip;
         const requestId = Guid.Create().toString();
         const packet = new McApiLoginRequestPacket(requestId, loginToken, VoiceCraft.Version);
         try {
@@ -55,19 +59,16 @@ export class McApiMcHttp extends McApiClient {
             this._writer.PutByte(packet.PacketType);
             this._writer.PutPacket(packet);
             this.OutboundQueue.enqueue(this._writer.CopyData());
-            const response = await this.GetResponseAsync<McApiAcceptResponsePacket, string>(
+            const responsePromise = this.GetResponseAsync<McApiAcceptResponsePacket, string>(
                 McApiPacketType.AcceptResponse,
                 requestId,
                 response => response.Token,
                 160
-            )
-            this.ConnectionState = McApiConnectionState.Connected;
-            this._pinger = system.runInterval(() => {
-                if (this.ConnectionState === McApiConnectionState.Connected) {
-                    this.SendPacket(new McApiPingRequestPacket());
-                }
-            }, 20);
+            );
+            this.SendPacketsLogic(`${ip}/connect`);
+            const response = await responsePromise;
             this.Token = response;
+            this._hostname = ip;
             this.ConnectionState = McApiConnectionState.Connected;
             this.OnConnected?.Invoke(response);
         } catch (ex) {
@@ -145,13 +146,11 @@ export class McApiMcHttp extends McApiClient {
     }
 
     private Reset(): void {
+        this._hostname = undefined;
         this.Token = undefined;
         this.LastPing = 0;
         this.OutboundQueue.clear();
         this.InboundQueue.clear();
-        this._hostname = undefined;
-        if (this._pinger !== undefined)
-            system.clearRun(this._pinger);
         if(this._httpRequestPromise !== undefined)
             http.cancelAll("Reset Called");
     }
@@ -234,15 +233,15 @@ export class McApiMcHttp extends McApiClient {
         request.setTimeout(8000); //8 Second timeout. Less than the normal HTTP timeout.
         this._httpRequestPromise = http.request(request);
         this._httpRequestPromise.then((res: HttpResponse) => {
+            this._httpRequestPromise = undefined;
             if(res.status !== 200) {
                 this.DisconnectAsync(`HTTP Error: ${res.status}`, true).then();
                 return;
             }
-            this._httpRequestPromise = undefined;
             this.ReceivePacketsLogic(res);
         }).catch((ex) => {
-            this.DisconnectAsync(`HTTP Error: ${ex}`, true).then();
             this._httpRequestPromise = undefined;
+            this.DisconnectAsync(`HTTP Error: ${ex}`, true).then();
         });
     }
 
