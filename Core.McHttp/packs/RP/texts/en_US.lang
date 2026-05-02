@@ -1,6 +1,11 @@
 pack.name=VoiceCraft.Addon.Core.McHttp.RP
 pack.description=Http Backend Addon for VoiceCraft Proximity Chat
 
+VcMcApi.Status.Broadcast.Connected=§b[VoiceCraft] §aConnected!
+VcMcApi.Status.Broadcast.Disconnected=§b[VoiceCraft] §aDisconnected!
+VcMcApi.Status.Broadcast.PlayerConnected=§b[VoiceCraft] §a%1 Has Connected!
+VcMcApi.Status.Broadcast.PlayerDisconnected=§b[VoiceCraft] §e%1 Has Disconnected!
+
 VcMcApi.Status.Connected=§aSuccessfully Connected!
 VcMcApi.Status.Connecting=§eConnecting...
 VcMcApi.Status.Disconnected=§cDisconnected - Reason: %1

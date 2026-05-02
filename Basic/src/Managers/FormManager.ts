@@ -24,8 +24,20 @@ export class FormManager {
         .button("Players")
         .button("Auto Connect");
 
-    private _generalSettingsMenuForm = (caveEcho: boolean, underwaterMuffle: boolean) => new ModalFormData()
+    private _generalSettingsMenuForm = (
+        broadcastConnected: boolean,
+        broadcastDisconnected: boolean,
+        broadcastPlayerConnected: boolean,
+        broadcastPlayerDisconnected: boolean,
+        showVoiceIcons: boolean,
+        caveEcho: boolean,
+        underwaterMuffle: boolean) => new ModalFormData()
         .title("General Settings")
+        .toggle("Broadcast Connected Event", {defaultValue: broadcastConnected})
+        .toggle("Broadcast Disconnected Event", {defaultValue: broadcastDisconnected})
+        .toggle("Broadcast Player Connected Event", {defaultValue: broadcastPlayerConnected})
+        .toggle("Broadcast Player Disconnected Event", {defaultValue: broadcastPlayerDisconnected})
+        .toggle("Show Voice Icons", {defaultValue: showVoiceIcons})
         .toggle("Enable Cave Echo", {defaultValue: caveEcho})
         .toggle("Enable Underwater Muffle", {defaultValue: underwaterMuffle});
 
@@ -178,17 +190,40 @@ export class FormManager {
     }
 
     public async ShowGeneralSettingsFormAsync(player: Player) {
-        const caveEcho = world.getDynamicProperty(`${VoiceCraft.Namespace}:enableCaveEcho`) as boolean ?? false;
-        const underwaterMuffle = world.getDynamicProperty(`${VoiceCraft.Namespace}:enableUnderwaterMuffle`) as boolean ?? false;
         const {
             cancelationReason,
             formValues
-        } = await this._generalSettingsMenuForm(caveEcho, underwaterMuffle).show(player);
+        } = await this._generalSettingsMenuForm(
+            world.getDynamicProperty("general:broadcastConnectedEvent") as boolean ?? false,
+            world.getDynamicProperty("general:broadcastDisconnectedEvent") as boolean ?? false,
+            world.getDynamicProperty("general:broadcastPlayerConnectedEvent") as boolean ?? false,
+            world.getDynamicProperty("general:broadcastPlayerDisconnectedEvent") as boolean ?? false,
+            world.getDynamicProperty("general:showVoiceIcons") as boolean ?? false,
+            world.getDynamicProperty("general:enableCaveEcho") as boolean ?? false,
+            world.getDynamicProperty("general:enableUnderwaterMuffle") as boolean ?? false).show(player);
         if (cancelationReason !== undefined || formValues === undefined) return;
-        const [caveEchoValue, underwaterMuffleValue] = formValues;
-        if (typeof caveEchoValue !== "boolean" || typeof underwaterMuffleValue !== "boolean") return;
-        world.setDynamicProperty(`${VoiceCraft.Namespace}:enableCaveEcho`, caveEchoValue);
-        world.setDynamicProperty(`${VoiceCraft.Namespace}:enableUnderwaterMuffle`, underwaterMuffleValue);
+        const [
+            broadcastConnectedEventValue,
+            broadcastDisconnectedEventValue,
+            broadcastPlayerConnectedEventValue,
+            broadcastPlayerDisconnectedEventValue,
+            showVoiceIconsValue,
+            caveEchoValue,
+            underwaterMuffleValue] = formValues;
+        if (typeof broadcastConnectedEventValue !== "boolean" ||
+            typeof broadcastDisconnectedEventValue !== "boolean" ||
+            typeof broadcastPlayerConnectedEventValue !== "boolean" ||
+            typeof broadcastPlayerDisconnectedEventValue !== "boolean" ||
+            typeof showVoiceIconsValue !== "boolean" ||
+            typeof caveEchoValue !== "boolean" ||
+            typeof underwaterMuffleValue !== "boolean") return;
+        world.setDynamicProperty("general:broadcastConnectedEvent", broadcastConnectedEventValue);
+        world.setDynamicProperty("general:broadcastDisconnectedEvent", broadcastDisconnectedEventValue);
+        world.setDynamicProperty("general:broadcastPlayerConnectedEvent", broadcastPlayerConnectedEventValue);
+        world.setDynamicProperty("general:broadcastPlayerDisconnectedEvent", broadcastPlayerDisconnectedEventValue);
+        world.setDynamicProperty("general:showVoiceIcons", showVoiceIconsValue);
+        world.setDynamicProperty("general:enableCaveEcho", caveEchoValue);
+        world.setDynamicProperty("general:enableUnderwaterMuffle", underwaterMuffleValue);
     }
 
     public async ShowEffectSettingsFormAsync(player: Player) {
@@ -513,7 +548,7 @@ export class FormManager {
             typeof startupValue !== "boolean" ||
             typeof reconnectValue !== "boolean") return;
         const port = Number.parseInt(portValue);
-        if(port < 1 || port > 65535)
+        if (port < 1 || port > 65535)
             throw new Error("Invalid Port!");
         world.setDynamicProperty("autoConnect:ip", ipValue);
         world.setDynamicProperty("autoConnect:port", port);

@@ -21,6 +21,7 @@ import {
 import {
     McApiSetEntityMuffleFactorRequestPacket
 } from "./API/Network/McApiPackets/Request/McApiSetEntityMuffleFactorRequestPacket";
+import {Locales} from "./API/Locales";
 
 const cv = [
     "minecraft:stone",
@@ -36,19 +37,51 @@ const fm = new FormManager(vc, bs, aes);
 let connectionAttempted = false;
 new CommandManager(vc, bs, fm);
 
-vc.OnDisconnected.Subscribe(_ => {
-    if(!world.getDynamicProperty("autoConnect:reconnect") || connectionAttempted) return;
-    connectionAttempted = true;
-    const ip = world.getDynamicProperty("autoConnect:ip");
-    const port = world.getDynamicProperty("autoConnect:port");
-    const loginKey = world.getDynamicProperty("autoConnect:loginKey");
-
-    if(typeof ip != "string" || typeof port != "number" || typeof loginKey != "string")
-    world.getDimension("minecraft:overworld").runCommand(`vcconnect_raw \"${ip}\" ${port} \"${loginKey}\"`);
+world.afterEvents.worldLoad.subscribe(_ => {
+    if (!world.getDynamicProperty("autoConnect:startup")) return;
+    InitiateConnection();
 })
 
 vc.OnConnected.Subscribe(_ => {
     connectionAttempted = false;
+
+    if (world.getDynamicProperty("general:broadcastConnectedEvent")) {
+        world.sendMessage({translate: Locales.VcMcApi.Status.Broadcast.Connected});
+    }
+})
+
+vc.OnDisconnected.Subscribe(_ => {
+    if (world.getDynamicProperty("general:broadcastDisconnectedEvent")) {
+        world.sendMessage({translate: Locales.VcMcApi.Status.Broadcast.Disconnected});
+    }
+
+    if (!world.getDynamicProperty("autoConnect:reconnect") || connectionAttempted) return;
+    connectionAttempted = true;
+    InitiateConnection();
+})
+
+vc.OnPlayerBind.Subscribe(player => {
+    if (world.getDynamicProperty("general:broadcastPlayerConnectedEvent")) {
+        const playerObj = world.getAllPlayers().find(x => x.id === player.playerId);
+        if (playerObj === undefined) return;
+        world.sendMessage({translate: Locales.VcMcApi.Status.Broadcast.PlayerConnected, with: [playerObj.name]});
+    }
+})
+
+vc.OnPlayerUnbind.Subscribe(player => {
+    if (world.getDynamicProperty("general:broadcastPlayerDisconnectedEvent")) {
+        const playerObj = world.getAllPlayers().find(x => x.id === player.playerId);
+        if (playerObj === undefined) return;
+        world.sendMessage({translate: Locales.VcMcApi.Status.Broadcast.PlayerDisconnected, with: [playerObj.name]});
+    }
+})
+
+vc.OnEntityAudioReceivedPacket.Subscribe(ev => {
+    const playerId = bs.GetBoundPlayer(ev.Id);
+    if (playerId === undefined) return;
+    const playerObj = world.getAllPlayers().find(x => x.id === playerId);
+    if (playerObj === undefined) return;
+    playerObj.setDynamicProperty("data:lastSpoke", Date.now());
 })
 
 system.runInterval(() => IntervalLogic(), 0);
@@ -57,6 +90,24 @@ function IntervalLogic() {
     if (vc.Token === undefined) return;
 
     const players = world.getAllPlayers();
+    if (world.getDynamicProperty("general:showVoiceIcons")) {
+        for (const player of players) {
+            const lastSpoke = player.getDynamicProperty("data:lastSpoke") as number ?? 0;
+            if (!bs.BoundPlayers.includes(player) && !player.nameTag.includes(String.fromCodePoint(61442))) {
+                player.nameTag = `${player.name} ${String.fromCodePoint(61442)}`
+            } else if (Date.now() - lastSpoke > 2000 && !player.nameTag.includes(String.fromCodePoint(61440))) {
+                player.nameTag = `${player.name} ${String.fromCodePoint(61440)}`
+            } else if (Date.now() - lastSpoke < 2000 && !player.nameTag.includes(String.fromCodePoint(61441))) {
+                player.nameTag = `${player.name} ${String.fromCodePoint(61441)}`
+            }
+        }
+    } else {
+        for (const player of players) {
+            if (player.nameTag.includes(String.fromCodePoint(61440)) || player.nameTag.includes(String.fromCodePoint(61441)) || player.nameTag.includes(String.fromCodePoint(61442)))
+                player.nameTag = player.name;
+        }
+    }
+
     for (const player of players) {
         const entityId = bs.GetBoundEntity(player.id);
         if (entityId === undefined) continue;
@@ -67,8 +118,8 @@ function IntervalLogic() {
         vc.SendPacket(new McApiSetEntityPositionRequestPacket(entityId, new Vector3(location.x, location.y, location.z)));
         vc.SendPacket(new McApiSetEntityRotationRequestPacket(entityId, new Vector2(rotation.x, rotation.y)));
 
-        const caveEchoEnabled = world.getDynamicProperty(`${VoiceCraft.Namespace}:enableCaveEcho`) as boolean;
-        const underwaterMuffleEnabled = world.getDynamicProperty(`${VoiceCraft.Namespace}:enableUnderwaterMuffle`) as boolean;
+        const caveEchoEnabled = world.getDynamicProperty("general:enableCaveEcho") as boolean;
+        const underwaterMuffleEnabled = world.getDynamicProperty("general:enableUnderwaterMuffle") as boolean;
 
         if (caveEchoEnabled) {
             vc.SendPacket(new McApiSetEntityCaveFactorRequestPacket(entityId, GetCaveDensity(player)));
@@ -132,4 +183,13 @@ function IsUnderwater(player: Player): boolean {
     } catch (ex) {
         return false;
     }
+}
+
+function InitiateConnection() {
+    const ip = world.getDynamicProperty("autoConnect:ip");
+    const port = world.getDynamicProperty("autoConnect:port");
+    const loginKey = world.getDynamicProperty("autoConnect:loginKey");
+
+    if (typeof ip != "string" || typeof port != "number" || typeof loginKey != "string") return;
+    world.getDimension("minecraft:overworld").runCommand(`vcconnect_raw \"${ip}\" ${port} \"${loginKey}\"`);
 }
