@@ -35,6 +35,12 @@ export class McApiMcWss extends McApiClient {
         super();
         new CommandManager(this);
 
+        system.runInterval(() => {
+            if (this.ConnectionState === McApiConnectionState.Connected) {
+                this.SendPacket(new McApiPingRequestPacket());
+            }
+        }, 20);
+
         system.afterEvents.scriptEventReceive.subscribe((ev) => {
             switch (ev.id) {
                 case `${VoiceCraft.Namespace}:sendPacket`:
@@ -74,21 +80,12 @@ export class McApiMcWss extends McApiClient {
             this._writer.PutByte(packet.PacketType);
             this._writer.PutPacket(packet);
             this.OutboundQueue.enqueue(this._writer.CopyData());
-            const response = await this.GetResponseAsync<McApiAcceptResponsePacket, string>(
+            await this.GetResponseAsync<McApiAcceptResponsePacket, string>(
                 McApiPacketType.AcceptResponse,
                 requestId,
                 response => response.Token,
                 160
             )
-            this.ConnectionState = McApiConnectionState.Connected;
-            this._pinger = system.runInterval(() => {
-                if (this.ConnectionState === McApiConnectionState.Connected) {
-                    this.SendPacket(new McApiPingRequestPacket());
-                }
-            }, 20);
-            this.Token = packet.Token;
-            this.ConnectionState = McApiConnectionState.Connected;
-            this.OnConnected?.Invoke(response);
         } catch (ex) {
             let error = "";
             if (ex instanceof Error) {

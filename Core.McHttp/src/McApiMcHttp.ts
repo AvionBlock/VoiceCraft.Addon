@@ -66,11 +66,8 @@ export class McApiMcHttp extends McApiClient {
                 160
             );
             this.SendPacketsLogic(`${ip}/connect`);
-            const response = await responsePromise;
-            this.Token = response;
+            await responsePromise;
             this._hostname = ip;
-            this.ConnectionState = McApiConnectionState.Connected;
-            this.OnConnected?.Invoke(response);
         } catch (ex) {
             let error = "";
             if (ex instanceof Error) {

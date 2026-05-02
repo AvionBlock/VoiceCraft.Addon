@@ -42,7 +42,16 @@ world.afterEvents.worldLoad.subscribe(_ => {
     InitiateConnection();
 })
 
+vc.OnEntityCreatedPacket.Subscribe(ev => {
+    console.log(`Received Entity Created: ${ev.Id}`);
+})
+
+vc.OnNetworkEntityCreatedPacket.Subscribe(ev => {
+    console.log(`Received Network Entity Created: ${ev.Id}`);
+})
+
 vc.OnConnected.Subscribe(_ => {
+    console.log("Connected Event");
     connectionAttempted = false;
 
     if (world.getDynamicProperty("general:broadcastConnectedEvent")) {
@@ -87,18 +96,19 @@ vc.OnEntityAudioReceivedPacket.Subscribe(ev => {
 system.runInterval(() => IntervalLogic(), 0);
 
 function IntervalLogic() {
-    if (vc.Token === undefined) return;
-
     const players = world.getAllPlayers();
     if (world.getDynamicProperty("general:showVoiceIcons")) {
         for (const player of players) {
             const lastSpoke = player.getDynamicProperty("data:lastSpoke") as number ?? 0;
-            if (!bs.BoundPlayers.includes(player) && !player.nameTag.includes(String.fromCodePoint(61442))) {
-                player.nameTag = `${player.name} ${String.fromCodePoint(61442)}`
-            } else if (Date.now() - lastSpoke > 2000 && !player.nameTag.includes(String.fromCodePoint(61440))) {
-                player.nameTag = `${player.name} ${String.fromCodePoint(61440)}`
-            } else if (Date.now() - lastSpoke < 2000 && !player.nameTag.includes(String.fromCodePoint(61441))) {
-                player.nameTag = `${player.name} ${String.fromCodePoint(61441)}`
+            if (!bs.BoundPlayers.includes(player)) {
+                if(!player.nameTag.includes(String.fromCodePoint(61442)))
+                    player.nameTag = `${player.name} ${String.fromCodePoint(61442)}`
+            } else if (Date.now() - lastSpoke > 200) {
+                if(!player.nameTag.includes(String.fromCodePoint(61440)))
+                    player.nameTag = `${player.name} ${String.fromCodePoint(61440)}`
+            } else if (Date.now() - lastSpoke < 200) {
+                if(!player.nameTag.includes(String.fromCodePoint(61441)))
+                    player.nameTag = `${player.name} ${String.fromCodePoint(61441)}`
             }
         }
     } else {
@@ -107,6 +117,8 @@ function IntervalLogic() {
                 player.nameTag = player.name;
         }
     }
+
+    if (vc.Token === undefined) return;
 
     for (const player of players) {
         const entityId = bs.GetBoundEntity(player.id);

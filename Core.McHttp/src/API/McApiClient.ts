@@ -159,6 +159,9 @@ export abstract class McApiClient {
 
     protected ExecutePacket(packet: IMcApiPacket): void {
         switch (packet.constructor) {
+            case McApiAcceptResponsePacket:
+                this.HandleAcceptResponsePacket(packet as McApiAcceptResponsePacket);
+                break;
             case McApiDenyResponsePacket:
                 this.HandleDenyResponsePacket(packet as McApiDenyResponsePacket);
                 break;
@@ -184,6 +187,12 @@ export abstract class McApiClient {
         packet.Deserialize(reader);
         this.OnPacketReceived?.Invoke(packet);
         onParsed(packet);
+    }
+
+    private HandleAcceptResponsePacket(packet: McApiAcceptResponsePacket): void {
+        this.Token = packet.Token;
+        this._connectionState = McApiConnectionState.Connected;
+        this.OnConnected?.Invoke(packet.Token);
     }
 
     private HandleDenyResponsePacket(packet: McApiDenyResponsePacket): void {

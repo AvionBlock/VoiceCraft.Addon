@@ -26,5 +26,6 @@ export declare abstract class McApiClient {
     protected ExecutePacket(packet: IMcApiPacket): void;
     protected AuthorizePacket(packet: IMcApiPacket, token: string): boolean;
     private ProcessPacketType;
+    private HandleAcceptResponsePacket;
     private HandleDenyResponsePacket;
 }
