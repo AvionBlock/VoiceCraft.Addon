@@ -62,7 +62,8 @@ export enum McApiPacketType {
     OnEntityRotationUpdated,
     OnEntityCaveFactorUpdated,
     OnEntityMuffleFactorUpdated,
-    OnEntityAudioReceived
+    OnEntityAudioReceived,
+    OnEntityAudioDataReceived
 }
 
 export enum PositioningType {
@@ -79,4 +80,27 @@ export enum EffectType {
     Echo,
     ProximityMuffle,
     Muffle,
+}
+
+export enum McApiEventType {
+    OnEffectUpdated,
+    OnEntityCreated,
+    OnNetworkEntityCreated,
+    OnEntityDestroyed,
+    OnEntityVisibilityUpdated,
+    OnEntityWorldIdUpdated,
+    OnEntityNameUpdated,
+    OnEntityMuteUpdated,
+    OnEntityDeafenUpdated,
+    OnEntityServerMuteUpdated,
+    OnEntityServerDeafenUpdated,
+    OnEntityTalkBitmaskUpdated,
+    OnEntityListenBitmaskUpdated,
+    OnEntityEffectBitmaskUpdated,
+    OnEntityPositionUpdated,
+    OnEntityRotationUpdated,
+    OnEntityCaveFactorUpdated,
+    OnEntityMuffleFactorUpdated,
+    OnEntityAudioReceived,
+    OnEntityAudioDataReceived
 }

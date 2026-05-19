@@ -11,7 +11,7 @@ import {
     CustomCommandStatus,
     system
 } from "@minecraft/server";
-import {McApiConnectionState, McApiPacketType} from "./API/Data/Enums";
+import {McApiEventType, McApiConnectionState, McApiPacketType} from "./API/Data/Enums";
 import {Guid} from "./API/Data/Guid";
 import {McApiLoginRequestPacket} from "./API/Network/McApiPackets/Request/McApiLoginRequestPacket";
 import {VoiceCraft} from "./API/VoiceCraft";
@@ -30,6 +30,7 @@ export class McApiMcWss extends McApiClient {
     private readonly _mcWssReader: NetDataReader = new NetDataReader();
     private readonly _writer: NetDataWriter = new NetDataWriter();
     private readonly _reader: NetDataReader = new NetDataReader();
+    private readonly _subscribedEvents: Set<McApiEventType> = new Set();
 
     constructor() {
         super();
@@ -46,6 +47,16 @@ export class McApiMcWss extends McApiClient {
                 case `${VoiceCraft.Namespace}:sendPacket`:
                     if (this.ConnectionState !== McApiConnectionState.Connected) return;
                     this.OutboundQueue.enqueue(Z85.GetBytesWithPadding(ev.message));
+                    break;
+                case `${VoiceCraft.Namespace}:eventSubscribe`:
+                    const eventTypeSubscribe = McApiEventType[ev.message as keyof typeof McApiEventType];
+                    if (eventTypeSubscribe === undefined) return;
+                    this._subscribedEvents.add(eventTypeSubscribe);
+                    break;
+                case `${VoiceCraft.Namespace}:eventUnsubscribe`:
+                    const eventTypeUnsubscribe = McApiEventType[ev.message as keyof typeof McApiEventType];
+                    if (eventTypeUnsubscribe === undefined) return;
+                    this._subscribedEvents.delete(eventTypeUnsubscribe);
                     break;
             }
         });
@@ -74,7 +85,7 @@ export class McApiMcWss extends McApiClient {
         this.Reset();
 
         const requestId = Guid.Create().toString();
-        const packet = new McApiLoginRequestPacket(requestId, loginToken, VoiceCraft.Version);
+        const packet = new McApiLoginRequestPacket(requestId, loginToken, VoiceCraft.Version, [...this._subscribedEvents]);
         try {
             this._writer.Reset();
             this._writer.PutByte(packet.PacketType);

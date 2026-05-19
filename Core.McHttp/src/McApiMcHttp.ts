@@ -1,6 +1,6 @@
 import "./Extensions";
 import {McApiClient} from "./API/McApiClient";
-import {McApiConnectionState, McApiPacketType} from "./API/Data/Enums";
+import {McApiEventType, McApiConnectionState, McApiPacketType} from "./API/Data/Enums";
 import {McApiLoginRequestPacket} from "./API/Network/McApiPackets/Request/McApiLoginRequestPacket";
 import {Guid} from "./API/Data/Guid";
 import {NetDataWriter} from "./API/Data/NetDataWriter";
@@ -25,6 +25,7 @@ export class McApiMcHttp extends McApiClient {
     private readonly _httpReader: NetDataReader = new NetDataReader();
     private readonly _writer: NetDataWriter = new NetDataWriter();
     private readonly _reader: NetDataReader = new NetDataReader();
+    private readonly _subscribedEvents: Set<McApiEventType> = new Set();
 
     constructor() {
         super();
@@ -42,6 +43,16 @@ export class McApiMcHttp extends McApiClient {
                     if (this.ConnectionState !== McApiConnectionState.Connected) return;
                     this.OutboundQueue.enqueue(Z85.GetBytesWithPadding(ev.message));
                     break;
+                case `${VoiceCraft.Namespace}:eventSubscribe`:
+                    const eventTypeSubscribe = McApiEventType[ev.message as keyof typeof McApiEventType];
+                    if (eventTypeSubscribe === undefined) return;
+                    this._subscribedEvents.add(eventTypeSubscribe);
+                    break;
+                case `${VoiceCraft.Namespace}:eventUnsubscribe`:
+                    const eventTypeUnsubscribe = McApiEventType[ev.message as keyof typeof McApiEventType];
+                    if (eventTypeUnsubscribe === undefined) return;
+                    this._subscribedEvents.delete(eventTypeUnsubscribe);
+                    break;
             }
         });
     }
@@ -53,7 +64,7 @@ export class McApiMcHttp extends McApiClient {
         this.Reset();
 
         const requestId = Guid.Create().toString();
-        const packet = new McApiLoginRequestPacket(requestId, loginToken, VoiceCraft.Version);
+        const packet = new McApiLoginRequestPacket(requestId, loginToken, VoiceCraft.Version, [...this._subscribedEvents]);
         try {
             this._writer.Reset();
             this._writer.PutByte(packet.PacketType);
@@ -90,7 +101,7 @@ export class McApiMcHttp extends McApiClient {
             return;
         }
 
-        if(this._hostname !== undefined)
+        if (this._hostname !== undefined)
             this.SendPacketsLogic(this._hostname);
 
         let packet = this.InboundQueue.dequeue();
@@ -148,7 +159,7 @@ export class McApiMcHttp extends McApiClient {
         this.LastPing = 0;
         this.OutboundQueue.clear();
         this.InboundQueue.clear();
-        if(this._httpRequestPromise !== undefined)
+        if (this._httpRequestPromise !== undefined)
             http.cancelAll("Reset Called");
     }
 
@@ -208,7 +219,7 @@ export class McApiMcHttp extends McApiClient {
     }
 
     private SendPacketsLogic(hostname: string): void {
-        if(this._httpRequestPromise !== undefined) return;
+        if (this._httpRequestPromise !== undefined) return;
 
         let packetData = this.OutboundQueue.dequeue();
         this._httpWriter.Reset();
@@ -231,7 +242,7 @@ export class McApiMcHttp extends McApiClient {
         this._httpRequestPromise = http.request(request);
         this._httpRequestPromise.then((res: HttpResponse) => {
             this._httpRequestPromise = undefined;
-            if(res.status !== 200) {
+            if (res.status !== 200) {
                 this.DisconnectAsync(`HTTP Error: ${res.status}`, true).then();
                 return;
             }
