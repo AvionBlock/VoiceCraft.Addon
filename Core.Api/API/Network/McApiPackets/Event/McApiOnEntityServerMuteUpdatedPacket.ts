@@ -1,16 +1,16 @@
-import {McApiPacketType} from "../../../Data/Enums";
-import {IMcApiPacket} from "../IMcApiPacket";
+import {IMcApiEventPacket} from "../IMcApiEventPacket";
+import {EventType} from "../../../Data/Enums";
 import {NetDataWriter} from "../../../Data/NetDataWriter";
 import {NetDataReader} from "../../../Data/NetDataReader";
 
-export class McApiSetEntityDeafenRequestPacket implements IMcApiPacket {
+export class McApiOnEntityServerMuteUpdatedPacket implements IMcApiEventPacket {
     constructor(id: number = 0, value: boolean = false) {
         this._id = id;
         this._value = value;
     }
 
-    public get PacketType(): McApiPacketType {
-        return McApiPacketType.SetEntityDeafenRequest;
+    public get EventType(): EventType {
+        return EventType.OnEntityServerMuteUpdated;
     }
 
     public get Id(): number {
@@ -24,12 +24,12 @@ export class McApiSetEntityDeafenRequestPacket implements IMcApiPacket {
     private _id: number;
     private _value: boolean;
 
-    public Serialize(writer: NetDataWriter) {
-        writer.PutInt(this.Id);
-        writer.PutBool(this.Value);
+    public Serialize(writer: NetDataWriter): void {
+        writer.PutInt(this._id);
+        writer.PutBool(this._value);
     }
 
-    public Deserialize(reader: NetDataReader) {
+    public Deserialize(reader: NetDataReader): void {
         this._id = reader.GetInt();
         this._value = reader.GetBool();
     }

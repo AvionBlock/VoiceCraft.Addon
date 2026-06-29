@@ -1,33 +1,33 @@
-import { McApiPacketType } from "../../../Data/Enums";
-import { IMcApiPacket } from "../IMcApiPacket";
-import { NetDataWriter } from "../../../Data/NetDataWriter";
-import { NetDataReader } from "../../../Data/NetDataReader";
-import { MaxStringLength } from "../../../Data/Constants";
+import {McApiPacketType} from "../../../Data/Enums";
+import {IMcApiPacket} from "../IMcApiPacket";
+import {NetDataWriter} from "../../../Data/NetDataWriter";
+import {NetDataReader} from "../../../Data/NetDataReader";
+import {MaxStringLength} from "../../../Data/Constants";
 
 export class McApiPingResponsePacket implements IMcApiPacket {
-  constructor(token: string = "") {
-    this._token = token;
-  }
+    constructor(token: string = "") {
+        this._token = token;
+    }
 
-  public get PacketType(): McApiPacketType {
-    return McApiPacketType.PingResponse;
-  }
-  public get Token(): string {
-    return this._token;
-  }
+    public get PacketType(): McApiPacketType {
+        return McApiPacketType.PingResponse;
+    }
 
-  private _token: string;
+    public get Token(): string {
+        return this._token;
+    }
 
-  public Serialize(writer: NetDataWriter) {
-    writer.PutString(this.Token, MaxStringLength);
-  }
+    private _token: string;
 
-  public Deserialize(reader: NetDataReader) {
-    this._token = reader.GetString(MaxStringLength);
-  }
+    public Serialize(writer: NetDataWriter) {
+        writer.PutString(this.Token, MaxStringLength);
+    }
 
-  public Set(token: string = ""): McApiPingResponsePacket {
-    this._token = token;
-    return this;
-  }
+    public Deserialize(reader: NetDataReader) {
+        this._token = reader.GetString(MaxStringLength);
+    }
+
+    public Set(token: string = "") {
+        this._token = token;
+    }
 }

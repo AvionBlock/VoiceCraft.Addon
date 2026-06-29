@@ -1,42 +1,43 @@
-import { McApiPacketType } from "../../../Data/Enums";
-import { IMcApiPacket } from "../IMcApiPacket";
-import { NetDataWriter } from "../../../Data/NetDataWriter";
-import { NetDataReader } from "../../../Data/NetDataReader";
-import { MaxStringLength } from "../../../Data/Constants";
-import { IMcApiRIdPacket } from "../IMcApiRIdPacket";
+import {McApiPacketType} from "../../../Data/Enums";
+import {IMcApiPacket} from "../IMcApiPacket";
+import {NetDataWriter} from "../../../Data/NetDataWriter";
+import {NetDataReader} from "../../../Data/NetDataReader";
+import {MaxStringLength} from "../../../Data/Constants";
+import {IMcApiRIdPacket} from "../IMcApiRIdPacket";
 
 export class McApiAcceptResponsePacket implements IMcApiPacket, IMcApiRIdPacket {
-  constructor(requestId: string = "", token: string = "") {
-    this._requestId = requestId;
-    this._token = token;
-  }
+    constructor(requestId: string = "", token: string = "") {
+        this._requestId = requestId;
+        this._token = token;
+    }
 
-  public get PacketType(): McApiPacketType {
-    return McApiPacketType.AcceptResponse;
-  }
-  public get RequestId(): string {
-    return this._requestId;
-  }
-  public get Token(): string {
-    return this._token;
-  }
+    public get PacketType(): McApiPacketType {
+        return McApiPacketType.AcceptResponse;
+    }
 
-  private _requestId: string;
-  private _token: string;
+    public get RequestId(): string {
+        return this._requestId;
+    }
 
-  public Serialize(writer: NetDataWriter) {
-    writer.PutString(this.RequestId, MaxStringLength);
-    writer.PutString(this.Token, MaxStringLength);
-  }
+    public get Token(): string {
+        return this._token;
+    }
 
-  public Deserialize(reader: NetDataReader) {
-    this._requestId = reader.GetString(MaxStringLength);
-    this._token = reader.GetString(MaxStringLength);
-  }
+    private _requestId: string;
+    private _token: string;
 
-  public Set(requestId: string = "", token: string = ""): McApiAcceptResponsePacket {
-    this._requestId = requestId;
-    this._token = token;
-    return this;
-  }
+    public Serialize(writer: NetDataWriter) {
+        writer.PutString(this.RequestId, MaxStringLength);
+        writer.PutString(this.Token, MaxStringLength);
+    }
+
+    public Deserialize(reader: NetDataReader) {
+        this._requestId = reader.GetString(MaxStringLength);
+        this._token = reader.GetString(MaxStringLength);
+    }
+
+    public Set(requestId: string = "", token: string = "") {
+        this._requestId = requestId;
+        this._token = token;
+    }
 }

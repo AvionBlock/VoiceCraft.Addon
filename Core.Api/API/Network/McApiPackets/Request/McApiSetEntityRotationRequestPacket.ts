@@ -1,42 +1,43 @@
-import { McApiPacketType } from "../../../Data/Enums";
-import { IMcApiPacket } from "../IMcApiPacket";
-import { NetDataWriter } from "../../../Data/NetDataWriter";
-import { NetDataReader } from "../../../Data/NetDataReader";
-import { Vector2 } from "../../../Data/Vector2";
+import {McApiPacketType} from "../../../Data/Enums";
+import {IMcApiPacket} from "../IMcApiPacket";
+import {NetDataWriter} from "../../../Data/NetDataWriter";
+import {NetDataReader} from "../../../Data/NetDataReader";
+import {Vector2} from "../../../Data/Vector2";
 
 export class McApiSetEntityRotationRequestPacket implements IMcApiPacket {
-  constructor(id: number = 0, value: Vector2 = new Vector2(0, 0)) {
-    this._id = id;
-    this._value = value;
-  }
+    constructor(id: number = 0, value: Vector2 = new Vector2(0, 0)) {
+        this._id = id;
+        this._value = value;
+    }
 
-  public get PacketType(): McApiPacketType {
-    return McApiPacketType.SetEntityRotationRequest;
-  }
-  public get Id(): number {
-    return this._id;
-  }
-  public get Value(): Vector2 {
-    return this._value;
-  }
+    public get PacketType(): McApiPacketType {
+        return McApiPacketType.SetEntityRotationRequest;
+    }
 
-  private _id: number;
-  private _value: Vector2;
+    public get Id(): number {
+        return this._id;
+    }
 
-  public Serialize(writer: NetDataWriter) {
-    writer.PutInt(this.Id);
-    writer.PutFloat(this.Value.X);
-    writer.PutFloat(this.Value.Y);
-  }
+    public get Value(): Vector2 {
+        return this._value;
+    }
 
-  public Deserialize(reader: NetDataReader) {
-    this._id = reader.GetInt();
-    this._value = new Vector2(reader.GetFloat(), reader.GetFloat());
-  }
+    private _id: number;
+    private _value: Vector2;
 
-  public Set(id: number = 0, value: Vector2 = new Vector2(0, 0)): McApiSetEntityRotationRequestPacket {
-    this._id = id;
-    this._value = value;
-    return this;
-  }
+    public Serialize(writer: NetDataWriter) {
+        writer.PutInt(this.Id);
+        writer.PutFloat(this.Value.X);
+        writer.PutFloat(this.Value.Y);
+    }
+
+    public Deserialize(reader: NetDataReader) {
+        this._id = reader.GetInt();
+        this._value = new Vector2(reader.GetFloat(), reader.GetFloat());
+    }
+
+    public Set(id: number = 0, value: Vector2 = new Vector2(0, 0)) {
+        this._id = id;
+        this._value = value;
+    }
 }

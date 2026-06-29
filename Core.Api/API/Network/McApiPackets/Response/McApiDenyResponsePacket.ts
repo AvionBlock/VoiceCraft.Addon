@@ -1,42 +1,43 @@
-import { McApiPacketType } from "../../../Data/Enums";
-import { IMcApiPacket } from "../IMcApiPacket";
-import { NetDataWriter } from "../../../Data/NetDataWriter";
-import { NetDataReader } from "../../../Data/NetDataReader";
-import { MaxStringLength } from "../../../Data/Constants";
-import { IMcApiRIdPacket } from "../IMcApiRIdPacket";
+import {McApiPacketType} from "../../../Data/Enums";
+import {IMcApiPacket} from "../IMcApiPacket";
+import {NetDataWriter} from "../../../Data/NetDataWriter";
+import {NetDataReader} from "../../../Data/NetDataReader";
+import {MaxStringLength} from "../../../Data/Constants";
+import {IMcApiRIdPacket} from "../IMcApiRIdPacket";
 
 export class McApiDenyResponsePacket implements IMcApiPacket, IMcApiRIdPacket {
-  constructor(requestId: string = "", reason: string = "") {
-    this._requestId = requestId;
-    this._reason = reason;
-  }
+    constructor(requestId: string = "", reason: string = "") {
+        this._requestId = requestId;
+        this._reason = reason;
+    }
 
-  public get PacketType(): McApiPacketType {
-    return McApiPacketType.DenyResponse;
-  }
-  public get RequestId(): string {
-    return this._requestId;
-  }
-  public get Reason(): string {
-    return this._reason;
-  }
+    public get PacketType(): McApiPacketType {
+        return McApiPacketType.DenyResponse;
+    }
 
-  private _requestId: string;
-  private _reason: string;
+    public get RequestId(): string {
+        return this._requestId;
+    }
 
-  public Serialize(writer: NetDataWriter) {
-    writer.PutString(this.RequestId, MaxStringLength);
-    writer.PutString(this.Reason, MaxStringLength);
-  }
+    public get Reason(): string {
+        return this._reason;
+    }
 
-  public Deserialize(reader: NetDataReader) {
-    this._requestId = reader.GetString(MaxStringLength);
-    this._reason = reader.GetString(MaxStringLength);
-  }
+    private _requestId: string;
+    private _reason: string;
 
-  public Set(requestId: string = "", reason: string = ""): McApiDenyResponsePacket {
-    this._requestId = requestId;
-    this._reason = reason;
-    return this;
-  }
+    public Serialize(writer: NetDataWriter) {
+        writer.PutString(this.RequestId, MaxStringLength);
+        writer.PutString(this.Reason, MaxStringLength);
+    }
+
+    public Deserialize(reader: NetDataReader) {
+        this._requestId = reader.GetString(MaxStringLength);
+        this._reason = reader.GetString(MaxStringLength);
+    }
+
+    public Set(requestId: string = "", reason: string = "") {
+        this._requestId = requestId;
+        this._reason = reason;
+    }
 }

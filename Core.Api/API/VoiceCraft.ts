@@ -6,65 +6,12 @@ import {Event} from "./Event";
 import {NetDataWriter} from "./Data/NetDataWriter";
 import {IMcApiPacket} from "./Network/McApiPackets/IMcApiPacket";
 import {Version} from "./Data/Version";
+import {McApiLoginRequestPacket} from "./Network/McApiPackets/Request/McApiLoginRequestPacket";
+import {McApiLogoutRequestPacket} from "./Network/McApiPackets/Request/McApiLogoutRequestPacket";
+import {McApiPingRequestPacket} from "./Network/McApiPackets/Request/McApiPingRequestPacket";
 import {McApiAcceptResponsePacket} from "./Network/McApiPackets/Response/McApiAcceptResponsePacket";
 import {McApiDenyResponsePacket} from "./Network/McApiPackets/Response/McApiDenyResponsePacket";
 import {McApiPingResponsePacket} from "./Network/McApiPackets/Response/McApiPingResponsePacket";
-import {McApiLoginRequestPacket} from "./Network/McApiPackets/Request/McApiLoginRequestPacket";
-import {McApiPingRequestPacket} from "./Network/McApiPackets/Request/McApiPingRequestPacket";
-import {McApiLogoutRequestPacket} from "./Network/McApiPackets/Request/McApiLogoutRequestPacket";
-import {McApiOnEntityAudioReceivedPacket} from "./Network/McApiPackets/Event/McApiOnEntityAudioReceivedPacket";
-import {McApiOnNetworkEntityCreatedPacket} from "./Network/McApiPackets/Event/McApiOnNetworkEntityCreatedPacket";
-import {McApiOnEntityCreatedPacket} from "./Network/McApiPackets/Event/McApiOnEntityCreatedPacket";
-import {McApiOnEntityDestroyedPacket} from "./Network/McApiPackets/Event/McApiOnEntityDestroyedPacket";
-import {McApiSetEntityTitleRequestPacket} from "./Network/McApiPackets/Request/McApiSetEntityTitleRequestPacket";
-import {
-    McApiSetEntityDescriptionRequestPacket
-} from "./Network/McApiPackets/Request/McApiSetEntityDescriptionRequestPacket";
-import {McApiOnEntityVisibilityUpdatedPacket} from "./Network/McApiPackets/Event/McApiOnEntityVisibilityUpdated";
-import {McApiOnEntityWorldIdUpdatedPacket} from "./Network/McApiPackets/Event/McApiOnEntityWorldIdUpdated";
-import {McApiOnEntityNameUpdatedPacket} from "./Network/McApiPackets/Event/McApiOnEntityNameUpdated";
-import {McApiOnEntityMuteUpdatedPacket} from "./Network/McApiPackets/Event/McApiOnEntityMuteUpdated";
-import {McApiOnEntityDeafenUpdatedPacket} from "./Network/McApiPackets/Event/McApiOnEntityDeafenUpdated";
-import {McApiOnEntityTalkBitmaskUpdatedPacket} from "./Network/McApiPackets/Event/McApiOnEntityTalkBitmaskUpdated";
-import {McApiOnEntityListenBitmaskUpdatedPacket} from "./Network/McApiPackets/Event/McApiOnEntityListenBitmaskUpdated";
-import {McApiOnEntityEffectBitmaskUpdatedPacket} from "./Network/McApiPackets/Event/McApiOnEntityEffectBitmaskUpdated";
-import {McApiOnEntityPositionUpdatedPacket} from "./Network/McApiPackets/Event/McApiOnEntityPositionUpdated";
-import {McApiOnEntityRotationUpdatedPacket} from "./Network/McApiPackets/Event/McApiOnEntityRotationUpdated";
-import {McApiOnEntityCaveFactorUpdatedPacket} from "./Network/McApiPackets/Event/McApiOnEntityCaveFactorUpdated";
-import {McApiOnEntityMuffleFactorUpdatedPacket} from "./Network/McApiPackets/Event/McApiOnEntityMuffleFactorUpdated";
-import {McApiSetEntityNameRequestPacket} from "./Network/McApiPackets/Request/McApiSetEntityNameRequestPacket";
-import {
-    McApiSetEntityTalkBitmaskRequestPacket
-} from "./Network/McApiPackets/Request/McApiSetEntityTalkBitmaskRequestPacket";
-import {
-    McApiSetEntityListenBitmaskRequestPacket
-} from "./Network/McApiPackets/Request/McApiSetEntityListenBitmaskRequestPacket";
-import {
-    McApiSetEntityEffectBitmaskRequestPacket
-} from "./Network/McApiPackets/Request/McApiSetEntityEffectBitmaskRequestPacket";
-import {McApiSetEntityPositionRequestPacket} from "./Network/McApiPackets/Request/McApiSetEntityPositionRequestPacket";
-import {McApiSetEntityRotationRequestPacket} from "./Network/McApiPackets/Request/McApiSetEntityRotationRequestPacket";
-import {
-    McApiSetEntityCaveFactorRequestPacket
-} from "./Network/McApiPackets/Request/McApiSetEntityCaveFactorRequestPacket";
-import {
-    McApiSetEntityMuffleFactorRequestPacket
-} from "./Network/McApiPackets/Request/McApiSetEntityMuffleFactorRequestPacket";
-import {McApiSetEntityWorldIdRequestPacket} from "./Network/McApiPackets/Request/McApiSetEntityWorldIdRequestPacket";
-import {McApiOnEffectUpdatedPacket} from "./Network/McApiPackets/Event/McApiOnEffectUpdatedPacket";
-import {McApiSetEffectRequestPacket} from "./Network/McApiPackets/Request/McApiSetEffectRequestPacket";
-import {McApiClearEffectsRequestPacket} from "./Network/McApiPackets/Request/McApiClearEffectsRequestPacket";
-import {McApiResetRequestPacket} from "./Network/McApiPackets/Request/McApiResetRequestPacket";
-import {McApiCreateEntityRequestPacket} from "./Network/McApiPackets/Request/McApiCreateEntityRequestPacket";
-import {McApiDestroyEntityRequestPacket} from "./Network/McApiPackets/Request/McApiDestroyEntityRequestPacket";
-import {McApiEntityAudioRequestPacket} from "./Network/McApiPackets/Request/McApiEntityAudioRequestPacket";
-import {McApiResetResponsePacket} from "./Network/McApiPackets/Response/McApiResetResponsePacket";
-import {McApiCreateEntityResponsePacket} from "./Network/McApiPackets/Response/McApiCreateEntityResponsePacket";
-import {McApiDestroyEntityResponsePacket} from "./Network/McApiPackets/Response/McApiDestroyEntityResponsePacket";
-import {McApiSetEntityMuteRequestPacket} from "./Network/McApiPackets/Request/McApiSetEntityMuteRequestPacket";
-import {McApiSetEntityDeafenRequestPacket} from "./Network/McApiPackets/Request/McApiSetEntityDeafenRequestPacket";
-import {McApiOnEntityServerMuteUpdatedPacket} from "./Network/McApiPackets/Event/McApiOnEntityServerMuteUpdated";
-import {McApiOnEntityServerDeafenUpdatedPacket} from "./Network/McApiPackets/Event/McApiOnEntityServerDeafenUpdated";
 
 export class VoiceCraft {
     public static readonly Version: Version = new Version(1, 5, 1);

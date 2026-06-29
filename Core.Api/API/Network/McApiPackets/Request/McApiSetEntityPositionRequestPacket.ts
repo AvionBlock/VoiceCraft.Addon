@@ -13,9 +13,11 @@ export class McApiSetEntityPositionRequestPacket implements IMcApiPacket {
   public get PacketType(): McApiPacketType {
     return McApiPacketType.SetEntityPositionRequest;
   }
+
   public get Id(): number {
     return this._id;
   }
+
   public get Value(): Vector3 {
     return this._value;
   }
@@ -35,9 +37,8 @@ export class McApiSetEntityPositionRequestPacket implements IMcApiPacket {
     this._value = new Vector3(reader.GetFloat(), reader.GetFloat(), reader.GetFloat());
   }
 
-  public Set(id: number = 0, value: Vector3 = new Vector3(0, 0, 0)): McApiSetEntityPositionRequestPacket {
+  public Set(id: number = 0, value: Vector3 = new Vector3(0, 0, 0)) {
     this._id = id;
     this._value = value;
-    return this;
   }
 }

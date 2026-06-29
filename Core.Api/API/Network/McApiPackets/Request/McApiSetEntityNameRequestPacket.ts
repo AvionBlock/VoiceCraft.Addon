@@ -1,41 +1,42 @@
-import { McApiPacketType } from "../../../Data/Enums";
-import { IMcApiPacket } from "../IMcApiPacket";
-import { NetDataWriter } from "../../../Data/NetDataWriter";
-import { NetDataReader } from "../../../Data/NetDataReader";
-import { MaxStringLength } from "../../../Data/Constants";
+import {McApiPacketType} from "../../../Data/Enums";
+import {IMcApiPacket} from "../IMcApiPacket";
+import {NetDataWriter} from "../../../Data/NetDataWriter";
+import {NetDataReader} from "../../../Data/NetDataReader";
+import {MaxStringLength} from "../../../Data/Constants";
 
 export class McApiSetEntityNameRequestPacket implements IMcApiPacket {
-  constructor(id: number = 0, value: string = "") {
-    this._id = id;
-    this._value = value;
-  }
+    constructor(id: number = 0, value: string = "") {
+        this._id = id;
+        this._value = value;
+    }
 
-  public get PacketType(): McApiPacketType {
-    return McApiPacketType.SetEntityNameRequest;
-  }
-  public get Id(): number {
-    return this._id;
-  }
-  public get Value(): string {
-    return this._value;
-  }
+    public get PacketType(): McApiPacketType {
+        return McApiPacketType.SetEntityNameRequest;
+    }
 
-  private _id: number;
-  private _value: string;
+    public get Id(): number {
+        return this._id;
+    }
 
-  public Serialize(writer: NetDataWriter) {
-    writer.PutInt(this.Id);
-    writer.PutString(this.Value, MaxStringLength);
-  }
+    public get Value(): string {
+        return this._value;
+    }
 
-  public Deserialize(reader: NetDataReader) {
-    this._id = reader.GetInt();
-    this._value = reader.GetString(MaxStringLength);
-  }
+    private _id: number;
+    private _value: string;
 
-  public Set(id: number = 0, value: string = ""): McApiSetEntityNameRequestPacket {
-    this._id = id;
-    this._value = value;
-    return this;
-  }
+    public Serialize(writer: NetDataWriter) {
+        writer.PutInt(this.Id);
+        writer.PutString(this.Value, MaxStringLength);
+    }
+
+    public Deserialize(reader: NetDataReader) {
+        this._id = reader.GetInt();
+        this._value = reader.GetString(MaxStringLength);
+    }
+
+    public Set(id: number = 0, value: string = "") {
+        this._id = id;
+        this._value = value;
+    }
 }

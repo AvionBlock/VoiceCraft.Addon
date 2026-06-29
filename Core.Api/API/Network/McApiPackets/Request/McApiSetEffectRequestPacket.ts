@@ -3,11 +3,17 @@ import {IMcApiPacket} from "../IMcApiPacket";
 import {NetDataWriter} from "../../../Data/NetDataWriter";
 import {NetDataReader} from "../../../Data/NetDataReader";
 import {IAudioEffect} from "../../../Interfaces/IAudioEffect";
+import {VisibilityEffect} from "../../../Effects/VisibilityEffect";
+import {ProximityEffect} from "../../../Effects/ProximityEffect";
+import {DirectionalEffect} from "../../../Effects/DirectionalEffect";
+import {ProximityEchoEffect} from "../../../Effects/ProximityEchoEffect";
+import {EchoEffect} from "../../../Effects/EchoEffect";
+import {ProximityMuffleEffect} from "../../../Effects/ProximityMuffleEffect";
+import {MuffleEffect} from "../../../Effects/MuffleEffect";
 
 export class McApiSetEffectRequestPacket implements IMcApiPacket {
     constructor(bitmask: number = 0, effect?: IAudioEffect) {
         this._bitmask = bitmask;
-        this._effectType = effect?.EffectType ?? EffectType.None;
         this._effect = effect;
     }
 
@@ -20,7 +26,7 @@ export class McApiSetEffectRequestPacket implements IMcApiPacket {
     }
 
     public get EffectType(): EffectType {
-        return this._effectType;
+        return this._effect?.EffectType ?? EffectType.None;
     }
 
     public get Effect(): IAudioEffect | undefined {
@@ -28,7 +34,6 @@ export class McApiSetEffectRequestPacket implements IMcApiPacket {
     }
 
     private _bitmask: number;
-    private _effectType: EffectType;
     private _effect?: IAudioEffect;
 
     public Serialize(writer: NetDataWriter) {
@@ -40,13 +45,40 @@ export class McApiSetEffectRequestPacket implements IMcApiPacket {
 
     public Deserialize(reader: NetDataReader) {
         this._bitmask = reader.GetUshort();
-        this._effectType = reader.GetByte() as EffectType;
+        const effectType = reader.GetByte() as EffectType;
+        switch (effectType) {
+            case EffectType.Visibility:
+                this._effect = new VisibilityEffect();
+                break;
+            case EffectType.Proximity:
+                this._effect = new ProximityEffect();
+                break;
+            case EffectType.Directional:
+                this._effect = new DirectionalEffect();
+                break;
+            case EffectType.ProximityEcho:
+                this._effect = new ProximityEchoEffect();
+                break;
+            case EffectType.Echo:
+                this._effect = new EchoEffect();
+                break;
+            case EffectType.ProximityMuffle:
+                this._effect = new ProximityMuffleEffect();
+                break;
+            case EffectType.Muffle:
+                this._effect = new MuffleEffect();
+                break;
+            case EffectType.None:
+            default:
+                this._effect = undefined;
+                break;
+        }
+
+        this._effect?.Deserialize(reader);
     }
 
-    public Set(bitmask: number = 0, effect?: IAudioEffect): McApiSetEffectRequestPacket {
+    public Set(bitmask: number = 0, effect?: IAudioEffect) {
         this._bitmask = bitmask;
-        this._effectType = effect?.EffectType ?? EffectType.None;
         this._effect = effect;
-        return this;
     }
 }

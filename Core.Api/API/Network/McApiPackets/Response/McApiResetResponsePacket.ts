@@ -1,9 +1,9 @@
-import { McApiPacketType } from "../../../Data/Enums";
-import { IMcApiPacket } from "../IMcApiPacket";
-import { NetDataWriter } from "../../../Data/NetDataWriter";
-import { NetDataReader } from "../../../Data/NetDataReader";
-import { MaxStringLength } from "../../../Data/Constants";
-import { IMcApiRIdPacket } from "../IMcApiRIdPacket";
+import {McApiPacketType} from "../../../Data/Enums";
+import {IMcApiPacket} from "../IMcApiPacket";
+import {NetDataWriter} from "../../../Data/NetDataWriter";
+import {NetDataReader} from "../../../Data/NetDataReader";
+import {MaxStringLength} from "../../../Data/Constants";
+import {IMcApiRIdPacket} from "../IMcApiRIdPacket";
 
 export class McApiResetResponsePacket implements IMcApiPacket, IMcApiRIdPacket {
     constructor(requestId: string = "", responseCode: ResponseCodes = ResponseCodes.Ok) {
@@ -14,9 +14,11 @@ export class McApiResetResponsePacket implements IMcApiPacket, IMcApiRIdPacket {
     public get PacketType(): McApiPacketType {
         return McApiPacketType.ResetResponse;
     }
+
     public get RequestId(): string {
         return this._requestId;
     }
+
     public get ResponseCode(): ResponseCodes {
         return this._responseCode;
     }
@@ -34,15 +36,13 @@ export class McApiResetResponsePacket implements IMcApiPacket, IMcApiRIdPacket {
         this._responseCode = reader.GetSbyte() as ResponseCodes;
     }
 
-    public Set(requestId: string = "", responseCode: ResponseCodes = ResponseCodes.Ok): McApiResetResponsePacket {
+    public Set(requestId: string = "", responseCode: ResponseCodes = ResponseCodes.Ok) {
         this._requestId = requestId;
         this._responseCode = responseCode;
-        return this;
     }
 }
 
-export enum ResponseCodes
-{
+export enum ResponseCodes {
     Ok = 0,
     Failure = -1
 }

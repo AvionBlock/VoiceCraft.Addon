@@ -1,40 +1,41 @@
-import { McApiPacketType } from "../../../Data/Enums";
-import { IMcApiPacket } from "../IMcApiPacket";
-import { NetDataWriter } from "../../../Data/NetDataWriter";
-import { NetDataReader } from "../../../Data/NetDataReader";
+import {McApiPacketType} from "../../../Data/Enums";
+import {IMcApiPacket} from "../IMcApiPacket";
+import {NetDataWriter} from "../../../Data/NetDataWriter";
+import {NetDataReader} from "../../../Data/NetDataReader";
 
 export class McApiSetEntityListenBitmaskRequestPacket implements IMcApiPacket {
-  constructor(id: number = 0, value: number = 0) {
-    this._id = id;
-    this._value = value;
-  }
+    constructor(id: number = 0, value: number = 0) {
+        this._id = id;
+        this._value = value;
+    }
 
-  public get PacketType(): McApiPacketType {
-    return McApiPacketType.SetEntityListenBitmaskRequest;
-  }
-  public get Id(): number {
-    return this._id;
-  }
-  public get Value(): number {
-    return this._value;
-  }
+    public get PacketType(): McApiPacketType {
+        return McApiPacketType.SetEntityListenBitmaskRequest;
+    }
 
-  private _id: number;
-  private _value: number;
+    public get Id(): number {
+        return this._id;
+    }
 
-  public Serialize(writer: NetDataWriter) {
-    writer.PutInt(this.Id);
-    writer.PutUshort(this.Value);
-  }
+    public get Value(): number {
+        return this._value;
+    }
 
-  public Deserialize(reader: NetDataReader) {
-    this._id = reader.GetInt();
-    this._value = reader.GetUshort();
-  }
+    private _id: number;
+    private _value: number;
 
-  public Set(id: number = 0, value: number = 0): McApiSetEntityListenBitmaskRequestPacket {
-    this._id = id;
-    this._value = value;
-    return this;
-  }
+    public Serialize(writer: NetDataWriter) {
+        writer.PutInt(this.Id);
+        writer.PutUshort(this.Value);
+    }
+
+    public Deserialize(reader: NetDataReader) {
+        this._id = reader.GetInt();
+        this._value = reader.GetUshort();
+    }
+
+    public Set(id: number = 0, value: number = 0) {
+        this._id = id;
+        this._value = value;
+    }
 }

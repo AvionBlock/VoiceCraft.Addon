@@ -12,9 +12,11 @@ export class McApiSetEntityEffectBitmaskRequestPacket implements IMcApiPacket {
   public get PacketType(): McApiPacketType {
     return McApiPacketType.SetEntityEffectBitmaskRequest;
   }
+
   public get Id(): number {
     return this._id;
   }
+
   public get Value(): number {
     return this._value;
   }
@@ -32,9 +34,8 @@ export class McApiSetEntityEffectBitmaskRequestPacket implements IMcApiPacket {
     this._value = reader.GetUshort();
   }
 
-  public Set(id: number = 0, value: number = 0): McApiSetEntityEffectBitmaskRequestPacket {
+  public Set(id: number = 0, value: number = 0) {
     this._id = id;
     this._value = value;
-    return this;
   }
 }

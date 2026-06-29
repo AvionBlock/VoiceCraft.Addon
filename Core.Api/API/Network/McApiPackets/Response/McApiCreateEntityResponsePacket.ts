@@ -44,11 +44,10 @@ export class McApiCreateEntityResponsePacket implements IMcApiPacket, IMcApiRIdP
         this._id = reader.GetInt();
     }
 
-    public Set(requestId: string = "", responseCode: ResponseCodes = ResponseCodes.Ok, id: number = 0): McApiCreateEntityResponsePacket {
+    public Set(requestId: string = "", responseCode: ResponseCodes = ResponseCodes.Ok, id: number = 0) {
         this._requestId = requestId;
         this._responseCode = responseCode;
         this._id = id;
-        return this;
     }
 }
 

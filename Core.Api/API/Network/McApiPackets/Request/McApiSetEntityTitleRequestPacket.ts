@@ -13,9 +13,11 @@ export class McApiSetEntityTitleRequestPacket implements IMcApiPacket {
   public get PacketType(): McApiPacketType {
     return McApiPacketType.SetEntityTitleRequest;
   }
+
   public get Id(): number {
     return this._id;
   }
+
   public get Value(): string {
     return this._value;
   }
@@ -33,9 +35,8 @@ export class McApiSetEntityTitleRequestPacket implements IMcApiPacket {
     this._value = reader.GetString(MaxStringLength);
   }
 
-  public Set(id: number = 0, value: string = ""): McApiSetEntityTitleRequestPacket {
+  public Set(id: number = 0, value: string = "") {
     this._id = id;
     this._value = value;
-    return this;
   }
 }

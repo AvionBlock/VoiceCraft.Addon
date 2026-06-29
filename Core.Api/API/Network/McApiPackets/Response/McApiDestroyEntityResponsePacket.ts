@@ -36,10 +36,9 @@ export class McApiDestroyEntityResponsePacket implements IMcApiPacket, IMcApiRId
         this._responseCode = reader.GetSbyte() as ResponseCodes;
     }
 
-    public Set(requestId: string = "", responseCode: ResponseCodes = ResponseCodes.Ok): McApiDestroyEntityResponsePacket {
+    public Set(requestId: string = "", responseCode: ResponseCodes = ResponseCodes.Ok) {
         this._requestId = requestId;
         this._responseCode = responseCode;
-        return this;
     }
 }
 
