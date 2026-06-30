@@ -1,32 +1,32 @@
-import { McApiPacketType } from "../../../Data/Enums";
-import { NetDataReader } from "../../../Data/NetDataReader";
-import { NetDataWriter } from "../../../Data/NetDataWriter";
-import { IMcApiPacket } from "../IMcApiPacket";
+import {IMcApiEventPacket} from "../IMcApiEventPacket";
+import {EventType} from "../../../Data/Enums";
+import {NetDataWriter} from "../../../Data/NetDataWriter";
+import {NetDataReader} from "../../../Data/NetDataReader";
 
-export class McApiOnEntityDestroyedPacket implements IMcApiPacket {
-  constructor(id: number = 0) {
-    this._id = id;
-  }
+export class McApiOnEntityDestroyedPacket implements IMcApiEventPacket {
+    constructor(id: number = 0) {
+        this._id = id;
+    }
 
-  public get PacketType(): McApiPacketType {
-    return McApiPacketType.OnEntityDestroyed;
-  }
-  public get Id(): number {
-    return this._id;
-  }
+    public get EventType(): EventType {
+        return EventType.OnEntityDestroyed;
+    }
 
-  private _id: number;
+    public get Id(): number {
+        return this._id;
+    }
 
-  public Serialize(writer: NetDataWriter) {
-    writer.PutInt(this.Id);
-  }
+    private _id: number;
 
-  public Deserialize(reader: NetDataReader) {
-    this._id = reader.GetInt();
-  }
+    public Serialize(writer: NetDataWriter): void {
+        writer.PutInt(this._id);
+    }
 
-  public Set(id: number = 0): McApiOnEntityDestroyedPacket {
-    this._id = id;
-    return this;
-  }
+    public Deserialize(reader: NetDataReader): void {
+        this._id = reader.GetInt();
+    }
+
+    public Set(id: number = 0) {
+        this._id = id;
+    }
 }

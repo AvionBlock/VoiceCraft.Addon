@@ -1,5 +1,4 @@
-import {EffectType, McApiPacketType} from "../../../Data/Enums";
-import {IMcApiPacket} from "../IMcApiPacket";
+import {EffectType, EventType} from "../../../Data/Enums";
 import {NetDataWriter} from "../../../Data/NetDataWriter";
 import {NetDataReader} from "../../../Data/NetDataReader";
 import {IAudioEffect} from "../../../Interfaces/IAudioEffect";
@@ -9,17 +8,17 @@ import {DirectionalEffect} from "../../../Effects/DirectionalEffect";
 import {ProximityEchoEffect} from "../../../Effects/ProximityEchoEffect";
 import {EchoEffect} from "../../../Effects/EchoEffect";
 import {ProximityMuffleEffect} from "../../../Effects/ProximityMuffleEffect";
+import {IMcApiEventPacket} from "../IMcApiEventPacket";
 import {MuffleEffect} from "../../../Effects/MuffleEffect";
 
-export class McApiOnEffectUpdatedPacket implements IMcApiPacket {
+export class McApiOnEffectUpdatedPacket implements IMcApiEventPacket {
     constructor(bitmask: number = 0, effect?: IAudioEffect) {
         this._bitmask = bitmask;
-        this._effectType = effect?.EffectType ?? EffectType.None;
         this._effect = effect;
     }
 
-    public get PacketType(): McApiPacketType {
-        return McApiPacketType.OnEffectUpdated;
+    public get EventType(): EventType {
+        return EventType.OnEffectUpdated;
     }
 
     public get Bitmask(): number {
@@ -27,7 +26,7 @@ export class McApiOnEffectUpdatedPacket implements IMcApiPacket {
     }
 
     public get EffectType(): EffectType {
-        return this._effectType;
+        return this._effect?.EffectType ?? EffectType.None;
     }
 
     public get Effect(): IAudioEffect | undefined {
@@ -35,59 +34,50 @@ export class McApiOnEffectUpdatedPacket implements IMcApiPacket {
     }
 
     private _bitmask: number;
-    private _effectType: EffectType;
     private _effect?: IAudioEffect;
 
     public Serialize(writer: NetDataWriter) {
-        writer.PutUshort(this.Bitmask);
-        writer.PutByte(this.Effect?.EffectType ?? EffectType.None);
+        writer.PutUshort(this._bitmask);
+        writer.PutByte(this._effect?.EffectType ?? EffectType.None);
         if (this._effect !== undefined)
             this._effect.Serialize(writer);
     }
 
     public Deserialize(reader: NetDataReader) {
         this._bitmask = reader.GetUshort();
-        this._effectType = reader.GetByte() as EffectType;
-        switch(this._effectType)
-        {
-            case EffectType.None:
-                this._effect = undefined;
-                break;
+        const effectType = reader.GetByte() as EffectType;
+        switch (effectType) {
             case EffectType.Visibility:
                 this._effect = new VisibilityEffect();
-                this._effect.Deserialize(reader);
                 break;
             case EffectType.Proximity:
                 this._effect = new ProximityEffect();
-                this._effect.Deserialize(reader);
                 break;
             case EffectType.Directional:
                 this._effect = new DirectionalEffect();
-                this._effect.Deserialize(reader);
                 break;
             case EffectType.ProximityEcho:
                 this._effect = new ProximityEchoEffect();
-                this._effect.Deserialize(reader);
                 break;
             case EffectType.Echo:
                 this._effect = new EchoEffect();
-                this._effect.Deserialize(reader);
                 break;
             case EffectType.ProximityMuffle:
                 this._effect = new ProximityMuffleEffect();
-                this._effect.Deserialize(reader);
                 break;
             case EffectType.Muffle:
                 this._effect = new MuffleEffect();
-                this._effect.Deserialize(reader);
+                break;
+            case EffectType.None:
+            default:
+                this._effect = undefined;
                 break;
         }
+        this._effect?.Deserialize(reader);
     }
 
-    public Set(bitmask: number = 0, effect?: IAudioEffect): McApiOnEffectUpdatedPacket {
+    public Set(bitmask: number = 0, effect?: IAudioEffect) {
         this._bitmask = bitmask;
-        this._effectType = effect?.EffectType ?? EffectType.None;
         this._effect = effect;
-        return this;
     }
 }

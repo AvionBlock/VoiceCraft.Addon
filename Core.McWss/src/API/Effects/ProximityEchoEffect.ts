@@ -8,6 +8,13 @@ export class ProximityEchoEffect implements IAudioEffect {
         return EffectType.ProximityEcho;
     }
 
+    get Bitmask(): number {
+        return this._bitmask;
+    }
+    set Bitmask(value: number) {
+        this._bitmask = value;
+    }
+
     get Delay(): number {
         return this._delay;
     }
@@ -29,6 +36,7 @@ export class ProximityEchoEffect implements IAudioEffect {
         this._wetDry = Math.min(1, Math.max(value, 0));
     }
 
+    private _bitmask: number = 65535;
     private _delay: number = 0.5;
     private _range: number = 0;
     private _wetDry: number = 1;
@@ -43,9 +51,5 @@ export class ProximityEchoEffect implements IAudioEffect {
         this._delay = reader.GetFloat();
         this._range = reader.GetFloat();
         this._wetDry = reader.GetFloat();
-    }
-
-    Reset(): void {
-        //Nothing to reset.
     }
 }

@@ -12,9 +12,11 @@ export class McApiSetEntityTalkBitmaskRequestPacket implements IMcApiPacket {
   public get PacketType(): McApiPacketType {
     return McApiPacketType.SetEntityTalkBitmaskRequest;
   }
+
   public get Id(): number {
     return this._id;
   }
+
   public get Value(): number {
     return this._value;
   }
@@ -23,8 +25,8 @@ export class McApiSetEntityTalkBitmaskRequestPacket implements IMcApiPacket {
   private _value: number;
 
   public Serialize(writer: NetDataWriter) {
-    writer.PutInt(this.Id);
-    writer.PutUshort(this.Value);
+    writer.PutInt(this._id);
+    writer.PutUshort(this._value);
   }
 
   public Deserialize(reader: NetDataReader) {
@@ -32,9 +34,8 @@ export class McApiSetEntityTalkBitmaskRequestPacket implements IMcApiPacket {
     this._value = reader.GetUshort();
   }
 
-  public Set(id: number = 0, value: number = 0): McApiSetEntityTalkBitmaskRequestPacket {
+  public Set(id: number = 0, value: number = 0) {
     this._id = id;
     this._value = value;
-    return this;
   }
 }

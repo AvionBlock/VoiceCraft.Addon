@@ -8,15 +8,20 @@ export class VisibilityEffect implements IAudioEffect {
         return EffectType.Visibility;
     }
 
+    get Bitmask(): number {
+        return this._bitmask;
+    }
+    set Bitmask(value: number) {
+        this._bitmask = value;
+    }
+
+    private _bitmask: number = 65535;
+
     Serialize(writer: NetDataWriter): void {
         //Nothing to write.
     }
 
     Deserialize(reader: NetDataReader): void {
         //Nothing to deserialize.
-    }
-
-    Reset(): void {
-        //Nothing to reset.
     }
 }
