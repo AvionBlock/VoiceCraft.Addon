@@ -27,8 +27,8 @@ export class McApiDestroyEntityResponsePacket implements IMcApiPacket, IMcApiRId
     private _responseCode: ResponseCodes;
 
     public Serialize(writer: NetDataWriter) {
-        writer.PutString(this.RequestId, MaxStringLength);
-        writer.PutSbyte(this.ResponseCode);
+        writer.PutString(this._requestId, MaxStringLength);
+        writer.PutSbyte(this._responseCode);
     }
 
     public Deserialize(reader: NetDataReader) {

@@ -40,11 +40,11 @@ export class McApiLoginRequestPacket implements IMcApiPacket, IMcApiRIdPacket {
     private _subscribeEvents: EventType[];
 
     public Serialize(writer: NetDataWriter) {
-        writer.PutString(this.RequestId, MaxStringLength);
-        writer.PutString(this.Token, MaxStringLength);
-        writer.PutInt(this.Version.Major);
-        writer.PutInt(this.Version.Minor);
-        writer.PutInt(this.Version.Build);
+        writer.PutString(this._requestId, MaxStringLength);
+        writer.PutString(this._token, MaxStringLength);
+        writer.PutInt(this._version.Major);
+        writer.PutInt(this._version.Minor);
+        writer.PutInt(this._version.Build);
         writer.PutInt(this._subscribeEvents.length);
         for (const event of this._subscribeEvents) {
             writer.PutByte(event);

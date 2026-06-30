@@ -61,7 +61,7 @@ export enum EventType {
 }
 
 export enum McApiPacketType {
-    //Core
+//Core
     //Requests DO NOT CHANGE!
     LoginRequest,
     LogoutRequest,

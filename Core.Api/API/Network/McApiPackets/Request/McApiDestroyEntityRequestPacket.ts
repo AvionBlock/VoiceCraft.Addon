@@ -27,8 +27,8 @@ export class McApiDestroyEntityRequestPacket implements IMcApiPacket, IMcApiRIdP
     private _id: number;
 
     public Serialize(writer: NetDataWriter) {
-        writer.PutString(this.RequestId, MaxStringLength);
-        writer.PutInt(this.Id);
+        writer.PutString(this._requestId, MaxStringLength);
+        writer.PutInt(this._id);
     }
 
     public Deserialize(reader: NetDataReader) {

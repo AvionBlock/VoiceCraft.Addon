@@ -25,8 +25,8 @@ export class McApiSetEntityDeafenRequestPacket implements IMcApiPacket {
     private _value: boolean;
 
     public Serialize(writer: NetDataWriter) {
-        writer.PutInt(this.Id);
-        writer.PutBool(this.Value);
+        writer.PutInt(this._id);
+        writer.PutBool(this._value);
     }
 
     public Deserialize(reader: NetDataReader) {

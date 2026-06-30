@@ -21,7 +21,7 @@ export class McApiCreateEntityRequestPacket implements IMcApiPacket, IMcApiRIdPa
     private _requestId: string;
 
     public Serialize(writer: NetDataWriter) {
-        writer.PutString(this.RequestId, MaxStringLength);
+        writer.PutString(this._requestId, MaxStringLength);
     }
 
     public Deserialize(reader: NetDataReader) {

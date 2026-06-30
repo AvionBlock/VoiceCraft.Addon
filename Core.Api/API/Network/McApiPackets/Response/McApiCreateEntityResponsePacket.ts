@@ -33,8 +33,8 @@ export class McApiCreateEntityResponsePacket implements IMcApiPacket, IMcApiRIdP
     private _id: number;
 
     public Serialize(writer: NetDataWriter) {
-        writer.PutString(this.RequestId, MaxStringLength);
-        writer.PutSbyte(this.ResponseCode);
+        writer.PutString(this._requestId, MaxStringLength);
+        writer.PutSbyte(this._responseCode);
         writer.PutInt(this._id);
     }
 

@@ -26,8 +26,8 @@ export class McApiSetEntityNameRequestPacket implements IMcApiPacket {
     private _value: string;
 
     public Serialize(writer: NetDataWriter) {
-        writer.PutInt(this.Id);
-        writer.PutString(this.Value, MaxStringLength);
+        writer.PutInt(this._id);
+        writer.PutString(this._value, MaxStringLength);
     }
 
     public Deserialize(reader: NetDataReader) {
