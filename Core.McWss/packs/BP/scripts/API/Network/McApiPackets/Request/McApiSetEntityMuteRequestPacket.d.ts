@@ -11,5 +11,5 @@ export declare class McApiSetEntityMuteRequestPacket implements IMcApiPacket {
     private _value;
     Serialize(writer: NetDataWriter): void;
     Deserialize(reader: NetDataReader): void;
-    Set(id?: number, value?: boolean): McApiSetEntityMuteRequestPacket;
+    Set(id?: number, value?: boolean): void;
 }

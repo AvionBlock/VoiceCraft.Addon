@@ -12,5 +12,5 @@ export declare class McApiAcceptResponsePacket implements IMcApiPacket, IMcApiRI
     private _token;
     Serialize(writer: NetDataWriter): void;
     Deserialize(reader: NetDataReader): void;
-    Set(requestId?: string, token?: string): McApiAcceptResponsePacket;
+    Set(requestId?: string, token?: string): void;
 }

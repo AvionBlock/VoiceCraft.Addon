@@ -10,9 +10,8 @@ export declare class McApiSetEffectRequestPacket implements IMcApiPacket {
     get EffectType(): EffectType;
     get Effect(): IAudioEffect | undefined;
     private _bitmask;
-    private _effectType;
     private _effect?;
     Serialize(writer: NetDataWriter): void;
     Deserialize(reader: NetDataReader): void;
-    Set(bitmask?: number, effect?: IAudioEffect): McApiSetEffectRequestPacket;
+    Set(bitmask?: number, effect?: IAudioEffect): void;
 }

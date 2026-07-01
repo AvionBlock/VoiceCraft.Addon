@@ -22,8 +22,8 @@ export class McApiCreateEntityResponsePacket {
     _responseCode;
     _id;
     Serialize(writer) {
-        writer.PutString(this.RequestId, MaxStringLength);
-        writer.PutSbyte(this.ResponseCode);
+        writer.PutString(this._requestId, MaxStringLength);
+        writer.PutSbyte(this._responseCode);
         writer.PutInt(this._id);
     }
     Deserialize(reader) {
@@ -35,7 +35,6 @@ export class McApiCreateEntityResponsePacket {
         this._requestId = requestId;
         this._responseCode = responseCode;
         this._id = id;
-        return this;
     }
 }
 export var ResponseCodes;

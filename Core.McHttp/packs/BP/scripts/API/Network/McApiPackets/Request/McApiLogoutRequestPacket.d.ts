@@ -9,5 +9,5 @@ export declare class McApiLogoutRequestPacket implements IMcApiPacket {
     private _token;
     Serialize(writer: NetDataWriter): void;
     Deserialize(reader: NetDataReader): void;
-    Set(token?: string): McApiLogoutRequestPacket;
+    Set(token?: string): void;
 }

@@ -13,7 +13,7 @@ import "../Extensions";
 import {McApiConnectionState} from "../API/Data/Enums";
 
 export class CommandManager {
-    constructor(private _mcapi: McApiMcWss) {
+    constructor(private _mcApi: McApiMcWss) {
         system.beforeEvents.startup.subscribe((ev) => {
             this.RegisterCommands(ev.customCommandRegistry);
         });
@@ -31,6 +31,17 @@ export class CommandManager {
             },
             (origin, token) => this.ConnectCommand(origin, token)
         );
+
+        registry.registerCommand({
+            name: `${VoiceCraft.Namespace}:vcconnect_raw`,
+            description: "Attempts a connection to the McHttp server using raw IP and Port values. (Used for AutoConnect)",
+            permissionLevel: CommandPermissionLevel.GameDirectors,
+            mandatoryParameters: [
+                {name: "ip", type: CustomCommandParamType.String},
+                {name: "port", type: CustomCommandParamType.Integer},
+                {name: "token", type: CustomCommandParamType.String},
+            ],
+        }, (origin, ip, port, token) => this.ConnectRawCommand(origin, ip, port, token))
     }
 
     private ConnectCommand(origin: CustomCommandOrigin, token: string) {
@@ -39,33 +50,32 @@ export class CommandManager {
             !(origin.sourceEntity instanceof Player)
         )
             throw new Error("Command origin must be of type player!");
-        if(this._mcapi.ConnectionState != McApiConnectionState.Disconnected)
+        if (this._mcApi.ConnectionState !== McApiConnectionState.Disconnected)
             throw new Error("Already in a connected/connecting state!");
 
         system.run(async () => {
             const player = origin.sourceEntity as Player;
-            const connectedCallback = this._mcapi.OnConnected.Subscribe((_) => {
-                player.translateMessage(Locales.VcMcApi.Status.Connected);
-            });
-            const disconnectedCallback = this._mcapi.OnDisconnected.Subscribe((reason) => {
-                player.translateMessage(Locales.VcMcApi.Status.Disconnected, {
-                    rawtext: [{translate: reason}],
-                });
-            });
 
             try {
                 player.translateMessage(Locales.VcMcApi.Status.Connecting);
-                await this._mcapi.ConnectAsync("", 0, token);
+                await this._mcApi.ConnectAsync("", 0, token);
+                player.translateMessage(Locales.VcMcApi.Status.Connected);
             } catch (ex) {
                 if (ex instanceof Error)
                     player.translateMessage(Locales.VcMcApi.Status.Disconnected, {
                         rawtext: [{translate: ex.message}],
                     });
             }
-            finally {
-                this._mcapi.OnConnected.Unsubscribe(connectedCallback);
-                this._mcapi.OnDisconnected.Unsubscribe(disconnectedCallback);
-            }
+        });
+        return undefined;
+    }
+
+    private ConnectRawCommand(_: CustomCommandOrigin, ip: string, port: number, token: string) {
+        if (port < 1 || port > 65535)
+            throw new Error("Invalid Port!");
+        if (this._mcApi.ConnectionState !== McApiConnectionState.Disconnected) return undefined;
+        system.run(async () => {
+            await this._mcApi.ConnectAsync(ip, port, token);
         });
         return undefined;
     }

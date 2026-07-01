@@ -17,10 +17,10 @@ export class McApiSetEntityPositionRequestPacket {
     _id;
     _value;
     Serialize(writer) {
-        writer.PutInt(this.Id);
-        writer.PutFloat(this.Value.X);
-        writer.PutFloat(this.Value.Y);
-        writer.PutFloat(this.Value.Z);
+        writer.PutInt(this._id);
+        writer.PutFloat(this._value.X);
+        writer.PutFloat(this._value.Y);
+        writer.PutFloat(this._value.Z);
     }
     Deserialize(reader) {
         this._id = reader.GetInt();
@@ -29,6 +29,5 @@ export class McApiSetEntityPositionRequestPacket {
     Set(id = 0, value = new Vector3(0, 0, 0)) {
         this._id = id;
         this._value = value;
-        return this;
     }
 }

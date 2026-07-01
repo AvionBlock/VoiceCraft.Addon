@@ -9,8 +9,7 @@ import { McApiSetEntityWorldIdRequestPacket } from "./API/Network/McApiPackets/R
 import { FormManager } from "./Managers/FormManager";
 import { BindingSystem } from "./API/Systems/BindingSystem";
 import { AudioEffectSystem } from "./API/Systems/AudioEffectSystem";
-import { McApiSetEntityCaveFactorRequestPacket } from "./API/Network/McApiPackets/Request/McApiSetEntityCaveFactorRequestPacket";
-import { McApiSetEntityMuffleFactorRequestPacket } from "./API/Network/McApiPackets/Request/McApiSetEntityMuffleFactorRequestPacket";
+import { McApiSetEntityPropertyRequestPacket } from "./API/Network/McApiPackets/Request/McApiSetEntityPropertyRequestPacket";
 const cv = [
     "minecraft:stone",
     "minecraft:diorite",
@@ -41,16 +40,16 @@ function IntervalLogic() {
         const caveEchoEnabled = world.getDynamicProperty(`${VoiceCraft.Namespace}:enableCaveEcho`);
         const underwaterMuffleEnabled = world.getDynamicProperty(`${VoiceCraft.Namespace}:enableUnderwaterMuffle`);
         if (caveEchoEnabled) {
-            vc.SendPacket(new McApiSetEntityCaveFactorRequestPacket(entityId, GetCaveDensity(player)));
+            vc.SendPacket(new McApiSetEntityPropertyRequestPacket(entityId, "ProximityEchoEffect:Factor", GetCaveDensity(player)));
         }
         else {
-            vc.SendPacket(new McApiSetEntityCaveFactorRequestPacket(entityId, 0.0));
+            vc.SendPacket(new McApiSetEntityPropertyRequestPacket(entityId, "ProximityEchoEffect:Factor", GetCaveDensity(player)));
         }
         if (underwaterMuffleEnabled) {
-            vc.SendPacket(new McApiSetEntityMuffleFactorRequestPacket(entityId, IsUnderwater(player) ? 1.0 : 0));
+            vc.SendPacket(new McApiSetEntityPropertyRequestPacket(entityId, "ProximityMuffleEffect:Factor", IsUnderwater(player) ? 1.0 : 0));
         }
         else {
-            vc.SendPacket(new McApiSetEntityMuffleFactorRequestPacket(entityId, 0));
+            vc.SendPacket(new McApiSetEntityPropertyRequestPacket(entityId, "ProximityMuffleEffect:Factor", 0));
         }
     }
 }

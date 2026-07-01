@@ -14,7 +14,7 @@ export declare class McApiCreateEntityResponsePacket implements IMcApiPacket, IM
     private _id;
     Serialize(writer: NetDataWriter): void;
     Deserialize(reader: NetDataReader): void;
-    Set(requestId?: string, responseCode?: ResponseCodes, id?: number): McApiCreateEntityResponsePacket;
+    Set(requestId?: string, responseCode?: ResponseCodes, id?: number): void;
 }
 export declare enum ResponseCodes {
     Ok = 0,

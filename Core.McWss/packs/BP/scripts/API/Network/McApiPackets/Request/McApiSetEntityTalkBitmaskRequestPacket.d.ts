@@ -11,5 +11,5 @@ export declare class McApiSetEntityTalkBitmaskRequestPacket implements IMcApiPac
     private _value;
     Serialize(writer: NetDataWriter): void;
     Deserialize(reader: NetDataReader): void;
-    Set(id?: number, value?: number): McApiSetEntityTalkBitmaskRequestPacket;
+    Set(id?: number, value?: number): void;
 }

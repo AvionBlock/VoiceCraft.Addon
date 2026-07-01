@@ -5,62 +5,66 @@ import { NetDataReader } from "./Data/NetDataReader";
 import { Event } from "./Event";
 import { NetDataWriter } from "./Data/NetDataWriter";
 import { Version } from "./Data/Version";
+import { McApiLoginRequestPacket } from "./Network/McApiPackets/Request/McApiLoginRequestPacket";
+import { McApiLogoutRequestPacket } from "./Network/McApiPackets/Request/McApiLogoutRequestPacket";
+import { McApiPingRequestPacket } from "./Network/McApiPackets/Request/McApiPingRequestPacket";
 import { McApiAcceptResponsePacket } from "./Network/McApiPackets/Response/McApiAcceptResponsePacket";
 import { McApiDenyResponsePacket } from "./Network/McApiPackets/Response/McApiDenyResponsePacket";
 import { McApiPingResponsePacket } from "./Network/McApiPackets/Response/McApiPingResponsePacket";
-import { McApiLoginRequestPacket } from "./Network/McApiPackets/Request/McApiLoginRequestPacket";
-import { McApiPingRequestPacket } from "./Network/McApiPackets/Request/McApiPingRequestPacket";
-import { McApiLogoutRequestPacket } from "./Network/McApiPackets/Request/McApiLogoutRequestPacket";
-import { McApiOnEntityAudioReceivedPacket } from "./Network/McApiPackets/Event/McApiOnEntityAudioReceivedPacket";
-import { McApiOnNetworkEntityCreatedPacket } from "./Network/McApiPackets/Event/McApiOnNetworkEntityCreatedPacket";
-import { McApiOnEntityCreatedPacket } from "./Network/McApiPackets/Event/McApiOnEntityCreatedPacket";
-import { McApiOnEntityDestroyedPacket } from "./Network/McApiPackets/Event/McApiOnEntityDestroyedPacket";
+import { McApiEventRequestPacket } from "./Network/McApiPackets/Request/McApiEventRequestPacket";
+import { McApiResetRequestPacket } from "./Network/McApiPackets/Request/McApiResetRequestPacket";
+import { McApiSetEffectRequestPacket } from "./Network/McApiPackets/Request/McApiSetEffectRequestPacket";
+import { McApiClearEffectsRequestPacket } from "./Network/McApiPackets/Request/McApiClearEffectsRequestPacket";
+import { McApiCreateEntityRequestPacket } from "./Network/McApiPackets/Request/McApiCreateEntityRequestPacket";
+import { McApiDestroyEntityRequestPacket } from "./Network/McApiPackets/Request/McApiDestroyEntityRequestPacket";
+import { McApiEntityAudioRequestPacket } from "./Network/McApiPackets/Request/McApiEntityAudioRequestPacket";
 import { McApiSetEntityTitleRequestPacket } from "./Network/McApiPackets/Request/McApiSetEntityTitleRequestPacket";
 import { McApiSetEntityDescriptionRequestPacket } from "./Network/McApiPackets/Request/McApiSetEntityDescriptionRequestPacket";
-import { McApiOnEntityVisibilityUpdatedPacket } from "./Network/McApiPackets/Event/McApiOnEntityVisibilityUpdated";
-import { McApiOnEntityWorldIdUpdatedPacket } from "./Network/McApiPackets/Event/McApiOnEntityWorldIdUpdated";
-import { McApiOnEntityNameUpdatedPacket } from "./Network/McApiPackets/Event/McApiOnEntityNameUpdated";
-import { McApiOnEntityMuteUpdatedPacket } from "./Network/McApiPackets/Event/McApiOnEntityMuteUpdated";
-import { McApiOnEntityDeafenUpdatedPacket } from "./Network/McApiPackets/Event/McApiOnEntityDeafenUpdated";
-import { McApiOnEntityTalkBitmaskUpdatedPacket } from "./Network/McApiPackets/Event/McApiOnEntityTalkBitmaskUpdated";
-import { McApiOnEntityListenBitmaskUpdatedPacket } from "./Network/McApiPackets/Event/McApiOnEntityListenBitmaskUpdated";
-import { McApiOnEntityEffectBitmaskUpdatedPacket } from "./Network/McApiPackets/Event/McApiOnEntityEffectBitmaskUpdated";
-import { McApiOnEntityPositionUpdatedPacket } from "./Network/McApiPackets/Event/McApiOnEntityPositionUpdated";
-import { McApiOnEntityRotationUpdatedPacket } from "./Network/McApiPackets/Event/McApiOnEntityRotationUpdated";
-import { McApiOnEntityCaveFactorUpdatedPacket } from "./Network/McApiPackets/Event/McApiOnEntityCaveFactorUpdated";
-import { McApiOnEntityMuffleFactorUpdatedPacket } from "./Network/McApiPackets/Event/McApiOnEntityMuffleFactorUpdated";
+import { McApiSetEntityWorldIdRequestPacket } from "./Network/McApiPackets/Request/McApiSetEntityWorldIdRequestPacket";
 import { McApiSetEntityNameRequestPacket } from "./Network/McApiPackets/Request/McApiSetEntityNameRequestPacket";
+import { McApiSetEntityMuteRequestPacket } from "./Network/McApiPackets/Request/McApiSetEntityMuteRequestPacket";
+import { McApiSetEntityDeafenRequestPacket } from "./Network/McApiPackets/Request/McApiSetEntityDeafenRequestPacket";
 import { McApiSetEntityTalkBitmaskRequestPacket } from "./Network/McApiPackets/Request/McApiSetEntityTalkBitmaskRequestPacket";
 import { McApiSetEntityListenBitmaskRequestPacket } from "./Network/McApiPackets/Request/McApiSetEntityListenBitmaskRequestPacket";
 import { McApiSetEntityEffectBitmaskRequestPacket } from "./Network/McApiPackets/Request/McApiSetEntityEffectBitmaskRequestPacket";
 import { McApiSetEntityPositionRequestPacket } from "./Network/McApiPackets/Request/McApiSetEntityPositionRequestPacket";
 import { McApiSetEntityRotationRequestPacket } from "./Network/McApiPackets/Request/McApiSetEntityRotationRequestPacket";
-import { McApiSetEntityCaveFactorRequestPacket } from "./Network/McApiPackets/Request/McApiSetEntityCaveFactorRequestPacket";
-import { McApiSetEntityMuffleFactorRequestPacket } from "./Network/McApiPackets/Request/McApiSetEntityMuffleFactorRequestPacket";
-import { McApiSetEntityWorldIdRequestPacket } from "./Network/McApiPackets/Request/McApiSetEntityWorldIdRequestPacket";
-import { McApiOnEffectUpdatedPacket } from "./Network/McApiPackets/Event/McApiOnEffectUpdatedPacket";
-import { McApiSetEffectRequestPacket } from "./Network/McApiPackets/Request/McApiSetEffectRequestPacket";
-import { McApiClearEffectsRequestPacket } from "./Network/McApiPackets/Request/McApiClearEffectsRequestPacket";
-import { McApiResetRequestPacket } from "./Network/McApiPackets/Request/McApiResetRequestPacket";
-import { McApiCreateEntityRequestPacket } from "./Network/McApiPackets/Request/McApiCreateEntityRequestPacket";
-import { McApiDestroyEntityRequestPacket } from "./Network/McApiPackets/Request/McApiDestroyEntityRequestPacket";
-import { McApiEntityAudioRequestPacket } from "./Network/McApiPackets/Request/McApiEntityAudioRequestPacket";
 import { McApiResetResponsePacket } from "./Network/McApiPackets/Response/McApiResetResponsePacket";
-import { McApiCreateEntityResponsePacket } from "./Network/McApiPackets/Response/McApiCreateEntityResponsePacket";
 import { McApiDestroyEntityResponsePacket } from "./Network/McApiPackets/Response/McApiDestroyEntityResponsePacket";
-import { McApiSetEntityMuteRequestPacket } from "./Network/McApiPackets/Request/McApiSetEntityMuteRequestPacket";
-import { McApiSetEntityDeafenRequestPacket } from "./Network/McApiPackets/Request/McApiSetEntityDeafenRequestPacket";
-import { McApiOnEntityServerMuteUpdatedPacket } from "./Network/McApiPackets/Event/McApiOnEntityServerMuteUpdated";
-import { McApiOnEntityServerDeafenUpdatedPacket } from "./Network/McApiPackets/Event/McApiOnEntityServerDeafenUpdated";
+import { McApiCreateEntityResponsePacket } from "./Network/McApiPackets/Response/McApiCreateEntityResponsePacket";
+import { McApiSetEntityPropertyRequestPacket } from "./Network/McApiPackets/Request/McApiSetEntityPropertyRequestPacket";
+import { McApiOnEffectUpdatedPacket } from "./Network/McApiPackets/Event/McApiOnEffectUpdatedPacket";
+import { McApiOnEntityCreatedPacket } from "./Network/McApiPackets/Event/McApiOnEntityCreatedPacket";
+import { McApiOnNetworkEntityCreatedPacket } from "./Network/McApiPackets/Event/McApiOnNetworkEntityCreatedPacket";
+import { McApiOnEntityDestroyedPacket } from "./Network/McApiPackets/Event/McApiOnEntityDestroyedPacket";
+import { McApiOnEntityVisibilityUpdatedPacket } from "./Network/McApiPackets/Event/McApiOnEntityVisibilityUpdatedPacket";
+import { McApiOnEntityWorldIdUpdatedPacket } from "./Network/McApiPackets/Event/McApiOnEntityWorldIdUpdatedPacket";
+import { McApiOnEntityNameUpdatedPacket } from "./Network/McApiPackets/Event/McApiOnEntityNameUpdatedPacket";
+import { McApiOnEntityMuteUpdatedPacket } from "./Network/McApiPackets/Event/McApiOnEntityMuteUpdatedPacket";
+import { McApiOnEntityDeafenUpdatedPacket } from "./Network/McApiPackets/Event/McApiOnEntityDeafenUpdatedPacket";
+import { McApiOnEntityServerMuteUpdatedPacket } from "./Network/McApiPackets/Event/McApiOnEntityServerMuteUpdatedPacket";
+import { McApiOnEntityServerDeafenUpdatedPacket } from "./Network/McApiPackets/Event/McApiOnEntityServerDeafenUpdatedPacket";
+import { McApiOnEntityTalkBitmaskUpdatedPacket } from "./Network/McApiPackets/Event/McApiOnEntityTalkBitmaskUpdatedPacket";
+import { McApiOnEntityListenBitmaskUpdatedPacket } from "./Network/McApiPackets/Event/McApiOnEntityListenBitmaskUpdatedPacket";
+import { McApiOnEntityEffectBitmaskUpdatedPacket } from "./Network/McApiPackets/Event/McApiOnEntityEffectBitmaskUpdatedPacket";
+import { McApiOnEntityPositionUpdatedPacket } from "./Network/McApiPackets/Event/McApiOnEntityPositionUpdatedPacket";
+import { McApiOnEntityRotationUpdatedPacket } from "./Network/McApiPackets/Event/McApiOnEntityRotationUpdatedPacket";
+import { McApiOnEntityPropertyUpdatedPacket } from "./Network/McApiPackets/Event/McApiOnEntityPropertyUpdatedPacket";
+import { McApiOnEntityAudioReceivedPacket } from "./Network/McApiPackets/Event/McApiOnEntityAudioReceivedPacket";
+import { McApiOnEntityAudioDataReceivedPacket } from "./Network/McApiPackets/Event/McApiOnEntityAudioDataReceivedPacket";
 export class VoiceCraft {
-    static Version = new Version(1, 5, 1);
+    _internal;
+    static Version = new Version(1, 7, 0);
     static Namespace = "voicecraft";
     _writer = new NetDataWriter();
     _reader = new NetDataReader();
     _connectionState = McApiConnectionState.Disconnected; //0: Disconnected, 1: Connecting, 2: Connected, 3: Disconnecting
     _token;
-    constructor() {
-        system.afterEvents.scriptEventReceive.subscribe((ev) => this.HandleScriptEventAsync(ev));
+    constructor(_internal = false) {
+        this._internal = _internal;
+        if (!this._internal) {
+            system.afterEvents.scriptEventReceive.subscribe((ev) => this.HandleScriptEvent(ev));
+        }
     }
     //Properties
     get ConnectionState() {
@@ -74,8 +78,8 @@ export class VoiceCraft {
     OnDisconnected = new Event();
     OnPlayerBind = new Event();
     OnPlayerUnbind = new Event();
-    //McApi
     OnPacket = new Event();
+    //McApi
     //Core
     //Requests
     OnLoginRequestPacket = new Event();
@@ -86,6 +90,7 @@ export class VoiceCraft {
     OnDenyResponsePacket = new Event();
     OnPingResponsePacket = new Event();
     //Requests
+    OnEventRequestPacket = new Event();
     OnResetRequestPacket = new Event();
     OnSetEffectRequestPacket = new Event();
     OnClearEffectsRequestPacket = new Event();
@@ -103,13 +108,12 @@ export class VoiceCraft {
     OnSetEntityEffectBitmaskRequestPacket = new Event();
     OnSetEntityPositionRequestPacket = new Event();
     OnSetEntityRotationRequestPacket = new Event();
-    OnSetEntityCaveFactorRequestPacket = new Event();
-    OnSetEntityMuffleFactorRequestPacket = new Event();
+    OnSetEntityPropertyRequestPacket = new Event();
     //Responses
     OnResetResponsePacket = new Event();
     OnCreateEntityResponsePacket = new Event();
     OnDestroyEntityResponsePacket = new Event();
-    //Events
+    //Event Packets
     OnEffectUpdatedPacket = new Event();
     OnEntityCreatedPacket = new Event();
     OnNetworkEntityCreatedPacket = new Event();
@@ -126,10 +130,12 @@ export class VoiceCraft {
     OnEntityEffectBitmaskUpdatedPacket = new Event();
     OnEntityPositionUpdatedPacket = new Event();
     OnEntityRotationUpdatedPacket = new Event();
-    OnEntityCaveFactorUpdatedPacket = new Event();
-    OnEntityMuffleFactorUpdatedPacket = new Event();
+    OnEntityPropertyUpdatedPacket = new Event();
     OnEntityAudioReceivedPacket = new Event();
+    OnEntityAudioDataReceivedPacket = new Event();
     SendPacket(packet) {
+        if (this._internal)
+            throw new Error("VoiceCraft instance set to internal! Use the base McApi socket to send packets!");
         if (this._connectionState !== McApiConnectionState.Connected)
             throw new Error("Not connected!");
         this._writer.Reset();
@@ -140,10 +146,99 @@ export class VoiceCraft {
             return;
         system.sendScriptEvent(`${VoiceCraft.Namespace}:sendPacket`, packetData);
     }
-    async HandleScriptEventAsync(ev) {
+    HandlePacket(reader, onParsed) {
+        const packetType = this._reader.GetByte();
+        switch (packetType) {
+            case McApiPacketType.LoginRequest:
+                this.ProcessPacket(reader, onParsed, () => new McApiLoginRequestPacket());
+                break;
+            case McApiPacketType.LogoutRequest:
+                this.ProcessPacket(reader, onParsed, () => new McApiLogoutRequestPacket());
+                break;
+            case McApiPacketType.PingRequest:
+                this.ProcessPacket(reader, onParsed, () => new McApiPingRequestPacket());
+                break;
+            case McApiPacketType.AcceptResponse:
+                this.ProcessPacket(reader, onParsed, () => new McApiAcceptResponsePacket());
+                break;
+            case McApiPacketType.DenyResponse:
+                this.ProcessPacket(reader, onParsed, () => new McApiDenyResponsePacket());
+                break;
+            case McApiPacketType.PingResponse:
+                this.ProcessPacket(reader, onParsed, () => new McApiPingResponsePacket());
+                break;
+            case McApiPacketType.EventRequest:
+                this.ProcessPacket(reader, onParsed, () => new McApiEventRequestPacket());
+                break;
+            case McApiPacketType.ResetRequest:
+                this.ProcessPacket(reader, onParsed, () => new McApiResetRequestPacket());
+                break;
+            case McApiPacketType.SetEffectRequest:
+                this.ProcessPacket(reader, onParsed, () => new McApiSetEffectRequestPacket());
+                break;
+            case McApiPacketType.ClearEffectsRequest:
+                this.ProcessPacket(reader, onParsed, () => new McApiClearEffectsRequestPacket());
+                break;
+            case McApiPacketType.CreateEntityRequest:
+                this.ProcessPacket(reader, onParsed, () => new McApiCreateEntityRequestPacket());
+                break;
+            case McApiPacketType.DestroyEntityRequest:
+                this.ProcessPacket(reader, onParsed, () => new McApiDestroyEntityRequestPacket());
+                break;
+            case McApiPacketType.EntityAudioRequest:
+                this.ProcessPacket(reader, onParsed, () => new McApiEntityAudioRequestPacket());
+                break;
+            case McApiPacketType.SetEntityTitleRequest:
+                this.ProcessPacket(reader, onParsed, () => new McApiSetEntityTitleRequestPacket());
+                break;
+            case McApiPacketType.SetEntityDescriptionRequest:
+                this.ProcessPacket(reader, onParsed, () => new McApiSetEntityDescriptionRequestPacket());
+                break;
+            case McApiPacketType.SetEntityWorldIdRequest:
+                this.ProcessPacket(reader, onParsed, () => new McApiSetEntityWorldIdRequestPacket());
+                break;
+            case McApiPacketType.SetEntityNameRequest:
+                this.ProcessPacket(reader, onParsed, () => new McApiSetEntityNameRequestPacket());
+                break;
+            case McApiPacketType.SetEntityMuteRequest:
+                this.ProcessPacket(reader, onParsed, () => new McApiSetEntityMuteRequestPacket());
+                break;
+            case McApiPacketType.SetEntityDeafenRequest:
+                this.ProcessPacket(reader, onParsed, () => new McApiSetEntityDeafenRequestPacket());
+                break;
+            case McApiPacketType.SetEntityTalkBitmaskRequest:
+                this.ProcessPacket(reader, onParsed, () => new McApiSetEntityTalkBitmaskRequestPacket());
+                break;
+            case McApiPacketType.SetEntityListenBitmaskRequest:
+                this.ProcessPacket(reader, onParsed, () => new McApiSetEntityListenBitmaskRequestPacket());
+                break;
+            case McApiPacketType.SetEntityEffectBitmaskRequest:
+                this.ProcessPacket(reader, onParsed, () => new McApiSetEntityEffectBitmaskRequestPacket());
+                break;
+            case McApiPacketType.SetEntityPositionRequest:
+                this.ProcessPacket(reader, onParsed, () => new McApiSetEntityPositionRequestPacket());
+                break;
+            case McApiPacketType.SetEntityRotationRequest:
+                this.ProcessPacket(reader, onParsed, () => new McApiSetEntityRotationRequestPacket());
+                break;
+            case McApiPacketType.SetEntityPropertyRequest:
+                this.ProcessPacket(reader, onParsed, () => new McApiSetEntityPropertyRequestPacket());
+                break;
+            case McApiPacketType.ResetResponse:
+                this.ProcessPacket(reader, onParsed, () => new McApiResetResponsePacket());
+                break;
+            case McApiPacketType.CreateEntityResponse:
+                this.ProcessPacket(reader, onParsed, () => new McApiCreateEntityResponsePacket());
+                break;
+            case McApiPacketType.DestroyEntityResponse:
+                this.ProcessPacket(reader, onParsed, () => new McApiDestroyEntityResponsePacket());
+                break;
+        }
+    }
+    HandleScriptEvent(ev) {
         switch (ev.id) {
             case `${VoiceCraft.Namespace}:onPacket`:
-                await this.HandleOnPacketEventAsync(ev.message);
+                this.HandleOnPacketEvent(ev.message);
                 break;
             case `${VoiceCraft.Namespace}:onConnected`:
                 this.HandleOnConnectedEvent(ev.message);
@@ -159,15 +254,12 @@ export class VoiceCraft {
                 break;
         }
     }
-    async HandleOnPacketEventAsync(packet) {
+    HandleOnPacketEvent(packet) {
         const packetData = Z85.GetBytesWithPadding(packet);
         if (packetData.length <= 0)
             return;
         this._reader.SetBufferSource(packetData);
-        const packetType = this._reader.GetByte();
-        if (packetType < McApiPacketType.LoginRequest || packetType > McApiPacketType.OnEntityAudioReceived)
-            return; //Not a valid packet.
-        await this.HandlePacketAsync(packetType, this._reader);
+        this.HandlePacket(this._reader, this.ExecutePacket);
     }
     HandleOnConnectedEvent(token) {
         this._token = token;
@@ -187,431 +279,300 @@ export class VoiceCraft {
         const splitData = data.split(":");
         this.OnPlayerUnbind.Invoke({ playerId: splitData[0], entityId: splitData[1] });
     }
-    async HandlePacketAsync(packetType, reader) {
-        switch (packetType) {
-            case McApiPacketType.LoginRequest:
-                const loginRequestPacket = new McApiLoginRequestPacket();
-                loginRequestPacket.Deserialize(reader);
-                this.HandleLoginRequestPacket(loginRequestPacket);
+    ExecutePacket(packet) {
+        switch (packet.constructor) {
+            case McApiLoginRequestPacket:
+                this.HandleLoginRequestPacket(packet);
                 break;
-            case McApiPacketType.LogoutRequest:
-                const logoutRequestPacket = new McApiLogoutRequestPacket();
-                logoutRequestPacket.Deserialize(reader);
-                this.HandleLogoutRequestPacket(logoutRequestPacket);
+            case McApiLogoutRequestPacket:
+                this.HandleLogoutRequestPacket(packet);
                 break;
-            case McApiPacketType.PingRequest:
-                const pingRequestPacket = new McApiPingRequestPacket();
-                pingRequestPacket.Deserialize(reader);
-                this.HandlePingRequestPacket(pingRequestPacket);
+            case McApiPingRequestPacket:
+                this.HandlePingRequestPacket(packet);
                 break;
-            case McApiPacketType.AcceptResponse:
-                const acceptResponsePacket = new McApiAcceptResponsePacket();
-                acceptResponsePacket.Deserialize(reader);
-                this.HandleAcceptResponsePacket(acceptResponsePacket);
+            case McApiAcceptResponsePacket:
+                this.HandleAcceptResponsePacket(packet);
                 break;
-            case McApiPacketType.DenyResponse:
-                const denyResponsePacket = new McApiDenyResponsePacket();
-                denyResponsePacket.Deserialize(reader);
-                this.HandleDenyResponsePacket(denyResponsePacket);
+            case McApiDenyResponsePacket:
+                this.HandleDenyResponsePacket(packet);
                 break;
-            case McApiPacketType.PingResponse:
-                const pingResponsePacket = new McApiPingResponsePacket();
-                pingResponsePacket.Deserialize(reader);
-                this.HandlePingResponsePacket(pingResponsePacket);
+            case McApiPingResponsePacket:
+                this.HandlePingResponsePacket(packet);
                 break;
-            case McApiPacketType.ResetRequest:
-                const resetRequestPacket = new McApiResetRequestPacket();
-                resetRequestPacket.Deserialize(reader);
-                this.HandleResetRequestPacket(resetRequestPacket);
+            case McApiEventRequestPacket:
+                this.HandleEventRequestPacket(packet);
                 break;
-            case McApiPacketType.SetEffectRequest:
-                const setEffectRequestPacket = new McApiSetEffectRequestPacket();
-                setEffectRequestPacket.Deserialize(reader);
-                this.HandleSetEffectRequestPacket(setEffectRequestPacket);
+            case McApiResetRequestPacket:
+                this.HandleResetRequestPacket(packet);
                 break;
-            case McApiPacketType.ClearEffectsRequest:
-                const clearEffectsRequestPacket = new McApiClearEffectsRequestPacket();
-                clearEffectsRequestPacket.Deserialize(reader);
-                this.HandleClearEffectsRequestPacket(clearEffectsRequestPacket);
+            case McApiSetEffectRequestPacket:
+                this.HandleSetEffectRequestPacket(packet);
                 break;
-            case McApiPacketType.CreateEntityRequest:
-                const createEntityRequestPacket = new McApiCreateEntityRequestPacket();
-                createEntityRequestPacket.Deserialize(reader);
-                this.HandleCreateEntityRequestPacket(createEntityRequestPacket);
+            case McApiClearEffectsRequestPacket:
+                this.HandleClearEffectsRequestPacket(packet);
                 break;
-            case McApiPacketType.DestroyEntityRequest:
-                const destroyEntityRequestPacket = new McApiDestroyEntityRequestPacket();
-                destroyEntityRequestPacket.Deserialize(reader);
-                this.HandleDestroyEntityRequestPacket(destroyEntityRequestPacket);
+            case McApiCreateEntityRequestPacket:
+                this.HandleCreateEntityRequestPacket(packet);
                 break;
-            case McApiPacketType.EntityAudioRequest:
-                const entityAudioRequestPacket = new McApiEntityAudioRequestPacket();
-                entityAudioRequestPacket.Deserialize(reader);
-                this.HandleEntityAudioRequestPacket(entityAudioRequestPacket);
+            case McApiDestroyEntityRequestPacket:
+                this.HandleDestroyEntityRequestPacket(packet);
                 break;
-            case McApiPacketType.SetEntityTitleRequest:
-                const setEntityTitleRequestPacket = new McApiSetEntityTitleRequestPacket();
-                setEntityTitleRequestPacket.Deserialize(reader);
-                this.HandleSetEntityTitleRequestPacket(setEntityTitleRequestPacket);
+            case McApiEntityAudioRequestPacket:
+                this.HandleEntityAudioRequestPacket(packet);
                 break;
-            case McApiPacketType.SetEntityDescriptionRequest:
-                const setEntityDescriptionRequestPacket = new McApiSetEntityDescriptionRequestPacket();
-                setEntityDescriptionRequestPacket.Deserialize(reader);
-                this.HandleSetEntityDescriptionRequestPacket(setEntityDescriptionRequestPacket);
+            case McApiSetEntityTitleRequestPacket:
+                this.HandleSetEntityTitleRequestPacket(packet);
                 break;
-            case McApiPacketType.SetEntityWorldIdRequest:
-                const setEntityWorldIdRequestPacket = new McApiSetEntityWorldIdRequestPacket();
-                setEntityWorldIdRequestPacket.Deserialize(reader);
-                this.HandleSetEntityWorldIdRequestPacket(setEntityWorldIdRequestPacket);
+            case McApiSetEntityDescriptionRequestPacket:
+                this.HandleSetEntityDescriptionRequestPacket(packet);
                 break;
-            case McApiPacketType.SetEntityNameRequest:
-                const setEntityNameRequestPacket = new McApiSetEntityNameRequestPacket();
-                setEntityNameRequestPacket.Deserialize(reader);
-                this.HandleSetEntityNameRequestPacket(setEntityNameRequestPacket);
+            case McApiSetEntityWorldIdRequestPacket:
+                this.HandleSetEntityWorldIdRequestPacket(packet);
                 break;
-            case McApiPacketType.SetEntityMuteRequest:
-                const setEntityMuteRequestPacket = new McApiSetEntityMuteRequestPacket();
-                setEntityMuteRequestPacket.Deserialize(reader);
-                this.HandleSetEntityMuteRequestPacket(setEntityMuteRequestPacket);
+            case McApiSetEntityNameRequestPacket:
+                this.HandleSetEntityNameRequestPacket(packet);
                 break;
-            case McApiPacketType.SetEntityDeafenRequest:
-                const setEntityDeafenRequestPacket = new McApiSetEntityDeafenRequestPacket();
-                setEntityDeafenRequestPacket.Deserialize(reader);
-                this.HandleSetEntityDeafenRequestPacket(setEntityDeafenRequestPacket);
+            case McApiSetEntityMuteRequestPacket:
+                this.HandleSetEntityMuteRequestPacket(packet);
                 break;
-            case McApiPacketType.SetEntityTalkBitmaskRequest:
-                const setEntityTalkBitmaskRequestPacket = new McApiSetEntityTalkBitmaskRequestPacket();
-                setEntityTalkBitmaskRequestPacket.Deserialize(reader);
-                this.HandleSetEntityTalkBitmaskRequestPacket(setEntityTalkBitmaskRequestPacket);
+            case McApiSetEntityDeafenRequestPacket:
+                this.HandleSetEntityDeafenRequestPacket(packet);
                 break;
-            case McApiPacketType.SetEntityListenBitmaskRequest:
-                const setEntityListenBitmaskRequestPacket = new McApiSetEntityListenBitmaskRequestPacket();
-                setEntityListenBitmaskRequestPacket.Deserialize(reader);
-                this.HandleSetEntityListenBitmaskRequestPacket(setEntityListenBitmaskRequestPacket);
+            case McApiSetEntityTalkBitmaskRequestPacket:
+                this.HandleSetEntityTalkBitmaskRequestPacket(packet);
                 break;
-            case McApiPacketType.SetEntityEffectBitmaskRequest:
-                const setEntityEffectBitmaskRequestPacket = new McApiSetEntityEffectBitmaskRequestPacket();
-                setEntityEffectBitmaskRequestPacket.Deserialize(reader);
-                this.HandleSetEntityEffectBitmaskRequestPacket(setEntityEffectBitmaskRequestPacket);
+            case McApiSetEntityListenBitmaskRequestPacket:
+                this.HandleSetEntityListenBitmaskRequestPacket(packet);
                 break;
-            case McApiPacketType.SetEntityPositionRequest:
-                const setEntityPositionRequestPacket = new McApiSetEntityPositionRequestPacket();
-                setEntityPositionRequestPacket.Deserialize(reader);
-                this.HandleSetEntityPositionRequestPacket(setEntityPositionRequestPacket);
+            case McApiSetEntityEffectBitmaskRequestPacket:
+                this.HandleSetEntityEffectBitmaskRequestPacket(packet);
                 break;
-            case McApiPacketType.SetEntityRotationRequest:
-                const setEntityRotationRequestPacket = new McApiSetEntityRotationRequestPacket();
-                setEntityRotationRequestPacket.Deserialize(reader);
-                this.HandleSetEntityRotationRequestPacket(setEntityRotationRequestPacket);
+            case McApiSetEntityPositionRequestPacket:
+                this.HandleSetEntityPositionRequestPacket(packet);
                 break;
-            case McApiPacketType.SetEntityCaveFactorRequest:
-                const setEntityCaveFactorRequestPacket = new McApiSetEntityCaveFactorRequestPacket();
-                setEntityCaveFactorRequestPacket.Deserialize(reader);
-                this.HandleSetEntityCaveFactorRequestPacket(setEntityCaveFactorRequestPacket);
+            case McApiSetEntityRotationRequestPacket:
+                this.HandleSetEntityRotationRequestPacket(packet);
                 break;
-            case McApiPacketType.SetEntityMuffleFactorRequest:
-                const setEntityMuffleFactorRequestPacket = new McApiSetEntityMuffleFactorRequestPacket();
-                setEntityMuffleFactorRequestPacket.Deserialize(reader);
-                this.HandleSetEntityMuffleFactorRequestPacket(setEntityMuffleFactorRequestPacket);
+            case McApiSetEntityPropertyRequestPacket:
+                this.HandleSetEntityPropertyRequestPacket(packet);
                 break;
-            case McApiPacketType.ResetResponse:
-                const resetResponsePacket = new McApiResetResponsePacket();
-                resetResponsePacket.Deserialize(reader);
-                this.HandleResetResponsePacket(resetResponsePacket);
+            case McApiResetResponsePacket:
+                this.HandleResetResponsePacket(packet);
                 break;
-            case McApiPacketType.CreateEntityResponse:
-                const createEntityResponsePacket = new McApiCreateEntityResponsePacket();
-                createEntityResponsePacket.Deserialize(reader);
-                this.HandleCreateEntityResponsePacket(createEntityResponsePacket);
+            case McApiCreateEntityResponsePacket:
+                this.HandleCreateEntityResponsePacket(packet);
                 break;
-            case McApiPacketType.DestroyEntityResponse:
-                const destroyEntityResponsePacket = new McApiDestroyEntityResponsePacket();
-                destroyEntityResponsePacket.Deserialize(reader);
-                this.HandleDestroyEntityResponsePacket(destroyEntityResponsePacket);
-                break;
-            case McApiPacketType.OnEffectUpdated:
-                const onEffectUpdatedPacket = new McApiOnEffectUpdatedPacket();
-                onEffectUpdatedPacket.Deserialize(reader);
-                this.HandleOnEffectUpdatedPacket(onEffectUpdatedPacket);
-                break;
-            case McApiPacketType.OnEntityCreated:
-                const onEntityCreatedPacket = new McApiOnEntityCreatedPacket();
-                onEntityCreatedPacket.Deserialize(reader);
-                this.HandleOnEntityCreatedPacket(onEntityCreatedPacket);
-                break;
-            case McApiPacketType.OnNetworkEntityCreated:
-                const onNetworkEntityCreatedPacket = new McApiOnNetworkEntityCreatedPacket();
-                onNetworkEntityCreatedPacket.Deserialize(reader);
-                this.HandleOnNetworkEntityCreatedPacket(onNetworkEntityCreatedPacket);
-                break;
-            case McApiPacketType.OnEntityDestroyed:
-                const onEntityDestroyedPacket = new McApiOnEntityDestroyedPacket();
-                onEntityDestroyedPacket.Deserialize(reader);
-                this.HandleOnEntityDestroyedPacket(onEntityDestroyedPacket);
-                break;
-            case McApiPacketType.OnEntityVisibilityUpdated:
-                const onEntityVisibilityUpdatedPacket = new McApiOnEntityVisibilityUpdatedPacket();
-                onEntityVisibilityUpdatedPacket.Deserialize(reader);
-                this.HandleOnEntityVisibilityUpdatedPacket(onEntityVisibilityUpdatedPacket);
-                break;
-            case McApiPacketType.OnEntityWorldIdUpdated:
-                const onEntityWorldIdUpdatedPacket = new McApiOnEntityWorldIdUpdatedPacket();
-                onEntityWorldIdUpdatedPacket.Deserialize(reader);
-                this.HandleOnEntityWorldIdUpdatedPacket(onEntityWorldIdUpdatedPacket);
-                break;
-            case McApiPacketType.OnEntityNameUpdated:
-                const onEntityNameUpdatedPacket = new McApiOnEntityNameUpdatedPacket();
-                onEntityNameUpdatedPacket.Deserialize(reader);
-                this.HandleOnEntityNameUpdatedPacket(onEntityNameUpdatedPacket);
-                break;
-            case McApiPacketType.OnEntityMuteUpdated:
-                const onEntityMuteUpdatedPacket = new McApiOnEntityMuteUpdatedPacket();
-                onEntityMuteUpdatedPacket.Deserialize(reader);
-                this.HandleOnEntityMuteUpdatedPacket(onEntityMuteUpdatedPacket);
-                break;
-            case McApiPacketType.OnEntityDeafenUpdated:
-                const onEntityDeafenUpdatedPacket = new McApiOnEntityDeafenUpdatedPacket();
-                onEntityDeafenUpdatedPacket.Deserialize(reader);
-                this.HandleOnEntityDeafenUpdatedPacket(onEntityDeafenUpdatedPacket);
-                break;
-            case McApiPacketType.OnEntityServerMuteUpdated:
-                const onEntityServerMuteUpdatedPacket = new McApiOnEntityServerMuteUpdatedPacket();
-                onEntityServerMuteUpdatedPacket.Deserialize(reader);
-                this.HandleOnEntityServerMuteUpdatedPacket(onEntityServerMuteUpdatedPacket);
-                break;
-            case McApiPacketType.OnEntityServerDeafenUpdated:
-                const onEntityServerDeafenUpdatedPacket = new McApiOnEntityServerDeafenUpdatedPacket();
-                onEntityServerDeafenUpdatedPacket.Deserialize(reader);
-                this.HandleOnEntityServerDeafenUpdatedPacket(onEntityServerDeafenUpdatedPacket);
-                break;
-            case McApiPacketType.OnEntityTalkBitmaskUpdated:
-                const onEntityTalkBitmaskUpdatedPacket = new McApiOnEntityTalkBitmaskUpdatedPacket();
-                onEntityTalkBitmaskUpdatedPacket.Deserialize(reader);
-                this.HandleOnEntityTalkBitmaskUpdatedPacket(onEntityTalkBitmaskUpdatedPacket);
-                break;
-            case McApiPacketType.OnEntityListenBitmaskUpdated:
-                const onEntityListenBitmaskUpdatedPacket = new McApiOnEntityListenBitmaskUpdatedPacket();
-                onEntityListenBitmaskUpdatedPacket.Deserialize(reader);
-                this.HandleOnEntityListenBitmaskUpdatedPacket(onEntityListenBitmaskUpdatedPacket);
-                break;
-            case McApiPacketType.OnEntityEffectBitmaskUpdated:
-                const onEntityEffectBitmaskUpdatedPacket = new McApiOnEntityEffectBitmaskUpdatedPacket();
-                onEntityEffectBitmaskUpdatedPacket.Deserialize(reader);
-                this.HandleOnEntityEffectBitmaskUpdatedPacket(onEntityEffectBitmaskUpdatedPacket);
-                break;
-            case McApiPacketType.OnEntityPositionUpdated:
-                const onEntityPositionUpdatedPacket = new McApiOnEntityPositionUpdatedPacket();
-                onEntityPositionUpdatedPacket.Deserialize(reader);
-                this.HandleOnEntityPositionUpdatedPacket(onEntityPositionUpdatedPacket);
-                break;
-            case McApiPacketType.OnEntityRotationUpdated:
-                const onEntityRotationUpdatedPacket = new McApiOnEntityRotationUpdatedPacket();
-                onEntityRotationUpdatedPacket.Deserialize(reader);
-                this.HandleOnEntityRotationUpdatedPacket(onEntityRotationUpdatedPacket);
-                break;
-            case McApiPacketType.OnEntityCaveFactorUpdated:
-                const onEntityCaveFactorUpdatedPacket = new McApiOnEntityCaveFactorUpdatedPacket();
-                onEntityCaveFactorUpdatedPacket.Deserialize(reader);
-                this.HandleOnEntityCaveFactorUpdatedPacket(onEntityCaveFactorUpdatedPacket);
-                break;
-            case McApiPacketType.OnEntityMuffleFactorUpdated:
-                const onEntityMuffleFactorUpdatedPacket = new McApiOnEntityMuffleFactorUpdatedPacket();
-                onEntityMuffleFactorUpdatedPacket.Deserialize(reader);
-                this.HandleOnEntityMuffleFactorUpdatedPacket(onEntityMuffleFactorUpdatedPacket);
-                break;
-            case McApiPacketType.OnEntityAudioReceived:
-                const onEntityAudioReceived = new McApiOnEntityAudioReceivedPacket();
-                onEntityAudioReceived.Deserialize(reader);
-                this.HandleOnEntityAudioReceivedPacket(onEntityAudioReceived);
+            case McApiDestroyEntityResponsePacket:
+                this.HandleDestroyEntityResponsePacket(packet);
                 break;
         }
     }
+    //Packet Handling
     HandleLoginRequestPacket(packet) {
-        this.OnPacket.Invoke(packet);
         this.OnLoginRequestPacket.Invoke(packet);
     }
     HandleLogoutRequestPacket(packet) {
-        this.OnPacket.Invoke(packet);
         this.OnLogoutRequestPacket.Invoke(packet);
     }
     HandlePingRequestPacket(packet) {
-        this.OnPacket.Invoke(packet);
         this.OnPingRequestPacket.Invoke(packet);
     }
     HandleAcceptResponsePacket(packet) {
-        this.OnPacket.Invoke(packet);
         this.OnAcceptResponsePacket.Invoke(packet);
     }
     HandleDenyResponsePacket(packet) {
-        this.OnPacket.Invoke(packet);
         this.OnDenyResponsePacket.Invoke(packet);
     }
     HandlePingResponsePacket(packet) {
-        this.OnPacket.Invoke(packet);
         this.OnPingResponsePacket.Invoke(packet);
     }
+    HandleEventRequestPacket(packet) {
+        this.OnEventRequestPacket.Invoke(packet);
+        switch (packet.Event?.constructor) {
+            case McApiOnEffectUpdatedPacket:
+                this.HandleOnEffectUpdatedPacket(packet.Event);
+                break;
+            case McApiOnEntityCreatedPacket:
+                this.HandleOnEntityCreatedPacket(packet.Event);
+                break;
+            case McApiOnNetworkEntityCreatedPacket:
+                this.HandleOnNetworkEntityCreatedPacket(packet.Event);
+                break;
+            case McApiOnEntityDestroyedPacket:
+                this.HandleOnEntityDestroyedPacket(packet.Event);
+                break;
+            case McApiOnEntityVisibilityUpdatedPacket:
+                this.HandleOnEntityVisibilityUpdatedPacket(packet.Event);
+                break;
+            case McApiOnEntityWorldIdUpdatedPacket:
+                this.HandleOnEntityWorldIdUpdatedPacket(packet.Event);
+                break;
+            case McApiOnEntityNameUpdatedPacket:
+                this.HandleOnEntityNameUpdatedPacket(packet.Event);
+                break;
+            case McApiOnEntityMuteUpdatedPacket:
+                this.HandleOnEntityMuteUpdatedPacket(packet.Event);
+                break;
+            case McApiOnEntityDeafenUpdatedPacket:
+                this.HandleOnEntityDeafenUpdatedPacket(packet.Event);
+                break;
+            case McApiOnEntityServerMuteUpdatedPacket:
+                this.HandleOnEntityServerMuteUpdatedPacket(packet.Event);
+                break;
+            case McApiOnEntityServerDeafenUpdatedPacket:
+                this.HandleOnEntityServerDeafenUpdatedPacket(packet.Event);
+                break;
+            case McApiOnEntityTalkBitmaskUpdatedPacket:
+                this.HandleOnEntityTalkBitmaskUpdatedPacket(packet.Event);
+                break;
+            case McApiOnEntityListenBitmaskUpdatedPacket:
+                this.HandleOnEntityListenBitmaskUpdatedPacket(packet.Event);
+                break;
+            case McApiOnEntityEffectBitmaskUpdatedPacket:
+                this.HandleOnEntityEffectBitmaskUpdatedPacket(packet.Event);
+                break;
+            case McApiOnEntityPositionUpdatedPacket:
+                this.HandleOnEntityPositionUpdatedPacket(packet.Event);
+                break;
+            case McApiOnEntityRotationUpdatedPacket:
+                this.HandleOnEntityRotationUpdatedPacket(packet.Event);
+                break;
+            case McApiOnEntityPropertyUpdatedPacket:
+                this.HandleOnEntityPropertyUpdatedPacket(packet.Event);
+                break;
+            case McApiOnEntityAudioReceivedPacket:
+                this.HandleOnEntityAudioReceivedPacket(packet.Event);
+                break;
+            case McApiOnEntityAudioDataReceivedPacket:
+                this.HandleOnEntityAudioDataReceivedPacket(packet.Event);
+                break;
+        }
+    }
     HandleResetRequestPacket(packet) {
-        this.OnPacket.Invoke(packet);
         this.OnResetRequestPacket.Invoke(packet);
     }
     HandleSetEffectRequestPacket(packet) {
-        this.OnPacket.Invoke(packet);
         this.OnSetEffectRequestPacket.Invoke(packet);
     }
     HandleClearEffectsRequestPacket(packet) {
-        this.OnPacket.Invoke(packet);
         this.OnClearEffectsRequestPacket.Invoke(packet);
     }
     HandleCreateEntityRequestPacket(packet) {
-        this.OnPacket.Invoke(packet);
         this.OnCreateEntityRequestPacket.Invoke(packet);
     }
     HandleDestroyEntityRequestPacket(packet) {
-        this.OnPacket.Invoke(packet);
         this.OnDestroyEntityRequestPacket.Invoke(packet);
     }
     HandleEntityAudioRequestPacket(packet) {
-        this.OnPacket.Invoke(packet);
         this.OnEntityAudioRequestPacket.Invoke(packet);
     }
     HandleSetEntityTitleRequestPacket(packet) {
-        this.OnPacket.Invoke(packet);
         this.OnSetEntityTitleRequestPacket.Invoke(packet);
     }
     HandleSetEntityDescriptionRequestPacket(packet) {
-        this.OnPacket.Invoke(packet);
         this.OnSetEntityDescriptionRequestPacket.Invoke(packet);
     }
     HandleSetEntityWorldIdRequestPacket(packet) {
-        this.OnPacket.Invoke(packet);
         this.OnSetEntityWorldIdRequestPacket.Invoke(packet);
     }
     HandleSetEntityNameRequestPacket(packet) {
-        this.OnPacket.Invoke(packet);
         this.OnSetEntityNameRequestPacket.Invoke(packet);
     }
     HandleSetEntityMuteRequestPacket(packet) {
-        this.OnPacket.Invoke(packet);
         this.OnSetEntityMuteRequestPacket.Invoke(packet);
     }
     HandleSetEntityDeafenRequestPacket(packet) {
-        this.OnPacket.Invoke(packet);
         this.OnSetEntityDeafenRequestPacket.Invoke(packet);
     }
     HandleSetEntityTalkBitmaskRequestPacket(packet) {
-        this.OnPacket.Invoke(packet);
         this.OnSetEntityTalkBitmaskRequestPacket.Invoke(packet);
     }
     HandleSetEntityListenBitmaskRequestPacket(packet) {
-        this.OnPacket.Invoke(packet);
         this.OnSetEntityListenBitmaskRequestPacket.Invoke(packet);
     }
     HandleSetEntityEffectBitmaskRequestPacket(packet) {
-        this.OnPacket.Invoke(packet);
         this.OnSetEntityEffectBitmaskRequestPacket.Invoke(packet);
     }
     HandleSetEntityPositionRequestPacket(packet) {
-        this.OnPacket.Invoke(packet);
         this.OnSetEntityPositionRequestPacket.Invoke(packet);
     }
     HandleSetEntityRotationRequestPacket(packet) {
-        this.OnPacket.Invoke(packet);
         this.OnSetEntityRotationRequestPacket.Invoke(packet);
     }
-    HandleSetEntityCaveFactorRequestPacket(packet) {
-        this.OnPacket.Invoke(packet);
-        this.OnSetEntityCaveFactorRequestPacket.Invoke(packet);
-    }
-    HandleSetEntityMuffleFactorRequestPacket(packet) {
-        this.OnPacket.Invoke(packet);
-        this.OnSetEntityMuffleFactorRequestPacket.Invoke(packet);
+    HandleSetEntityPropertyRequestPacket(packet) {
+        this.OnSetEntityPropertyRequestPacket.Invoke(packet);
     }
     HandleResetResponsePacket(packet) {
-        this.OnPacket.Invoke(packet);
         this.OnResetResponsePacket.Invoke(packet);
     }
     HandleCreateEntityResponsePacket(packet) {
-        this.OnPacket.Invoke(packet);
         this.OnCreateEntityResponsePacket.Invoke(packet);
     }
     HandleDestroyEntityResponsePacket(packet) {
-        this.OnPacket.Invoke(packet);
         this.OnDestroyEntityResponsePacket.Invoke(packet);
     }
+    //Event Handling
     HandleOnEffectUpdatedPacket(packet) {
-        this.OnPacket.Invoke(packet);
         this.OnEffectUpdatedPacket.Invoke(packet);
     }
     HandleOnEntityCreatedPacket(packet) {
-        this.OnPacket.Invoke(packet);
         this.OnEntityCreatedPacket.Invoke(packet);
     }
     HandleOnNetworkEntityCreatedPacket(packet) {
-        this.OnPacket.Invoke(packet);
         this.OnNetworkEntityCreatedPacket.Invoke(packet);
     }
     HandleOnEntityDestroyedPacket(packet) {
-        this.OnPacket.Invoke(packet);
         this.OnEntityDestroyedPacket.Invoke(packet);
     }
     HandleOnEntityVisibilityUpdatedPacket(packet) {
-        this.OnPacket.Invoke(packet);
         this.OnEntityVisibilityUpdatedPacket.Invoke(packet);
     }
     HandleOnEntityWorldIdUpdatedPacket(packet) {
-        this.OnPacket.Invoke(packet);
         this.OnEntityWorldIdUpdatedPacket.Invoke(packet);
     }
     HandleOnEntityNameUpdatedPacket(packet) {
-        this.OnPacket.Invoke(packet);
         this.OnEntityNameUpdatedPacket.Invoke(packet);
     }
     HandleOnEntityMuteUpdatedPacket(packet) {
-        this.OnPacket.Invoke(packet);
         this.OnEntityMuteUpdatedPacket.Invoke(packet);
     }
     HandleOnEntityDeafenUpdatedPacket(packet) {
-        this.OnPacket.Invoke(packet);
         this.OnEntityDeafenUpdatedPacket.Invoke(packet);
     }
     HandleOnEntityServerMuteUpdatedPacket(packet) {
-        this.OnPacket.Invoke(packet);
         this.OnEntityServerMuteUpdatedPacket.Invoke(packet);
     }
     HandleOnEntityServerDeafenUpdatedPacket(packet) {
-        this.OnPacket.Invoke(packet);
         this.OnEntityServerDeafenUpdatedPacket.Invoke(packet);
     }
     HandleOnEntityTalkBitmaskUpdatedPacket(packet) {
-        this.OnPacket.Invoke(packet);
         this.OnEntityTalkBitmaskUpdatedPacket.Invoke(packet);
     }
     HandleOnEntityListenBitmaskUpdatedPacket(packet) {
-        this.OnPacket.Invoke(packet);
         this.OnEntityListenBitmaskUpdatedPacket.Invoke(packet);
     }
     HandleOnEntityEffectBitmaskUpdatedPacket(packet) {
-        this.OnPacket.Invoke(packet);
         this.OnEntityEffectBitmaskUpdatedPacket.Invoke(packet);
     }
     HandleOnEntityPositionUpdatedPacket(packet) {
-        this.OnPacket.Invoke(packet);
         this.OnEntityPositionUpdatedPacket.Invoke(packet);
     }
     HandleOnEntityRotationUpdatedPacket(packet) {
-        this.OnPacket.Invoke(packet);
         this.OnEntityRotationUpdatedPacket.Invoke(packet);
     }
-    HandleOnEntityCaveFactorUpdatedPacket(packet) {
-        this.OnPacket.Invoke(packet);
-        this.OnEntityCaveFactorUpdatedPacket.Invoke(packet);
-    }
-    HandleOnEntityMuffleFactorUpdatedPacket(packet) {
-        this.OnPacket.Invoke(packet);
-        this.OnEntityMuffleFactorUpdatedPacket.Invoke(packet);
+    HandleOnEntityPropertyUpdatedPacket(packet) {
+        this.OnEntityPropertyUpdatedPacket.Invoke(packet);
     }
     HandleOnEntityAudioReceivedPacket(packet) {
-        this.OnPacket.Invoke(packet);
         this.OnEntityAudioReceivedPacket.Invoke(packet);
+    }
+    HandleOnEntityAudioDataReceivedPacket(packet) {
+        this.OnEntityAudioDataReceivedPacket.Invoke(packet);
+    }
+    ProcessPacket(reader, onParsed, packetFactory) {
+        const packet = packetFactory();
+        packet.Deserialize(reader);
+        this.OnPacket.Invoke(packet);
+        onParsed(packet);
     }
 }

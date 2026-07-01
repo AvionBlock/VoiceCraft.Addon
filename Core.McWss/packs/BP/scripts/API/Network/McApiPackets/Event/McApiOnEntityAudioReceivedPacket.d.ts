@@ -1,10 +1,10 @@
-import { McApiPacketType } from "../../../Data/Enums";
-import { IMcApiPacket } from "../IMcApiPacket";
-import { NetDataWriter } from "../../../Data/NetDataWriter";
+import { IMcApiEventPacket } from "../IMcApiEventPacket";
+import { EventType } from "../../../Data/Enums";
 import { NetDataReader } from "../../../Data/NetDataReader";
-export declare class McApiOnEntityAudioReceivedPacket implements IMcApiPacket {
+import { NetDataWriter } from "../../../Data/NetDataWriter";
+export declare class McApiOnEntityAudioReceivedPacket implements IMcApiEventPacket {
     constructor(id?: number, timestamp?: number, loudness?: number);
-    get PacketType(): McApiPacketType;
+    get EventType(): EventType;
     get Id(): number;
     get Timestamp(): number;
     get FrameLoudness(): number;
@@ -13,5 +13,5 @@ export declare class McApiOnEntityAudioReceivedPacket implements IMcApiPacket {
     private _frameLoudness;
     Serialize(writer: NetDataWriter): void;
     Deserialize(reader: NetDataReader): void;
-    Set(id?: number, timestamp?: number, loudness?: number): McApiOnEntityAudioReceivedPacket;
+    Set(id?: number, timestamp?: number, loudness?: number): void;
 }

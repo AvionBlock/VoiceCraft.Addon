@@ -12,7 +12,7 @@ export declare class McApiResetResponsePacket implements IMcApiPacket, IMcApiRId
     private _responseCode;
     Serialize(writer: NetDataWriter): void;
     Deserialize(reader: NetDataReader): void;
-    Set(requestId?: string, responseCode?: ResponseCodes): McApiResetResponsePacket;
+    Set(requestId?: string, responseCode?: ResponseCodes): void;
 }
 export declare enum ResponseCodes {
     Ok = 0,

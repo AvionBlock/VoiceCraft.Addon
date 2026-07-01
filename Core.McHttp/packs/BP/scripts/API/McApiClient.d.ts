@@ -3,12 +3,12 @@ import { IMcApiPacket } from "./Network/McApiPackets/IMcApiPacket";
 import { Event } from "./Event";
 import { NetDataReader } from "./Data/NetDataReader";
 export declare abstract class McApiClient {
+    private _voicecraft;
     private _connectionState;
     private _token;
     protected LastPing: number;
     get Token(): string | undefined;
     protected set Token(value: string | undefined);
-    OnPacketReceived: Event<IMcApiPacket>;
     OnConnected: Event<string>;
     OnDisconnected: Event<string | undefined>;
     get ConnectionState(): McApiConnectionState;

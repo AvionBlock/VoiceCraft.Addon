@@ -55,7 +55,7 @@ export abstract class McApiClient {
     }
 
     private HandleAcceptResponsePacket(packet: McApiAcceptResponsePacket) {
-        if (this.ConnectionState != McApiConnectionState.Connecting) return;
+        if (this.ConnectionState !== McApiConnectionState.Connecting) return;
         this._token = packet.Token;
         this._connectionState = McApiConnectionState.Connected;
         this.OnConnected?.Invoke(packet.Token);
@@ -63,7 +63,7 @@ export abstract class McApiClient {
     }
 
     private HandleDenyResponsePacket(packet: McApiDenyResponsePacket): void {
-        if (this.ConnectionState != McApiConnectionState.Connecting) return;
+        if (this.ConnectionState !== McApiConnectionState.Connecting) return;
         this.DisconnectAsync(packet.Reason, true).then();
     }
 }

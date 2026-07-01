@@ -16,8 +16,8 @@ export class McApiSetEntityTalkBitmaskRequestPacket {
     _id;
     _value;
     Serialize(writer) {
-        writer.PutInt(this.Id);
-        writer.PutUshort(this.Value);
+        writer.PutInt(this._id);
+        writer.PutUshort(this._value);
     }
     Deserialize(reader) {
         this._id = reader.GetInt();
@@ -26,6 +26,5 @@ export class McApiSetEntityTalkBitmaskRequestPacket {
     Set(id = 0, value = 0) {
         this._id = id;
         this._value = value;
-        return this;
     }
 }

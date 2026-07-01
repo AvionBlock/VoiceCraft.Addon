@@ -12,13 +12,12 @@ export class McApiLogoutRequestPacket {
     }
     _token;
     Serialize(writer) {
-        writer.PutString(this.Token, MaxStringLength);
+        writer.PutString(this._token, MaxStringLength);
     }
     Deserialize(reader) {
         this._token = reader.GetString(MaxStringLength);
     }
     Set(token = "") {
         this._token = token;
-        return this;
     }
 }

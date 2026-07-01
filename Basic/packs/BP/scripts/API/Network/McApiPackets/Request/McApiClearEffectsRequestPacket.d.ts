@@ -7,5 +7,4 @@ export declare class McApiClearEffectsRequestPacket implements IMcApiPacket {
     get PacketType(): McApiPacketType;
     Serialize(writer: NetDataWriter): void;
     Deserialize(reader: NetDataReader): void;
-    Set(): McApiClearEffectsRequestPacket;
 }

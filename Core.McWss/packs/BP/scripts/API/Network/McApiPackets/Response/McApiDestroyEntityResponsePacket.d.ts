@@ -12,7 +12,7 @@ export declare class McApiDestroyEntityResponsePacket implements IMcApiPacket, I
     private _responseCode;
     Serialize(writer: NetDataWriter): void;
     Deserialize(reader: NetDataReader): void;
-    Set(requestId?: string, responseCode?: ResponseCodes): McApiDestroyEntityResponsePacket;
+    Set(requestId?: string, responseCode?: ResponseCodes): void;
 }
 export declare enum ResponseCodes {
     Ok = 0,

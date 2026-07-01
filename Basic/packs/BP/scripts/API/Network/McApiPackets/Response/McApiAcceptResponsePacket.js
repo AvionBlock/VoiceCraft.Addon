@@ -17,8 +17,8 @@ export class McApiAcceptResponsePacket {
     _requestId;
     _token;
     Serialize(writer) {
-        writer.PutString(this.RequestId, MaxStringLength);
-        writer.PutString(this.Token, MaxStringLength);
+        writer.PutString(this._requestId, MaxStringLength);
+        writer.PutString(this._token, MaxStringLength);
     }
     Deserialize(reader) {
         this._requestId = reader.GetString(MaxStringLength);
@@ -27,6 +27,5 @@ export class McApiAcceptResponsePacket {
     Set(requestId = "", token = "") {
         this._requestId = requestId;
         this._token = token;
-        return this;
     }
 }

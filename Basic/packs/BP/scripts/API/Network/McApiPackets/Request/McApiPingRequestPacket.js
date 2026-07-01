@@ -9,7 +9,4 @@ export class McApiPingRequestPacket {
     }
     Deserialize(reader) {
     }
-    Set() {
-        return this;
-    }
 }

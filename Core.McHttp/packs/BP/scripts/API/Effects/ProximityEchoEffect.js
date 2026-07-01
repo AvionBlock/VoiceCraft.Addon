@@ -3,6 +3,12 @@ export class ProximityEchoEffect {
     get EffectType() {
         return EffectType.ProximityEcho;
     }
+    get Bitmask() {
+        return this._bitmask;
+    }
+    set Bitmask(value) {
+        this._bitmask = value;
+    }
     get Delay() {
         return this._delay;
     }
@@ -21,6 +27,7 @@ export class ProximityEchoEffect {
     set WetDry(value) {
         this._wetDry = Math.min(1, Math.max(value, 0));
     }
+    _bitmask = 65535;
     _delay = 0.5;
     _range = 0;
     _wetDry = 1;
@@ -33,8 +40,5 @@ export class ProximityEchoEffect {
         this._delay = reader.GetFloat();
         this._range = reader.GetFloat();
         this._wetDry = reader.GetFloat();
-    }
-    Reset() {
-        //Nothing to reset.
     }
 }

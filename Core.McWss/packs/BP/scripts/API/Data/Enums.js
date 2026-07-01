@@ -5,63 +5,6 @@ export var McApiConnectionState;
     McApiConnectionState[McApiConnectionState["Connected"] = 2] = "Connected";
     McApiConnectionState[McApiConnectionState["Disconnecting"] = 3] = "Disconnecting";
 })(McApiConnectionState || (McApiConnectionState = {}));
-export var McApiPacketType;
-(function (McApiPacketType) {
-    //Core
-    //Requests DO NOT CHANGE!
-    McApiPacketType[McApiPacketType["LoginRequest"] = 0] = "LoginRequest";
-    McApiPacketType[McApiPacketType["LogoutRequest"] = 1] = "LogoutRequest";
-    McApiPacketType[McApiPacketType["PingRequest"] = 2] = "PingRequest";
-    //Responses DO NOT CHANGE!
-    McApiPacketType[McApiPacketType["AcceptResponse"] = 3] = "AcceptResponse";
-    McApiPacketType[McApiPacketType["DenyResponse"] = 4] = "DenyResponse";
-    McApiPacketType[McApiPacketType["PingResponse"] = 5] = "PingResponse";
-    //Other/Changeable
-    //Requests
-    McApiPacketType[McApiPacketType["ResetRequest"] = 6] = "ResetRequest";
-    McApiPacketType[McApiPacketType["SetEffectRequest"] = 7] = "SetEffectRequest";
-    McApiPacketType[McApiPacketType["ClearEffectsRequest"] = 8] = "ClearEffectsRequest";
-    McApiPacketType[McApiPacketType["CreateEntityRequest"] = 9] = "CreateEntityRequest";
-    McApiPacketType[McApiPacketType["DestroyEntityRequest"] = 10] = "DestroyEntityRequest";
-    McApiPacketType[McApiPacketType["EntityAudioRequest"] = 11] = "EntityAudioRequest";
-    McApiPacketType[McApiPacketType["SetEntityTitleRequest"] = 12] = "SetEntityTitleRequest";
-    McApiPacketType[McApiPacketType["SetEntityDescriptionRequest"] = 13] = "SetEntityDescriptionRequest";
-    McApiPacketType[McApiPacketType["SetEntityWorldIdRequest"] = 14] = "SetEntityWorldIdRequest";
-    McApiPacketType[McApiPacketType["SetEntityNameRequest"] = 15] = "SetEntityNameRequest";
-    McApiPacketType[McApiPacketType["SetEntityMuteRequest"] = 16] = "SetEntityMuteRequest";
-    McApiPacketType[McApiPacketType["SetEntityDeafenRequest"] = 17] = "SetEntityDeafenRequest";
-    McApiPacketType[McApiPacketType["SetEntityTalkBitmaskRequest"] = 18] = "SetEntityTalkBitmaskRequest";
-    McApiPacketType[McApiPacketType["SetEntityListenBitmaskRequest"] = 19] = "SetEntityListenBitmaskRequest";
-    McApiPacketType[McApiPacketType["SetEntityEffectBitmaskRequest"] = 20] = "SetEntityEffectBitmaskRequest";
-    McApiPacketType[McApiPacketType["SetEntityPositionRequest"] = 21] = "SetEntityPositionRequest";
-    McApiPacketType[McApiPacketType["SetEntityRotationRequest"] = 22] = "SetEntityRotationRequest";
-    McApiPacketType[McApiPacketType["SetEntityCaveFactorRequest"] = 23] = "SetEntityCaveFactorRequest";
-    McApiPacketType[McApiPacketType["SetEntityMuffleFactorRequest"] = 24] = "SetEntityMuffleFactorRequest";
-    //Responses
-    McApiPacketType[McApiPacketType["ResetResponse"] = 25] = "ResetResponse";
-    McApiPacketType[McApiPacketType["CreateEntityResponse"] = 26] = "CreateEntityResponse";
-    McApiPacketType[McApiPacketType["DestroyEntityResponse"] = 27] = "DestroyEntityResponse";
-    //Events
-    McApiPacketType[McApiPacketType["OnEffectUpdated"] = 28] = "OnEffectUpdated";
-    McApiPacketType[McApiPacketType["OnEntityCreated"] = 29] = "OnEntityCreated";
-    McApiPacketType[McApiPacketType["OnNetworkEntityCreated"] = 30] = "OnNetworkEntityCreated";
-    McApiPacketType[McApiPacketType["OnEntityDestroyed"] = 31] = "OnEntityDestroyed";
-    McApiPacketType[McApiPacketType["OnEntityVisibilityUpdated"] = 32] = "OnEntityVisibilityUpdated";
-    McApiPacketType[McApiPacketType["OnEntityWorldIdUpdated"] = 33] = "OnEntityWorldIdUpdated";
-    McApiPacketType[McApiPacketType["OnEntityNameUpdated"] = 34] = "OnEntityNameUpdated";
-    McApiPacketType[McApiPacketType["OnEntityMuteUpdated"] = 35] = "OnEntityMuteUpdated";
-    McApiPacketType[McApiPacketType["OnEntityDeafenUpdated"] = 36] = "OnEntityDeafenUpdated";
-    McApiPacketType[McApiPacketType["OnEntityServerMuteUpdated"] = 37] = "OnEntityServerMuteUpdated";
-    McApiPacketType[McApiPacketType["OnEntityServerDeafenUpdated"] = 38] = "OnEntityServerDeafenUpdated";
-    McApiPacketType[McApiPacketType["OnEntityTalkBitmaskUpdated"] = 39] = "OnEntityTalkBitmaskUpdated";
-    McApiPacketType[McApiPacketType["OnEntityListenBitmaskUpdated"] = 40] = "OnEntityListenBitmaskUpdated";
-    McApiPacketType[McApiPacketType["OnEntityEffectBitmaskUpdated"] = 41] = "OnEntityEffectBitmaskUpdated";
-    McApiPacketType[McApiPacketType["OnEntityPositionUpdated"] = 42] = "OnEntityPositionUpdated";
-    McApiPacketType[McApiPacketType["OnEntityRotationUpdated"] = 43] = "OnEntityRotationUpdated";
-    McApiPacketType[McApiPacketType["OnEntityCaveFactorUpdated"] = 44] = "OnEntityCaveFactorUpdated";
-    McApiPacketType[McApiPacketType["OnEntityMuffleFactorUpdated"] = 45] = "OnEntityMuffleFactorUpdated";
-    McApiPacketType[McApiPacketType["OnEntityAudioReceived"] = 46] = "OnEntityAudioReceived";
-})(McApiPacketType || (McApiPacketType = {}));
 export var PositioningType;
 (function (PositioningType) {
     PositioningType[PositioningType["Server"] = 0] = "Server";
@@ -78,3 +21,78 @@ export var EffectType;
     EffectType[EffectType["ProximityMuffle"] = 6] = "ProximityMuffle";
     EffectType[EffectType["Muffle"] = 7] = "Muffle";
 })(EffectType || (EffectType = {}));
+export var PropertyType;
+(function (PropertyType) {
+    PropertyType[PropertyType["Null"] = 0] = "Null";
+    PropertyType[PropertyType["Boolean"] = 1] = "Boolean";
+    PropertyType[PropertyType["SByte"] = 2] = "SByte";
+    PropertyType[PropertyType["Byte"] = 3] = "Byte";
+    PropertyType[PropertyType["Short"] = 4] = "Short";
+    PropertyType[PropertyType["UShort"] = 5] = "UShort";
+    PropertyType[PropertyType["Int"] = 6] = "Int";
+    PropertyType[PropertyType["UInt"] = 7] = "UInt";
+    PropertyType[PropertyType["Long"] = 8] = "Long";
+    PropertyType[PropertyType["ULong"] = 9] = "ULong";
+    PropertyType[PropertyType["Float"] = 10] = "Float";
+    PropertyType[PropertyType["Double"] = 11] = "Double";
+})(PropertyType || (PropertyType = {}));
+export var EventType;
+(function (EventType) {
+    EventType[EventType["None"] = 0] = "None";
+    EventType[EventType["OnEffectUpdated"] = 1] = "OnEffectUpdated";
+    EventType[EventType["OnEntityCreated"] = 2] = "OnEntityCreated";
+    EventType[EventType["OnNetworkEntityCreated"] = 3] = "OnNetworkEntityCreated";
+    EventType[EventType["OnEntityDestroyed"] = 4] = "OnEntityDestroyed";
+    EventType[EventType["OnEntityVisibilityUpdated"] = 5] = "OnEntityVisibilityUpdated";
+    EventType[EventType["OnEntityWorldIdUpdated"] = 6] = "OnEntityWorldIdUpdated";
+    EventType[EventType["OnEntityNameUpdated"] = 7] = "OnEntityNameUpdated";
+    EventType[EventType["OnEntityMuteUpdated"] = 8] = "OnEntityMuteUpdated";
+    EventType[EventType["OnEntityDeafenUpdated"] = 9] = "OnEntityDeafenUpdated";
+    EventType[EventType["OnEntityServerMuteUpdated"] = 10] = "OnEntityServerMuteUpdated";
+    EventType[EventType["OnEntityServerDeafenUpdated"] = 11] = "OnEntityServerDeafenUpdated";
+    EventType[EventType["OnEntityTalkBitmaskUpdated"] = 12] = "OnEntityTalkBitmaskUpdated";
+    EventType[EventType["OnEntityListenBitmaskUpdated"] = 13] = "OnEntityListenBitmaskUpdated";
+    EventType[EventType["OnEntityEffectBitmaskUpdated"] = 14] = "OnEntityEffectBitmaskUpdated";
+    EventType[EventType["OnEntityPositionUpdated"] = 15] = "OnEntityPositionUpdated";
+    EventType[EventType["OnEntityRotationUpdated"] = 16] = "OnEntityRotationUpdated";
+    EventType[EventType["OnEntityPropertyUpdated"] = 17] = "OnEntityPropertyUpdated";
+    EventType[EventType["OnEntityAudioReceived"] = 18] = "OnEntityAudioReceived";
+    EventType[EventType["OnEntityAudioDataReceived"] = 19] = "OnEntityAudioDataReceived";
+})(EventType || (EventType = {}));
+export var McApiPacketType;
+(function (McApiPacketType) {
+    //Core
+    //Requests DO NOT CHANGE!
+    McApiPacketType[McApiPacketType["LoginRequest"] = 0] = "LoginRequest";
+    McApiPacketType[McApiPacketType["LogoutRequest"] = 1] = "LogoutRequest";
+    McApiPacketType[McApiPacketType["PingRequest"] = 2] = "PingRequest";
+    //Responses DO NOT CHANGE!
+    McApiPacketType[McApiPacketType["AcceptResponse"] = 3] = "AcceptResponse";
+    McApiPacketType[McApiPacketType["DenyResponse"] = 4] = "DenyResponse";
+    McApiPacketType[McApiPacketType["PingResponse"] = 5] = "PingResponse";
+    //Other/Changeable
+    //Requests
+    McApiPacketType[McApiPacketType["EventRequest"] = 6] = "EventRequest";
+    McApiPacketType[McApiPacketType["ResetRequest"] = 7] = "ResetRequest";
+    McApiPacketType[McApiPacketType["SetEffectRequest"] = 8] = "SetEffectRequest";
+    McApiPacketType[McApiPacketType["ClearEffectsRequest"] = 9] = "ClearEffectsRequest";
+    McApiPacketType[McApiPacketType["CreateEntityRequest"] = 10] = "CreateEntityRequest";
+    McApiPacketType[McApiPacketType["DestroyEntityRequest"] = 11] = "DestroyEntityRequest";
+    McApiPacketType[McApiPacketType["EntityAudioRequest"] = 12] = "EntityAudioRequest";
+    McApiPacketType[McApiPacketType["SetEntityTitleRequest"] = 13] = "SetEntityTitleRequest";
+    McApiPacketType[McApiPacketType["SetEntityDescriptionRequest"] = 14] = "SetEntityDescriptionRequest";
+    McApiPacketType[McApiPacketType["SetEntityWorldIdRequest"] = 15] = "SetEntityWorldIdRequest";
+    McApiPacketType[McApiPacketType["SetEntityNameRequest"] = 16] = "SetEntityNameRequest";
+    McApiPacketType[McApiPacketType["SetEntityMuteRequest"] = 17] = "SetEntityMuteRequest";
+    McApiPacketType[McApiPacketType["SetEntityDeafenRequest"] = 18] = "SetEntityDeafenRequest";
+    McApiPacketType[McApiPacketType["SetEntityTalkBitmaskRequest"] = 19] = "SetEntityTalkBitmaskRequest";
+    McApiPacketType[McApiPacketType["SetEntityListenBitmaskRequest"] = 20] = "SetEntityListenBitmaskRequest";
+    McApiPacketType[McApiPacketType["SetEntityEffectBitmaskRequest"] = 21] = "SetEntityEffectBitmaskRequest";
+    McApiPacketType[McApiPacketType["SetEntityPositionRequest"] = 22] = "SetEntityPositionRequest";
+    McApiPacketType[McApiPacketType["SetEntityRotationRequest"] = 23] = "SetEntityRotationRequest";
+    McApiPacketType[McApiPacketType["SetEntityPropertyRequest"] = 24] = "SetEntityPropertyRequest";
+    //Responses
+    McApiPacketType[McApiPacketType["ResetResponse"] = 25] = "ResetResponse";
+    McApiPacketType[McApiPacketType["CreateEntityResponse"] = 26] = "CreateEntityResponse";
+    McApiPacketType[McApiPacketType["DestroyEntityResponse"] = 27] = "DestroyEntityResponse";
+})(McApiPacketType || (McApiPacketType = {}));

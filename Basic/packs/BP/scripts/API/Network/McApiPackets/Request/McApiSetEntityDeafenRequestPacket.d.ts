@@ -11,5 +11,5 @@ export declare class McApiSetEntityDeafenRequestPacket implements IMcApiPacket {
     private _value;
     Serialize(writer: NetDataWriter): void;
     Deserialize(reader: NetDataReader): void;
-    Set(id?: number, value?: boolean): McApiSetEntityDeafenRequestPacket;
+    Set(id?: number, value?: boolean): void;
 }

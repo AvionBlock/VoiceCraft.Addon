@@ -3,6 +3,12 @@ export class EchoEffect {
     get EffectType() {
         return EffectType.Echo;
     }
+    get Bitmask() {
+        return this._bitmask;
+    }
+    set Bitmask(value) {
+        this._bitmask = value;
+    }
     get Delay() {
         return this._delay;
     }
@@ -21,6 +27,7 @@ export class EchoEffect {
     set WetDry(value) {
         this._wetDry = Math.min(1, Math.max(value, 0));
     }
+    _bitmask = 65535;
     _delay = 0.5;
     _feedback = 0.5;
     _wetDry = 1;
@@ -33,8 +40,5 @@ export class EchoEffect {
         this._delay = reader.GetFloat();
         this._feedback = reader.GetFloat();
         this._wetDry = reader.GetFloat();
-    }
-    Reset() {
-        //Nothing to reset.
     }
 }
