@@ -160,7 +160,7 @@ export class VoiceCraft {
     }
 
     public HandlePacket(reader: NetDataReader, onParsed: (packet: IMcApiPacket) => void) {
-        const packetType = this._reader.GetByte();
+        const packetType = reader.GetByte();
         switch (packetType) {
             case McApiPacketType.LoginRequest:
                 this.ProcessPacket(reader, onParsed, () => new McApiLoginRequestPacket());
@@ -274,7 +274,7 @@ export class VoiceCraft {
         if (packetData.length <= 0) return;
 
         this._reader.SetBufferSource(packetData);
-        this.HandlePacket(this._reader, this.ExecutePacket);
+        this.HandlePacket(this._reader, (packet) => this.ExecutePacket(packet));
     }
 
     private HandleOnConnectedEvent(token: string) {

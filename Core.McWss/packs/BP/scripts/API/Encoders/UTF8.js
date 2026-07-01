@@ -73,7 +73,7 @@ export class UTF8 {
         const maxIndex = count + index;
         let charCount = 0;
         while (index < maxIndex) {
-            if ((bytes[index] & 0xc0) != 0x80)
+            if ((bytes[index] & 0xc0) !== 0x80)
                 charCount++;
             index++;
         }
@@ -154,16 +154,16 @@ export class UTF8 {
         if ((byte & 0x80) === 0) {
             return byte;
         }
-        else if ((byte & 0xe0) == 0xc0) {
+        else if ((byte & 0xe0) === 0xc0) {
             const byte2 = bytes[++index];
             return ((byte & 0x1f) << 6) | (byte2 & 0x3f);
         }
-        else if ((byte & 0xf0) == 0xe0) {
+        else if ((byte & 0xf0) === 0xe0) {
             const byte2 = bytes[++index];
             const byte3 = bytes[++index];
             return ((byte & 0x0f) << 12) | ((byte2 & 0x3f) << 6) | (byte3 & 0x3f);
         }
-        else if ((byte & 0xf8) == 0xf0) {
+        else if ((byte & 0xf8) === 0xf0) {
             const byte2 = bytes[++index];
             const byte3 = bytes[++index];
             const byte4 = bytes[++index];

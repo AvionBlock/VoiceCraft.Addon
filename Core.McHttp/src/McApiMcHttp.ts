@@ -36,7 +36,6 @@ export class McApiMcHttp extends McApiClient {
         });
     }
 
-
     public async ConnectAsync(ip: string, _: number, loginToken: string): Promise<void> {
         if (this.ConnectionState != McApiConnectionState.Disconnected) return;
         this.ConnectionState = McApiConnectionState.Connecting;

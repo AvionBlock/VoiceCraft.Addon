@@ -147,7 +147,7 @@ export class VoiceCraft {
         system.sendScriptEvent(`${VoiceCraft.Namespace}:sendPacket`, packetData);
     }
     HandlePacket(reader, onParsed) {
-        const packetType = this._reader.GetByte();
+        const packetType = reader.GetByte();
         switch (packetType) {
             case McApiPacketType.LoginRequest:
                 this.ProcessPacket(reader, onParsed, () => new McApiLoginRequestPacket());
@@ -259,7 +259,7 @@ export class VoiceCraft {
         if (packetData.length <= 0)
             return;
         this._reader.SetBufferSource(packetData);
-        this.HandlePacket(this._reader, this.ExecutePacket);
+        this.HandlePacket(this._reader, (packet) => this.ExecutePacket(packet));
     }
     HandleOnConnectedEvent(token) {
         this._token = token;

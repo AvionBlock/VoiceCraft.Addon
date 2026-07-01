@@ -2,7 +2,7 @@ import {
     CommandPermissionLevel,
     CustomCommandOrigin,
     CustomCommandParamType,
-    CustomCommandRegistry,
+    CustomCommandRegistry, CustomCommandResult, CustomCommandStatus,
     Player,
     system,
 } from "@minecraft/server";
@@ -11,6 +11,10 @@ import {Locales} from "../API/Locales";
 import {VoiceCraft} from "../API/VoiceCraft";
 import "../Extensions";
 import {McApiConnectionState} from "../API/Data/Enums";
+import {McApiLoginRequestPacket} from "../API/Network/McApiPackets/Request/McApiLoginRequestPacket";
+import {NetDataWriter} from "../API/Data/NetDataWriter";
+import {NetDataReader} from "../API/Data/NetDataReader";
+import {Z85} from "../API/Encoders/Z85";
 
 export class CommandManager {
     constructor(private _mcApi: McApiMcWss) {
@@ -42,6 +46,15 @@ export class CommandManager {
                 {name: "token", type: CustomCommandParamType.String},
             ],
         }, (origin, ip, port, token) => this.ConnectRawCommand(origin, ip, port, token))
+
+        registry.registerCommand(
+            {
+                name: `${VoiceCraft.Namespace}:vctest`,
+                description: "Test Command.",
+                permissionLevel: CommandPermissionLevel.GameDirectors
+            },
+            (origin) => this.TestCommand(origin)
+        )
     }
 
     private ConnectCommand(origin: CustomCommandOrigin, token: string) {
@@ -78,5 +91,21 @@ export class CommandManager {
             await this._mcApi.ConnectAsync(ip, port, token);
         });
         return undefined;
+    }
+
+    private TestCommand(_: CustomCommandOrigin): CustomCommandResult | undefined {
+        let packet = new McApiLoginRequestPacket("testAAA", "test2AAAA", VoiceCraft.Version, []);
+        let writer = new NetDataWriter();
+        let reader = new NetDataReader();
+
+        packet.Serialize(writer);
+        let encoded = writer.CopyData();
+        let Z85Encoded = Z85.GetStringWithPadding(encoded);
+        let Z85Decoded = Z85.GetBytesWithPadding(Z85Encoded);
+        console.log(encoded);
+        console.log(Z85Decoded);
+        return {
+            status: CustomCommandStatus.Success
+        };
     }
 }

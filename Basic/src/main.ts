@@ -9,8 +9,9 @@ import {McApiSetEntityWorldIdRequestPacket} from "./API/Network/McApiPackets/Req
 import {FormManager} from "./Managers/FormManager";
 import {BindingSystem} from "./API/Systems/BindingSystem";
 import {AudioEffectSystem} from "./API/Systems/AudioEffectSystem";
-import {McApiSetEntityPropertyRequestPacket} from "./API/Network/McApiPackets/Request/McApiSetEntityPropertyRequestPacket";
 import {Locales} from "./API/Locales";
+import {McApiSetEntityPropertyRequestPacket} from "./API/Network/McApiPackets/Request/McApiSetEntityPropertyRequestPacket";
+import {EventType, PropertyType} from "./API/Data/Enums";
 
 const cv = [
     "minecraft:stone",
@@ -25,6 +26,26 @@ const aes = new AudioEffectSystem(vc);
 const fm = new FormManager(vc, bs, aes);
 let connectionAttempted = false;
 new CommandManager(vc, bs, fm);
+
+system.beforeEvents.startup.subscribe(() => {
+    system.run(() => {
+        system.sendScriptEvent(`${VoiceCraft.Namespace}:eventSubscribe`, EventType[EventType.OnEffectUpdated]);
+        system.sendScriptEvent(`${VoiceCraft.Namespace}:eventSubscribe`, EventType[EventType.OnNetworkEntityCreated]);
+    });
+})
+
+world.afterEvents.worldLoad.subscribe(_ => {
+    if (!world.getDynamicProperty("autoConnect:startup")) return;
+    InitiateConnection();
+})
+
+vc.OnEntityCreatedPacket.Subscribe(ev => {
+    console.log(`Received Entity Created: ${ev.Id}`);
+})
+
+vc.OnNetworkEntityCreatedPacket.Subscribe(ev => {
+    console.log(`Received Network Entity Created: ${ev.Id}`);
+})
 
 vc.OnConnected.Subscribe(_ => {
     console.log("Connected Event");
@@ -77,13 +98,13 @@ function IntervalLogic() {
         for (const player of players) {
             const lastSpoke = player.getDynamicProperty("data:lastSpoke") as number ?? 0;
             if (!bs.BoundPlayers.includes(player)) {
-                if(!player.nameTag.includes(String.fromCodePoint(61442)))
+                if (!player.nameTag.includes(String.fromCodePoint(61442)))
                     player.nameTag = `${player.name} ${String.fromCodePoint(61442)}`
             } else if (Date.now() - lastSpoke > 200) {
-                if(!player.nameTag.includes(String.fromCodePoint(61440)))
+                if (!player.nameTag.includes(String.fromCodePoint(61440)))
                     player.nameTag = `${player.name} ${String.fromCodePoint(61440)}`
             } else if (Date.now() - lastSpoke < 200) {
-                if(!player.nameTag.includes(String.fromCodePoint(61441)))
+                if (!player.nameTag.includes(String.fromCodePoint(61441)))
                     player.nameTag = `${player.name} ${String.fromCodePoint(61441)}`
             }
         }
@@ -106,19 +127,19 @@ function IntervalLogic() {
         vc.SendPacket(new McApiSetEntityPositionRequestPacket(entityId, new Vector3(location.x, location.y, location.z)));
         vc.SendPacket(new McApiSetEntityRotationRequestPacket(entityId, new Vector2(rotation.x, rotation.y)));
 
-        const caveEchoEnabled = world.getDynamicProperty(`${VoiceCraft.Namespace}:enableCaveEcho`) as boolean;
-        const underwaterMuffleEnabled = world.getDynamicProperty(`${VoiceCraft.Namespace}:enableUnderwaterMuffle`) as boolean;
+        const caveEchoEnabled = world.getDynamicProperty("general:enableCaveEcho") as boolean;
+        const underwaterMuffleEnabled = world.getDynamicProperty("general:enableUnderwaterMuffle") as boolean;
 
         if (caveEchoEnabled) {
-            vc.SendPacket(new McApiSetEntityPropertyRequestPacket(entityId, "ProximityEchoEffect:Factor", GetCaveDensity(player)));
+            vc.SendPacket(new McApiSetEntityPropertyRequestPacket(entityId, "ProximityEchoEffect:Factor", PropertyType.Float, GetCaveDensity(player)));
         } else {
-            vc.SendPacket(new McApiSetEntityPropertyRequestPacket(entityId, "ProximityEchoEffect:Factor", GetCaveDensity(player)));
+            vc.SendPacket(new McApiSetEntityPropertyRequestPacket(entityId, "ProximityEchoEffect:Factor", PropertyType.Null, undefined));
         }
 
         if (underwaterMuffleEnabled) {
-            vc.SendPacket(new McApiSetEntityPropertyRequestPacket(entityId, "ProximityMuffleEffect:Factor", IsUnderwater(player) ? 1.0 : 0));
+            vc.SendPacket(new McApiSetEntityPropertyRequestPacket(entityId, "ProximityMuffleEffect:Factor", PropertyType.Float, IsUnderwater(player) ? 1.0 : 0));
         } else {
-            vc.SendPacket(new McApiSetEntityPropertyRequestPacket(entityId, "ProximityMuffleEffect:Factor", 0));
+            vc.SendPacket(new McApiSetEntityPropertyRequestPacket(entityId, "ProximityMuffleEffect:Factor", PropertyType.Null, undefined));
         }
     }
 }
