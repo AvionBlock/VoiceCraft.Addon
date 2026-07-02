@@ -26,7 +26,14 @@ export class ProximityEchoEffect implements IAudioEffect {
         return this._range;
     }
     set Range(value: number) {
-        this._range = value;
+        this._range = Math.min(10, Math.max(value, 0));
+    }
+
+    get Factor(): number {
+        return this._wetDry;
+    }
+    set Factor(value: number) {
+        this._wetDry = Math.min(1, Math.max(value, 0));
     }
 
     get WetDry(): number {
@@ -39,17 +46,20 @@ export class ProximityEchoEffect implements IAudioEffect {
     private _bitmask: number = 65535;
     private _delay: number = 0.5;
     private _range: number = 0;
+    private _factor: number = 0;
     private _wetDry: number = 1;
 
     Serialize(writer: NetDataWriter): void {
         writer.PutFloat(this._delay);
         writer.PutFloat(this._range);
+        writer.PutFloat(this._factor);
         writer.PutFloat(this._wetDry);
     }
 
     Deserialize(reader: NetDataReader): void {
         this._delay = reader.GetFloat();
         this._range = reader.GetFloat();
+        this._factor = reader.GetFloat();
         this._wetDry = reader.GetFloat();
     }
 }

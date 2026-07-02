@@ -94,7 +94,8 @@ export class FormManager {
         .textField("Bitmask", "0", {defaultValue: bitmask.toString()})
         .textField("WetDry", "1", {defaultValue: effect.WetDry.toString()})
         .textField("Delay", "0", {defaultValue: effect.Delay.toString()})
-        .slider("Range", 0, 100, {defaultValue: effect.Range});
+        .slider("Range", 0, 100, {defaultValue: effect.Range})
+        .textField("Factor", "1", {defaultValue: effect.Factor.toString()});
 
     private _setEchoEffectMenuSettingsForm = (
         bitmask: number,
@@ -110,7 +111,8 @@ export class FormManager {
         effect: ProximityMuffleEffect) => new ModalFormData()
         .title("Set Proximity Muffle Effect")
         .textField("Bitmask", "0", {defaultValue: bitmask.toString()})
-        .textField("WetDry", "1", {defaultValue: effect.WetDry.toString()});
+        .textField("WetDry", "1", {defaultValue: effect.WetDry.toString()})
+        .textField("Factor", "1", {defaultValue: effect.Factor.toString()});
 
     private _setMuffleEffectMenuSettingsForm = (
         bitmask: number,
@@ -405,12 +407,13 @@ export class FormManager {
             formValues
         } = await this._setProximityEchoEffectMenuSettingsForm(effect.bitmask, effect.effect).show(player);
         if (cancelationReason !== undefined || formValues === undefined) return;
-        const [bitmaskValue, wetDryValue, delayValue, rangeValue] = formValues;
-        if (typeof bitmaskValue !== "string" || typeof wetDryValue !== "string" || typeof delayValue !== "string" || typeof rangeValue != "number") return;
+        const [bitmaskValue, wetDryValue, delayValue, rangeValue, factorValue] = formValues;
+        if (typeof bitmaskValue !== "string" || typeof wetDryValue !== "string" || typeof delayValue !== "string" || typeof rangeValue != "number" || typeof factorValue !== "string") return;
         effect.bitmask = Number.parseInt(bitmaskValue);
         effect.effect.WetDry = Number.parseFloat(wetDryValue);
         effect.effect.Delay = Number.parseFloat(delayValue);
         effect.effect.Range = rangeValue;
+        effect.effect.Factor = Number.parseFloat(factorValue);
         this._aes.SetEffect(effect.bitmask, effect.effect);
     }
 
@@ -453,10 +456,11 @@ export class FormManager {
             formValues
         } = await this._setProximityMuffleEffectMenuSettingsForm(effect.bitmask, effect.effect).show(player);
         if (cancelationReason !== undefined || formValues === undefined) return;
-        const [bitmaskValue, wetDryValue] = formValues;
-        if (typeof bitmaskValue !== "string" || typeof wetDryValue !== "string") return;
+        const [bitmaskValue, wetDryValue, factorValue] = formValues;
+        if (typeof bitmaskValue !== "string" || typeof wetDryValue !== "string" || typeof factorValue !== "string") return;
         effect.bitmask = Number.parseInt(bitmaskValue);
         effect.effect.WetDry = Number.parseFloat(wetDryValue);
+        effect.effect.Factor = Number.parseFloat(factorValue);
         this._aes.SetEffect(effect.bitmask, effect.effect);
     }
 
