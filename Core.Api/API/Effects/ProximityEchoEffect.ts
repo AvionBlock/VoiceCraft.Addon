@@ -19,14 +19,14 @@ export class ProximityEchoEffect implements IAudioEffect {
         return this._delay;
     }
     set Delay(value: number) {
-        this._delay = value;
+        this._delay = Math.min(10, Math.max(value, 0));
     }
 
     get Range(): number {
         return this._range;
     }
     set Range(value: number) {
-        this._range = Math.min(10, Math.max(value, 0));
+        this._range = Math.max(value, 0);
     }
 
     get Factor(): number {

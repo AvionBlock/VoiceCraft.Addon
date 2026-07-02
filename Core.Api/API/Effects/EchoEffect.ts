@@ -19,14 +19,14 @@ export class EchoEffect implements IAudioEffect {
         return this._delay;
     }
     set Delay(value: number) {
-        this._delay = value;
+        this._delay = Math.min(10, Math.max(value, 0));
     }
 
     get Feedback(): number {
         return this._feedback;
     }
     set Feedback(value: number) {
-        this._feedback = value;
+        this._wetDry = Math.min(1, Math.max(value, 0));
     }
 
     get WetDry(): number {
