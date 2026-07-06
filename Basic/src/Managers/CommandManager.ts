@@ -9,11 +9,12 @@ import {
     system,
 } from "@minecraft/server";
 import {VoiceCraft} from "../API/VoiceCraft";
-import {FormManager} from "./FormManager";
 import {BindingSystem} from "../API/Systems/BindingSystem";
+import {SettingsForm} from "../Forms/SettingsForm";
+import {AudioEffectSystem} from "../API/Systems/AudioEffectSystem";
 
 export class CommandManager {
-    constructor(private _vc: VoiceCraft, private _bs: BindingSystem, private _fm: FormManager) {
+    constructor(private _vc: VoiceCraft, private _bs: BindingSystem, private _aes: AudioEffectSystem) {
         system.beforeEvents.startup.subscribe((ev) => {
             this.RegisterCommands(ev.customCommandRegistry);
         });
@@ -77,7 +78,7 @@ export class CommandManager {
         const player = origin.sourceEntity;
 
         system.run(async () => {
-            await this._fm.ShowMainMenuSettingsFormAsync(player);
+            await new SettingsForm(this._vc, this._bs, this._aes).Show(player);
         })
         return undefined;
     }
