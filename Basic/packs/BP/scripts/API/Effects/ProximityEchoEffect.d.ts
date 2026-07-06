@@ -10,11 +10,14 @@ export declare class ProximityEchoEffect implements IAudioEffect {
     set Delay(value: number);
     get Range(): number;
     set Range(value: number);
+    get Factor(): number;
+    set Factor(value: number);
     get WetDry(): number;
     set WetDry(value: number);
     private _bitmask;
     private _delay;
     private _range;
+    private _factor;
     private _wetDry;
     Serialize(writer: NetDataWriter): void;
     Deserialize(reader: NetDataReader): void;

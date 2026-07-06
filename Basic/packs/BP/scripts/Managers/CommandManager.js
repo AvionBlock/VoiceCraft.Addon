@@ -1,13 +1,14 @@
 import { CommandPermissionLevel, CustomCommandParamType, CustomCommandStatus, Player, system, } from "@minecraft/server";
 import { VoiceCraft } from "../API/VoiceCraft";
+import { SettingsForm } from "../Forms/SettingsForm";
 export class CommandManager {
     _vc;
     _bs;
-    _fm;
-    constructor(_vc, _bs, _fm) {
+    _aes;
+    constructor(_vc, _bs, _aes) {
         this._vc = _vc;
         this._bs = _bs;
-        this._fm = _fm;
+        this._aes = _aes;
         system.beforeEvents.startup.subscribe((ev) => {
             this.RegisterCommands(ev.customCommandRegistry);
         });
@@ -56,7 +57,7 @@ export class CommandManager {
             };
         const player = origin.sourceEntity;
         system.run(async () => {
-            await this._fm.ShowMainMenuSettingsFormAsync(player);
+            await new SettingsForm(this._vc, this._bs, this._aes).Show(player);
         });
         return undefined;
     }

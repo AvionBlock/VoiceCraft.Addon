@@ -13,13 +13,19 @@ export class ProximityEchoEffect {
         return this._delay;
     }
     set Delay(value) {
-        this._delay = value;
+        this._delay = Math.min(10, Math.max(value, 0));
     }
     get Range() {
         return this._range;
     }
     set Range(value) {
-        this._range = value;
+        this._range = Math.max(value, 0);
+    }
+    get Factor() {
+        return this._wetDry;
+    }
+    set Factor(value) {
+        this._wetDry = Math.min(1, Math.max(value, 0));
     }
     get WetDry() {
         return this._wetDry;
@@ -30,15 +36,18 @@ export class ProximityEchoEffect {
     _bitmask = 65535;
     _delay = 0.5;
     _range = 0;
+    _factor = 0;
     _wetDry = 1;
     Serialize(writer) {
         writer.PutFloat(this._delay);
         writer.PutFloat(this._range);
+        writer.PutFloat(this._factor);
         writer.PutFloat(this._wetDry);
     }
     Deserialize(reader) {
         this._delay = reader.GetFloat();
         this._range = reader.GetFloat();
+        this._factor = reader.GetFloat();
         this._wetDry = reader.GetFloat();
     }
 }

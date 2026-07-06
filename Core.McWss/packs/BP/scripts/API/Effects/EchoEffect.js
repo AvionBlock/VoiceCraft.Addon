@@ -13,13 +13,13 @@ export class EchoEffect {
         return this._delay;
     }
     set Delay(value) {
-        this._delay = value;
+        this._delay = Math.min(10, Math.max(value, 0));
     }
     get Feedback() {
         return this._feedback;
     }
     set Feedback(value) {
-        this._feedback = value;
+        this._wetDry = Math.min(1, Math.max(value, 0));
     }
     get WetDry() {
         return this._wetDry;
