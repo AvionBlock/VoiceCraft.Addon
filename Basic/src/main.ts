@@ -30,22 +30,15 @@ new CommandManager(vc, bs, fm);
 system.beforeEvents.startup.subscribe(() => {
     system.run(() => {
         system.sendScriptEvent(`${VoiceCraft.Namespace}:eventSubscribe`, EventType[EventType.OnEffectUpdated]);
+        system.sendScriptEvent(`${VoiceCraft.Namespace}:eventSubscribe`, EventType[EventType.OnEntityAudioReceived]);
         system.sendScriptEvent(`${VoiceCraft.Namespace}:eventSubscribe`, EventType[EventType.OnNetworkEntityCreated]);
     });
-})
+});
 
 world.afterEvents.worldLoad.subscribe(_ => {
     if (!world.getDynamicProperty("autoConnect:startup")) return;
     InitiateConnection();
-})
-
-vc.OnEntityCreatedPacket.Subscribe(ev => {
-    console.log(`Received Entity Created: ${ev.Id}`);
-})
-
-vc.OnNetworkEntityCreatedPacket.Subscribe(ev => {
-    console.log(`Received Network Entity Created: ${ev.Id}`);
-})
+});
 
 vc.OnConnected.Subscribe(_ => {
     console.log("Connected Event");
@@ -54,7 +47,7 @@ vc.OnConnected.Subscribe(_ => {
     if (world.getDynamicProperty("general:broadcastConnectedEvent")) {
         world.sendMessage({translate: Locales.VcMcApi.Status.Broadcast.Connected});
     }
-})
+});
 
 vc.OnDisconnected.Subscribe(_ => {
     if (world.getDynamicProperty("general:broadcastDisconnectedEvent")) {
@@ -64,7 +57,7 @@ vc.OnDisconnected.Subscribe(_ => {
     if (!world.getDynamicProperty("autoConnect:reconnect") || connectionAttempted) return;
     connectionAttempted = true;
     InitiateConnection();
-})
+});
 
 vc.OnPlayerBind.Subscribe(player => {
     if (world.getDynamicProperty("general:broadcastPlayerConnectedEvent")) {
@@ -72,7 +65,7 @@ vc.OnPlayerBind.Subscribe(player => {
         if (playerObj === undefined) return;
         world.sendMessage({translate: Locales.VcMcApi.Status.Broadcast.PlayerConnected, with: [playerObj.name]});
     }
-})
+});
 
 vc.OnPlayerUnbind.Subscribe(player => {
     if (world.getDynamicProperty("general:broadcastPlayerDisconnectedEvent")) {
@@ -80,7 +73,7 @@ vc.OnPlayerUnbind.Subscribe(player => {
         if (playerObj === undefined) return;
         world.sendMessage({translate: Locales.VcMcApi.Status.Broadcast.PlayerDisconnected, with: [playerObj.name]});
     }
-})
+});
 
 vc.OnEntityAudioReceivedPacket.Subscribe(ev => {
     const playerId = bs.GetBoundPlayer(ev.Id);
