@@ -60,6 +60,7 @@ export class McApiMcHttp extends McApiClient {
         if (this.ConnectionState !== McApiConnectionState.Disconnected) return;
         this.ConnectionState = McApiConnectionState.Connecting;
         this.Reset();
+        const hostname = ip.replace(/\/+$/, "");
 
         const requestId = Guid.Create().toString();
         const packet = new McApiLoginRequestPacket(requestId, loginToken, VoiceCraft.Version, [...this._subscribedEvents]);
@@ -74,9 +75,9 @@ export class McApiMcHttp extends McApiClient {
                 response => response.Token,
                 160
             );
-            this.SendPacketsLogic(`${ip}/connect`);
+            this.SendPacketsLogic(`${hostname}/connect`);
             await responsePromise;
-            this._hostname = ip;
+            this._hostname = hostname;
         } catch (ex) {
             let error = "";
             if (ex instanceof Error) {
