@@ -17,7 +17,6 @@ import {Locales} from "./API/Locales";
 import {McApiAcceptResponsePacket} from "./API/Network/McApiPackets/Response/McApiAcceptResponsePacket";
 
 export class McApiMcHttp extends McApiClient {
-    private _timeoutMs: number = 10000;
     private _hostname: string | undefined;
     private _httpRequestPromise: Promise<HttpResponse> | undefined;
     private readonly _httpWriter: NetDataWriter = new NetDataWriter();
@@ -93,7 +92,7 @@ export class McApiMcHttp extends McApiClient {
             return;
         }
 
-        if (Date.now() - this.LastPing >= this._timeoutMs &&
+        if (Date.now() - this.LastPing >= this.TimeoutMs &&
             this.ConnectionState !== McApiConnectionState.Disconnecting &&
             this.ConnectionState !== McApiConnectionState.Connecting) {
             this.DisconnectAsync(Locales.VcMcApi.DisconnectReason.Timeout, true).then();

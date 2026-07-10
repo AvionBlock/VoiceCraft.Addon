@@ -23,7 +23,6 @@ import {McApiPingRequestPacket} from "./API/Network/McApiPackets/Request/McApiPi
 import {McApiAcceptResponsePacket} from "./API/Network/McApiPackets/Response/McApiAcceptResponsePacket";
 
 export class McApiMcWss extends McApiClient {
-    private _timeoutMs: number = 10000;
     private _pinger: number | undefined;
     private readonly _mcWssWriter: NetDataWriter = new NetDataWriter();
     private readonly _mcWssReader: NetDataReader = new NetDataReader();
@@ -111,7 +110,7 @@ export class McApiMcWss extends McApiClient {
             return;
         }
 
-        if (Date.now() - this.LastPing >= this._timeoutMs &&
+        if (Date.now() - this.LastPing >= this.TimeoutMs &&
             this.ConnectionState !== McApiConnectionState.Disconnecting &&
             this.ConnectionState !== McApiConnectionState.Connecting) {
             this.DisconnectAsync(Locales.VcMcApi.DisconnectReason.Timeout, true).then();

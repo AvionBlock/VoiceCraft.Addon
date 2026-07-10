@@ -12,29 +12,14 @@ import {IMcApiRIdPacket} from "./Network/McApiPackets/IMcApiRIdPacket";
 export abstract class McApiClient {
     private _voicecraft: VoiceCraft = new VoiceCraft(true);
     private _connectionState: McApiConnectionState = McApiConnectionState.Disconnected;
-    private _token: string | undefined;
-    private _lastPing: number = 0;
+    protected Token: string | undefined;
+    protected LastPing: number = 0;
+    protected TimeoutMs: number = 20000; //20s timeout
     public OutboundQueue: Queue<Uint8Array> = new Queue<Uint8Array>();
     public InboundQueue: Queue<Uint8Array> = new Queue<Uint8Array>();
 
     protected constructor() {
         this._voicecraft.OnPacket.Subscribe((data) => this.OnPacketReceived.Invoke(data));
-    }
-
-    public get Token(): string | undefined {
-        return this._token;
-    }
-
-    protected set Token(value: string | undefined) {
-        this._token = value;
-    }
-
-    protected get LastPing(): number {
-        return this._lastPing;
-    }
-
-    protected set LastPing(value: number) {
-        this._lastPing = value;
     }
 
     //Events
