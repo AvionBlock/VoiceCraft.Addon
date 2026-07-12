@@ -8,24 +8,13 @@ import { system } from "@minecraft/server";
 export class McApiClient {
     _voicecraft = new VoiceCraft(true);
     _connectionState = McApiConnectionState.Disconnected;
-    _token;
-    _lastPing = 0;
+    Token;
+    LastPing = 0;
+    TimeoutMs = 20000; //20s timeout
     OutboundQueue = new Queue();
     InboundQueue = new Queue();
     constructor() {
         this._voicecraft.OnPacket.Subscribe((data) => this.OnPacketReceived.Invoke(data));
-    }
-    get Token() {
-        return this._token;
-    }
-    set Token(value) {
-        this._token = value;
-    }
-    get LastPing() {
-        return this._lastPing;
-    }
-    set LastPing(value) {
-        this._lastPing = value;
     }
     //Events
     OnConnected = new Event();

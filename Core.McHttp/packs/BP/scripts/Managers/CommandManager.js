@@ -43,6 +43,7 @@ export class CommandManager {
             try {
                 player.translateMessage(Locales.VcMcApi.Status.Connecting);
                 await this._mcApi.ConnectAsync(hostname, 0, token);
+                player.translateMessage(Locales.VcMcApi.Status.Connected);
             }
             catch (ex) {
                 if (ex instanceof Error)

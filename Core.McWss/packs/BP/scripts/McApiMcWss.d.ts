@@ -2,7 +2,6 @@ import "./Extensions";
 import { McApiClient } from "./API/McApiClient";
 import { IMcApiPacket } from "./API/Network/McApiPackets/IMcApiPacket";
 export declare class McApiMcWss extends McApiClient {
-    private _timeoutMs;
     private _pinger;
     private readonly _mcWssWriter;
     private readonly _mcWssReader;

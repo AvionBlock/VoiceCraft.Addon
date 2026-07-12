@@ -13,7 +13,6 @@ import { McApiLogoutRequestPacket } from "./API/Network/McApiPackets/Request/McA
 import { Z85 } from "./API/Encoders/Z85";
 import { McApiPingRequestPacket } from "./API/Network/McApiPackets/Request/McApiPingRequestPacket";
 export class McApiMcWss extends McApiClient {
-    _timeoutMs = 10000;
     _pinger;
     _mcWssWriter = new NetDataWriter();
     _mcWssReader = new NetDataReader();
@@ -89,7 +88,7 @@ export class McApiMcWss extends McApiClient {
         if (this.ConnectionState === McApiConnectionState.Disconnected) {
             return;
         }
-        if (Date.now() - this.LastPing >= this._timeoutMs &&
+        if (Date.now() - this.LastPing >= this.TimeoutMs &&
             this.ConnectionState !== McApiConnectionState.Disconnecting &&
             this.ConnectionState !== McApiConnectionState.Connecting) {
             this.DisconnectAsync(Locales.VcMcApi.DisconnectReason.Timeout, true).then();

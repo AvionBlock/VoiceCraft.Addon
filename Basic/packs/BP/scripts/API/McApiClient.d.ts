@@ -7,15 +7,12 @@ import { IMcApiRIdPacket } from "./Network/McApiPackets/IMcApiRIdPacket";
 export declare abstract class McApiClient {
     private _voicecraft;
     private _connectionState;
-    private _token;
-    private _lastPing;
+    protected Token: string | undefined;
+    protected LastPing: number;
+    protected TimeoutMs: number;
     OutboundQueue: Queue<Uint8Array>;
     InboundQueue: Queue<Uint8Array>;
     protected constructor();
-    get Token(): string | undefined;
-    protected set Token(value: string | undefined);
-    protected get LastPing(): number;
-    protected set LastPing(value: number);
     OnConnected: Event<string>;
     OnDisconnected: Event<string>;
     OnPacketReceived: Event<IMcApiPacket>;
