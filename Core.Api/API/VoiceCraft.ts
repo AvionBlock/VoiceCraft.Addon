@@ -55,7 +55,7 @@ import {McApiOnEntityAudioReceivedPacket} from "./Network/McApiPackets/Event/McA
 import {McApiOnEntityAudioDataReceivedPacket} from "./Network/McApiPackets/Event/McApiOnEntityAudioDataReceivedPacket";
 
 export class VoiceCraft {
-    public static readonly Version: Version = new Version(1, 7, 0);
+    public static readonly Version: Version = new Version(1, 7, 1);
     public static readonly Namespace: string = "voicecraft";
 
     private _writer: NetDataWriter = new NetDataWriter();
