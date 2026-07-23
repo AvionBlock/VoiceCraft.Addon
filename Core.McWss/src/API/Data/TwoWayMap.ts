@@ -76,4 +76,12 @@ export class TwoWayMap<K, V> implements Map<K, V> {
     this._mapValueToKeys.delete(value);
     return true;
   }
+
+  getOrInsert(key: K, defaultValue: V): V {
+    throw new Error("Method not implemented.");
+  }
+
+  getOrInsertComputed(key: K, callback: (key: K) => V): V {
+    throw new Error("Method not implemented.");
+  }
 }

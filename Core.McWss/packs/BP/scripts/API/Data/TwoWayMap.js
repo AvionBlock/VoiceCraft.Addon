@@ -63,4 +63,10 @@ export class TwoWayMap {
         this._mapValueToKeys.delete(value);
         return true;
     }
+    getOrInsert(key, defaultValue) {
+        throw new Error("Method not implemented.");
+    }
+    getOrInsertComputed(key, callback) {
+        throw new Error("Method not implemented.");
+    }
 }
