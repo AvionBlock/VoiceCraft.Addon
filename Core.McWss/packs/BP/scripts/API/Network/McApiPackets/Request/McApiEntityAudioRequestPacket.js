@@ -32,10 +32,10 @@ export class McApiEntityAudioRequestPacket {
     _length;
     _data;
     Serialize(writer) {
-        writer.PutInt(this.Id);
-        writer.PutUshort(this.Timestamp);
-        writer.PutFloat(this.FrameLoudness);
-        writer.PutBytes(this.Data, 0, this.Length);
+        writer.PutInt(this._id);
+        writer.PutUshort(this._timestamp);
+        writer.PutFloat(this._frameLoudness);
+        writer.PutBytes(this._data, 0, this._length);
     }
     Deserialize(reader) {
         this._id = reader.GetInt();
@@ -53,6 +53,5 @@ export class McApiEntityAudioRequestPacket {
         this._frameLoudness = loudness;
         this._length = length;
         this._data = data;
-        return this;
     }
 }

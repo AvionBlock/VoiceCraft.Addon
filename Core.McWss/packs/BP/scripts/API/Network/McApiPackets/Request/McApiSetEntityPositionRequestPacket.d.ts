@@ -12,5 +12,5 @@ export declare class McApiSetEntityPositionRequestPacket implements IMcApiPacket
     private _value;
     Serialize(writer: NetDataWriter): void;
     Deserialize(reader: NetDataReader): void;
-    Set(id?: number, value?: Vector3): McApiSetEntityPositionRequestPacket;
+    Set(id?: number, value?: Vector3): void;
 }

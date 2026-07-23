@@ -11,5 +11,5 @@ export declare class McApiSetEntityDescriptionRequestPacket implements IMcApiPac
     private _value;
     Serialize(writer: NetDataWriter): void;
     Deserialize(reader: NetDataReader): void;
-    Set(id?: number, value?: string): McApiSetEntityDescriptionRequestPacket;
+    Set(id?: number, value?: string): void;
 }

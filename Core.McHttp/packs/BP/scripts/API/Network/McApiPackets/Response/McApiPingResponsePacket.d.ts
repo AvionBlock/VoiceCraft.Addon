@@ -9,5 +9,5 @@ export declare class McApiPingResponsePacket implements IMcApiPacket {
     private _token;
     Serialize(writer: NetDataWriter): void;
     Deserialize(reader: NetDataReader): void;
-    Set(token?: string): McApiPingResponsePacket;
+    Set(token?: string): void;
 }

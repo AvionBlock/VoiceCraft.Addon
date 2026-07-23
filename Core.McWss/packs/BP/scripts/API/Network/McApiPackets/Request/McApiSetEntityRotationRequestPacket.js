@@ -17,9 +17,9 @@ export class McApiSetEntityRotationRequestPacket {
     _id;
     _value;
     Serialize(writer) {
-        writer.PutInt(this.Id);
-        writer.PutFloat(this.Value.X);
-        writer.PutFloat(this.Value.Y);
+        writer.PutInt(this._id);
+        writer.PutFloat(this._value.X);
+        writer.PutFloat(this._value.Y);
     }
     Deserialize(reader) {
         this._id = reader.GetInt();
@@ -28,6 +28,5 @@ export class McApiSetEntityRotationRequestPacket {
     Set(id = 0, value = new Vector2(0, 0)) {
         this._id = id;
         this._value = value;
-        return this;
     }
 }

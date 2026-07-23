@@ -6,4 +6,5 @@ export declare class CommandManager {
     private RegisterCommands;
     private ConnectCommand;
     private ConnectRawCommand;
+    private TestCommand;
 }

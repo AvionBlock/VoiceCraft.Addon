@@ -1,6 +1,6 @@
 import "./Extensions";
 import { McApiClient } from "./API/McApiClient";
-import { McApiConnectionState, McApiPacketType } from "./API/Data/Enums";
+import { EventType, McApiConnectionState, McApiPacketType } from "./API/Data/Enums";
 import { McApiLoginRequestPacket } from "./API/Network/McApiPackets/Request/McApiLoginRequestPacket";
 import { Guid } from "./API/Data/Guid";
 import { NetDataWriter } from "./API/Data/NetDataWriter";
@@ -14,13 +14,13 @@ import { McApiPingRequestPacket } from "./API/Network/McApiPackets/Request/McApi
 import { VoiceCraft } from "./API/VoiceCraft";
 import { Locales } from "./API/Locales";
 export class McApiMcHttp extends McApiClient {
-    _timeoutMs = 10000;
     _hostname;
     _httpRequestPromise;
     _httpWriter = new NetDataWriter();
     _httpReader = new NetDataReader();
     _writer = new NetDataWriter();
     _reader = new NetDataReader();
+    _subscribedEvents = new Set();
     constructor() {
         super();
         new CommandManager(this);
@@ -36,6 +36,18 @@ export class McApiMcHttp extends McApiClient {
                         return;
                     this.OutboundQueue.enqueue(Z85.GetBytesWithPadding(ev.message));
                     break;
+                case `${VoiceCraft.Namespace}:eventSubscribe`:
+                    const eventTypeSubscribe = EventType[ev.message];
+                    if (eventTypeSubscribe === undefined)
+                        return;
+                    this._subscribedEvents.add(eventTypeSubscribe);
+                    break;
+                case `${VoiceCraft.Namespace}:eventUnsubscribe`:
+                    const eventTypeUnsubscribe = EventType[ev.message];
+                    if (eventTypeUnsubscribe === undefined)
+                        return;
+                    this._subscribedEvents.delete(eventTypeUnsubscribe);
+                    break;
             }
         });
     }
@@ -44,17 +56,18 @@ export class McApiMcHttp extends McApiClient {
             return;
         this.ConnectionState = McApiConnectionState.Connecting;
         this.Reset();
+        const hostname = ip.replace(/\/+$/, "");
         const requestId = Guid.Create().toString();
-        const packet = new McApiLoginRequestPacket(requestId, loginToken, VoiceCraft.Version);
+        const packet = new McApiLoginRequestPacket(requestId, loginToken, VoiceCraft.Version, [...this._subscribedEvents]);
         try {
             this._writer.Reset();
             this._writer.PutByte(packet.PacketType);
             this._writer.PutPacket(packet);
             this.OutboundQueue.enqueue(this._writer.CopyData());
             const responsePromise = this.GetResponseAsync(McApiPacketType.AcceptResponse, requestId, response => response.Token, 160);
-            this.SendPacketsLogic(`${ip}/connect`);
+            this.SendPacketsLogic(`${hostname}/connect`);
             await responsePromise;
-            this._hostname = ip;
+            this._hostname = hostname;
         }
         catch (ex) {
             let error = "";
@@ -69,7 +82,7 @@ export class McApiMcHttp extends McApiClient {
         if (this.ConnectionState === McApiConnectionState.Disconnected) {
             return;
         }
-        if (Date.now() - this.LastPing >= this._timeoutMs &&
+        if (Date.now() - this.LastPing >= this.TimeoutMs &&
             this.ConnectionState !== McApiConnectionState.Disconnecting &&
             this.ConnectionState !== McApiConnectionState.Connecting) {
             this.DisconnectAsync(Locales.VcMcApi.DisconnectReason.Timeout, true).then();
@@ -131,51 +144,6 @@ export class McApiMcHttp extends McApiClient {
         this.InboundQueue.clear();
         if (this._httpRequestPromise !== undefined)
             http.cancelAll("Reset Called");
-    }
-    async GetResponseAsync(packetType, requestId, selector, timeoutTicks, token) {
-        const tcs = Promise.withResolvers();
-        const dTcs = Promise.withResolvers();
-        const timeoutId = system.runTimeout(() => {
-            tcs.reject(new Error("TimeoutException"));
-        }, timeoutTicks);
-        if (token !== undefined)
-            token.onabort = (_) => tcs.reject(new Error("OperationCanceledException"));
-        this.OnPacketReceived.Subscribe(EventCallback);
-        this.OnDisconnected.Subscribe(OnDisconnectedCallback);
-        try {
-            let result;
-            let disconnectResult;
-            await Promise.race([
-                tcs.promise.then(x => {
-                    result = x;
-                }),
-                dTcs.promise.then(x => {
-                    disconnectResult = x;
-                })
-            ]);
-            if (result !== undefined)
-                return result;
-            throw new Error(disconnectResult ?? "Disconnected");
-        }
-        finally {
-            system.clearRun(timeoutId);
-            if (token !== undefined)
-                token.onabort = null;
-            this.OnPacketReceived.Unsubscribe(EventCallback);
-            this.OnDisconnected.Unsubscribe(OnDisconnectedCallback);
-        }
-        function EventCallback(packet) {
-            if (packet.PacketType === packetType && "RequestId" in packet && packet.RequestId === requestId)
-                try {
-                    tcs.resolve(selector(packet));
-                }
-                catch (err) {
-                    tcs.reject(err);
-                }
-        }
-        function OnDisconnectedCallback(reason) {
-            dTcs.resolve(reason);
-        }
     }
     SendPacketsLogic(hostname) {
         if (this._httpRequestPromise !== undefined)

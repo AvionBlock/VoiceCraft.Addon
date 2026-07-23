@@ -1,19 +1,17 @@
-import { MaxStringLength } from "../../../Data/Constants";
-import { McApiPacketType, PositioningType } from "../../../Data/Enums";
+import { EventType, PositioningType } from "../../../Data/Enums";
 import { Guid } from "../../../Data/Guid";
-import { Vector2 } from "../../../Data/Vector2";
-import { Vector3 } from "../../../Data/Vector3";
 import { McApiOnEntityCreatedPacket } from "./McApiOnEntityCreatedPacket";
+import { MaxStringLength } from "../../../Data/Constants";
 export class McApiOnNetworkEntityCreatedPacket extends McApiOnEntityCreatedPacket {
-    constructor(id = 0, loudness = 0, lastSpoke = 0n, worldId = "", name = "", muted = false, deafened = false, talkBitmask = 0, listenBitmask = 0, effectBitmask = 0, position = new Vector3(), rotation = new Vector2(), caveFactor = 0, muffleFactor = 0, userGuid = Guid.CreateEmpty(), serverUserGuid = Guid.CreateEmpty(), locale = "", positioningType = PositioningType.Server) {
-        super(id, loudness, lastSpoke, worldId, name, muted, deafened, talkBitmask, listenBitmask, effectBitmask, position, rotation, caveFactor, muffleFactor);
+    constructor(id = 0, loudness = 0.0, lastSpoke = 0n, userGuid = Guid.CreateEmpty(), serverUserGuid = Guid.CreateEmpty(), locale = "", positioningType = PositioningType.Server) {
+        super(id, loudness, lastSpoke);
         this._userGuid = userGuid;
         this._serverUserGuid = serverUserGuid;
         this._locale = locale;
         this._positioningType = positioningType;
     }
-    get PacketType() {
-        return McApiPacketType.OnNetworkEntityCreated;
+    get EventType() {
+        return EventType.OnNetworkEntityCreated;
     }
     get UserGuid() {
         return this._userGuid;
@@ -33,10 +31,10 @@ export class McApiOnNetworkEntityCreatedPacket extends McApiOnEntityCreatedPacke
     _positioningType;
     Serialize(writer) {
         super.Serialize(writer);
-        writer.PutString(this.UserGuid.toString(), MaxStringLength);
-        writer.PutString(this.ServerUserGuid.toString(), MaxStringLength);
-        writer.PutString(this.Locale, MaxStringLength);
-        writer.PutByte(this.PositioningType);
+        writer.PutString(this._userGuid.toString(), MaxStringLength);
+        writer.PutString(this._serverUserGuid.toString(), MaxStringLength);
+        writer.PutString(this._locale, MaxStringLength);
+        writer.PutByte(this._positioningType);
     }
     Deserialize(reader) {
         super.Deserialize(reader);
@@ -45,12 +43,11 @@ export class McApiOnNetworkEntityCreatedPacket extends McApiOnEntityCreatedPacke
         this._locale = reader.GetString(MaxStringLength);
         this._positioningType = reader.GetByte();
     }
-    Set(id = 0, loudness = 0, lastSpoke = 0n, worldId = "", name = "", muted = false, deafened = false, talkBitmask = 0, listenBitmask = 0, effectBitmask = 0, position = new Vector3(), rotation = new Vector2(), caveFactor = 0, muffleFactor = 0, userGuid = Guid.CreateEmpty(), serverUserGuid = Guid.CreateEmpty(), locale = "", positioningType = PositioningType.Server) {
-        super.Set(id, loudness, lastSpoke, worldId, name, muted, deafened, talkBitmask, listenBitmask, effectBitmask, position, rotation, caveFactor, muffleFactor);
+    Set(id = 0, loudness = 0.0, lastSpoke = 0n, userGuid = Guid.CreateEmpty(), serverUserGuid = Guid.CreateEmpty(), locale = "", positioningType = PositioningType.Server) {
+        super.Set(id, loudness, lastSpoke);
         this._userGuid = userGuid;
         this._serverUserGuid = serverUserGuid;
         this._locale = locale;
         this._positioningType = positioningType;
-        return this;
     }
 }

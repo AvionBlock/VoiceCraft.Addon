@@ -12,5 +12,5 @@ export declare class McApiSetEntityRotationRequestPacket implements IMcApiPacket
     private _value;
     Serialize(writer: NetDataWriter): void;
     Deserialize(reader: NetDataReader): void;
-    Set(id?: number, value?: Vector2): McApiSetEntityRotationRequestPacket;
+    Set(id?: number, value?: Vector2): void;
 }

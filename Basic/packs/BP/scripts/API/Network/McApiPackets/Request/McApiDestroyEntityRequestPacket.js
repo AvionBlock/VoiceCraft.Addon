@@ -17,8 +17,8 @@ export class McApiDestroyEntityRequestPacket {
     _requestId;
     _id;
     Serialize(writer) {
-        writer.PutString(this.RequestId, MaxStringLength);
-        writer.PutInt(this.Id);
+        writer.PutString(this._requestId, MaxStringLength);
+        writer.PutInt(this._id);
     }
     Deserialize(reader) {
         this._requestId = reader.GetString(MaxStringLength);
@@ -27,6 +27,5 @@ export class McApiDestroyEntityRequestPacket {
     Set(requestId = "", id = 0) {
         this._requestId = requestId;
         this._id = id;
-        return this;
     }
 }

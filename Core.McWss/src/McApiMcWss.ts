@@ -11,7 +11,7 @@ import {
     CustomCommandStatus,
     system
 } from "@minecraft/server";
-import {McApiEventType, McApiConnectionState, McApiPacketType} from "./API/Data/Enums";
+import {EventType, McApiConnectionState, McApiPacketType} from "./API/Data/Enums";
 import {Guid} from "./API/Data/Guid";
 import {McApiLoginRequestPacket} from "./API/Network/McApiPackets/Request/McApiLoginRequestPacket";
 import {VoiceCraft} from "./API/VoiceCraft";
@@ -20,17 +20,15 @@ import {McApiLogoutRequestPacket} from "./API/Network/McApiPackets/Request/McApi
 import {IMcApiPacket} from "./API/Network/McApiPackets/IMcApiPacket";
 import {Z85} from "./API/Encoders/Z85";
 import {McApiPingRequestPacket} from "./API/Network/McApiPackets/Request/McApiPingRequestPacket";
-import {IMcApiRIdPacket} from "./API/Network/McApiPackets/IMcApiRIdPacket";
 import {McApiAcceptResponsePacket} from "./API/Network/McApiPackets/Response/McApiAcceptResponsePacket";
 
 export class McApiMcWss extends McApiClient {
-    private _timeoutMs: number = 10000;
     private _pinger: number | undefined;
     private readonly _mcWssWriter: NetDataWriter = new NetDataWriter();
     private readonly _mcWssReader: NetDataReader = new NetDataReader();
     private readonly _writer: NetDataWriter = new NetDataWriter();
     private readonly _reader: NetDataReader = new NetDataReader();
-    private readonly _subscribedEvents: Set<McApiEventType> = new Set();
+    private readonly _subscribedEvents: Set<EventType> = new Set();
 
     constructor() {
         super();
@@ -49,12 +47,12 @@ export class McApiMcWss extends McApiClient {
                     this.OutboundQueue.enqueue(Z85.GetBytesWithPadding(ev.message));
                     break;
                 case `${VoiceCraft.Namespace}:eventSubscribe`:
-                    const eventTypeSubscribe = McApiEventType[ev.message as keyof typeof McApiEventType];
+                    const eventTypeSubscribe = EventType[ev.message as keyof typeof EventType];
                     if (eventTypeSubscribe === undefined) return;
                     this._subscribedEvents.add(eventTypeSubscribe);
                     break;
                 case `${VoiceCraft.Namespace}:eventUnsubscribe`:
-                    const eventTypeUnsubscribe = McApiEventType[ev.message as keyof typeof McApiEventType];
+                    const eventTypeUnsubscribe = EventType[ev.message as keyof typeof EventType];
                     if (eventTypeUnsubscribe === undefined) return;
                     this._subscribedEvents.delete(eventTypeUnsubscribe);
                     break;
@@ -112,7 +110,7 @@ export class McApiMcWss extends McApiClient {
             return;
         }
 
-        if (Date.now() - this.LastPing >= this._timeoutMs &&
+        if (Date.now() - this.LastPing >= this.TimeoutMs &&
             this.ConnectionState !== McApiConnectionState.Disconnecting &&
             this.ConnectionState !== McApiConnectionState.Connecting) {
             this.DisconnectAsync(Locales.VcMcApi.DisconnectReason.Timeout, true).then();
@@ -129,7 +127,7 @@ export class McApiMcWss extends McApiClient {
                     if (!this.AuthorizePacket(mcApiPacket, this.Token ?? "")) return;
                     this.ExecutePacket(mcApiPacket);
                 });
-            } catch {
+            } catch(ex) {
                 //Do Nothing
             }
             packet = this.InboundQueue.dequeue();
@@ -175,61 +173,6 @@ export class McApiMcWss extends McApiClient {
         this.InboundQueue.clear();
         if (this._pinger !== undefined)
             system.clearRun(this._pinger);
-    }
-
-    private async GetResponseAsync<TPacket extends IMcApiPacket & IMcApiRIdPacket, TResult>(
-        packetType: McApiPacketType,
-        requestId: string,
-        selector: (packet: TPacket) => TResult,
-        timeoutTicks: number,
-        token?: AbortSignal
-    ): Promise<TResult> {
-        const tcs = Promise.withResolvers<TResult>();
-        const dTcs = Promise.withResolvers<string | undefined>();
-        const timeoutId = system.runTimeout(() => {
-            tcs.reject(new Error("TimeoutException"));
-        }, timeoutTicks);
-        if (token !== undefined)
-            token.onabort = (_) => tcs.reject(new Error("OperationCanceledException"));
-
-        this.OnPacketReceived.Subscribe(EventCallback);
-        this.OnDisconnected.Subscribe(OnDisconnectedCallback);
-
-        try {
-            let result: TResult | undefined;
-            let disconnectResult: string | undefined;
-            await Promise.race([
-                tcs.promise.then(x => {
-                    result = x;
-                }),
-                dTcs.promise.then(x => {
-                    disconnectResult = x;
-                })
-            ]);
-            if (result !== undefined)
-                return result;
-            throw new Error(disconnectResult ?? "Disconnected");
-
-        } finally {
-            system.clearRun(timeoutId);
-            if (token !== undefined)
-                token.onabort = null;
-            this.OnPacketReceived.Unsubscribe(EventCallback);
-            this.OnDisconnected.Unsubscribe(OnDisconnectedCallback);
-        }
-
-        function EventCallback(packet: IMcApiPacket) {
-            if (packet.PacketType === packetType && "RequestId" in packet && packet.RequestId === requestId)
-                try {
-                    tcs.resolve(selector(packet as TPacket));
-                } catch (err) {
-                    tcs.reject(err);
-                }
-        }
-
-        function OnDisconnectedCallback(reason: string | undefined) {
-            dTcs.resolve(reason);
-        }
     }
 
     private HandleDataTunnelCommand(_: CustomCommandOrigin, maxByteLength: number, data: string): CustomCommandResult {

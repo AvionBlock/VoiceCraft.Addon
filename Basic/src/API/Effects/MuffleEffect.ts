@@ -8,6 +8,13 @@ export class MuffleEffect implements IAudioEffect {
         return EffectType.Muffle;
     }
 
+    get Bitmask(): number {
+        return this._bitmask;
+    }
+    set Bitmask(value: number) {
+        this._bitmask = value;
+    }
+
     get WetDry(): number {
         return this._wetDry;
     }
@@ -15,6 +22,7 @@ export class MuffleEffect implements IAudioEffect {
         this._wetDry = Math.min(1, Math.max(value, 0));
     }
 
+    private _bitmask: number = 65535;
     private _wetDry: number = 1;
 
     Serialize(writer: NetDataWriter): void {
@@ -23,9 +31,5 @@ export class MuffleEffect implements IAudioEffect {
 
     Deserialize(reader: NetDataReader): void {
         this._wetDry = reader.GetFloat();
-    }
-
-    Reset(): void {
-        //Nothing to reset.
     }
 }

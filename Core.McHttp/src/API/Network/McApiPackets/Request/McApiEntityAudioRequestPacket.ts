@@ -1,7 +1,7 @@
-import { McApiPacketType } from "../../../Data/Enums";
-import { IMcApiPacket } from "../IMcApiPacket";
-import { NetDataWriter } from "../../../Data/NetDataWriter";
-import { NetDataReader } from "../../../Data/NetDataReader";
+import {McApiPacketType} from "../../../Data/Enums";
+import {IMcApiPacket} from "../IMcApiPacket";
+import {NetDataWriter} from "../../../Data/NetDataWriter";
+import {NetDataReader} from "../../../Data/NetDataReader";
 import {MaximumEncodedBytes} from "../../../Data/Constants";
 
 export class McApiEntityAudioRequestPacket implements IMcApiPacket {
@@ -22,18 +22,23 @@ export class McApiEntityAudioRequestPacket implements IMcApiPacket {
     public get PacketType(): McApiPacketType {
         return McApiPacketType.EntityAudioRequest;
     }
+
     public get Id(): number {
         return this._id;
     }
+
     public get Timestamp(): number {
         return this._timestamp;
     }
+
     public get FrameLoudness(): number {
         return this._frameLoudness;
     }
+
     public get Length(): number {
         return this._length;
     }
+
     public get Data(): Uint8Array {
         return this._data;
     }
@@ -45,10 +50,10 @@ export class McApiEntityAudioRequestPacket implements IMcApiPacket {
     private _data: Uint8Array;
 
     public Serialize(writer: NetDataWriter) {
-        writer.PutInt(this.Id);
-        writer.PutUshort(this.Timestamp);
-        writer.PutFloat(this.FrameLoudness);
-        writer.PutBytes(this.Data, 0, this.Length);
+        writer.PutInt(this._id);
+        writer.PutUshort(this._timestamp);
+        writer.PutFloat(this._frameLoudness);
+        writer.PutBytes(this._data, 0, this._length);
     }
 
     public Deserialize(reader: NetDataReader) {
@@ -56,7 +61,7 @@ export class McApiEntityAudioRequestPacket implements IMcApiPacket {
         this._timestamp = reader.GetUshort();
         this._frameLoudness = reader.GetFloat();
         this._length = reader.AvailableBytes;
-        if(this._length > MaximumEncodedBytes)
+        if (this._length > MaximumEncodedBytes)
             throw new Error(`Array length exceeds maximum number of bytes per packet! Got ${this._length} bytes.`);
         this._data = new Uint8Array(this._length);
         reader.GetBytes(this._data, this._length);
@@ -68,12 +73,11 @@ export class McApiEntityAudioRequestPacket implements IMcApiPacket {
         loudness: number = 0.0,
         length: number = 0,
         data: Uint8Array = new Uint8Array(0)
-    ): McApiEntityAudioRequestPacket {
+    ) {
         this._id = id;
         this._timestamp = timestamp;
         this._frameLoudness = loudness;
         this._length = length;
         this._data = data;
-        return this;
     }
 }

@@ -12,6 +12,7 @@ export class McApiLogoutRequestPacket implements IMcApiPacket {
   public get PacketType(): McApiPacketType {
     return McApiPacketType.LogoutRequest;
   }
+
   public get Token(): string {
     return this._token;
   }
@@ -19,15 +20,14 @@ export class McApiLogoutRequestPacket implements IMcApiPacket {
   private _token: string;
 
   public Serialize(writer: NetDataWriter) {
-    writer.PutString(this.Token, MaxStringLength);
+    writer.PutString(this._token, MaxStringLength);
   }
 
   public Deserialize(reader: NetDataReader) {
     this._token = reader.GetString(MaxStringLength);
   }
 
-  public Set(token: string = ""): McApiLogoutRequestPacket {
+  public Set(token: string = "") {
     this._token = token;
-    return this;
   }
 }

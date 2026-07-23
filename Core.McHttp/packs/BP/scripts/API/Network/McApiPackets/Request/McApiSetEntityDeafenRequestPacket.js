@@ -16,8 +16,8 @@ export class McApiSetEntityDeafenRequestPacket {
     _id;
     _value;
     Serialize(writer) {
-        writer.PutInt(this.Id);
-        writer.PutBool(this.Value);
+        writer.PutInt(this._id);
+        writer.PutBool(this._value);
     }
     Deserialize(reader) {
         this._id = reader.GetInt();
@@ -26,6 +26,5 @@ export class McApiSetEntityDeafenRequestPacket {
     Set(id = 0, value = false) {
         this._id = id;
         this._value = value;
-        return this;
     }
 }

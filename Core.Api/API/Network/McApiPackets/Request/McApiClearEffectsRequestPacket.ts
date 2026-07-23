@@ -16,8 +16,4 @@ export class McApiClearEffectsRequestPacket implements IMcApiPacket {
 
     public Deserialize(reader: NetDataReader) {
     }
-
-    public Set(): McApiClearEffectsRequestPacket {
-        return this;
-    }
 }

@@ -1,7 +1,7 @@
-import { McApiPacketType } from "../../../Data/Enums";
-import { NetDataReader } from "../../../Data/NetDataReader";
-import { NetDataWriter } from "../../../Data/NetDataWriter";
-import { IMcApiPacket } from "../IMcApiPacket";
+import {McApiPacketType} from "../../../Data/Enums";
+import {NetDataReader} from "../../../Data/NetDataReader";
+import {NetDataWriter} from "../../../Data/NetDataWriter";
+import {IMcApiPacket} from "../IMcApiPacket";
 import {IMcApiRIdPacket} from "../IMcApiRIdPacket";
 import {MaxStringLength} from "../../../Data/Constants";
 
@@ -13,6 +13,7 @@ export class McApiResetRequestPacket implements IMcApiPacket, IMcApiRIdPacket {
     public get PacketType(): McApiPacketType {
         return McApiPacketType.ResetRequest;
     }
+
     public get RequestId(): string {
         return this._requestId;
     }
@@ -27,8 +28,7 @@ export class McApiResetRequestPacket implements IMcApiPacket, IMcApiRIdPacket {
         this._requestId = reader.GetString(MaxStringLength);
     }
 
-    public Set(requestId: string = ""): McApiResetRequestPacket {
+    public Set(requestId: string = "") {
         this._requestId = requestId;
-        return this;
     }
 }

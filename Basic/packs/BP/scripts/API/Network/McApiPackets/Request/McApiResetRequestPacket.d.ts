@@ -10,5 +10,5 @@ export declare class McApiResetRequestPacket implements IMcApiPacket, IMcApiRIdP
     private _requestId;
     Serialize(writer: NetDataWriter): void;
     Deserialize(reader: NetDataReader): void;
-    Set(requestId?: string): McApiResetRequestPacket;
+    Set(requestId?: string): void;
 }

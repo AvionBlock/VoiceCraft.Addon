@@ -1,23 +1,19 @@
-import { McApiPacketType } from "../../../Data/Enums";
-import { IMcApiPacket } from "../IMcApiPacket";
-import { NetDataWriter } from "../../../Data/NetDataWriter";
-import { NetDataReader } from "../../../Data/NetDataReader";
+import {McApiPacketType} from "../../../Data/Enums";
+import {IMcApiPacket} from "../IMcApiPacket";
+import {NetDataWriter} from "../../../Data/NetDataWriter";
+import {NetDataReader} from "../../../Data/NetDataReader";
 
 export class McApiPingRequestPacket implements IMcApiPacket {
-  constructor() {
-  }
+    constructor() {
+    }
 
-  public get PacketType(): McApiPacketType {
-    return McApiPacketType.PingRequest;
-  }
+    public get PacketType(): McApiPacketType {
+        return McApiPacketType.PingRequest;
+    }
 
-  public Serialize(writer: NetDataWriter) {
-  }
+    public Serialize(writer: NetDataWriter) {
+    }
 
-  public Deserialize(reader: NetDataReader) {
-  }
-
-  public Set(): McApiPingRequestPacket {
-    return this;
-  }
+    public Deserialize(reader: NetDataReader) {
+    }
 }

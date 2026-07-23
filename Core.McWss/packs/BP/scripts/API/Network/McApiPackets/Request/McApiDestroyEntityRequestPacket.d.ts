@@ -12,5 +12,5 @@ export declare class McApiDestroyEntityRequestPacket implements IMcApiPacket, IM
     private _id;
     Serialize(writer: NetDataWriter): void;
     Deserialize(reader: NetDataReader): void;
-    Set(requestId?: string, id?: number): McApiDestroyEntityRequestPacket;
+    Set(requestId?: string, id?: number): void;
 }

@@ -12,5 +12,5 @@ export declare class McApiDenyResponsePacket implements IMcApiPacket, IMcApiRIdP
     private _reason;
     Serialize(writer: NetDataWriter): void;
     Deserialize(reader: NetDataReader): void;
-    Set(requestId?: string, reason?: string): McApiDenyResponsePacket;
+    Set(requestId?: string, reason?: string): void;
 }

@@ -17,8 +17,8 @@ export class McApiSetEntityDescriptionRequestPacket {
     _id;
     _value;
     Serialize(writer) {
-        writer.PutInt(this.Id);
-        writer.PutString(this.Value, MaxDescriptionStringLength);
+        writer.PutInt(this._id);
+        writer.PutString(this._value, MaxDescriptionStringLength);
     }
     Deserialize(reader) {
         this._id = reader.GetInt();
@@ -27,6 +27,5 @@ export class McApiSetEntityDescriptionRequestPacket {
     Set(id = 0, value = "") {
         this._id = id;
         this._value = value;
-        return this;
     }
 }

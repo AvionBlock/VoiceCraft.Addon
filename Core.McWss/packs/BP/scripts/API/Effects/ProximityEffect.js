@@ -3,6 +3,12 @@ export class ProximityEffect {
     get EffectType() {
         return EffectType.Proximity;
     }
+    get Bitmask() {
+        return this._bitmask;
+    }
+    set Bitmask(value) {
+        this._bitmask = value;
+    }
     get MinRange() {
         return this._minRange;
     }
@@ -21,6 +27,7 @@ export class ProximityEffect {
     set WetDry(value) {
         this._wetDry = Math.min(1, Math.max(value, 0));
     }
+    _bitmask = 65535;
     _minRange = 0;
     _maxRange = 0;
     _wetDry = 1;
@@ -33,8 +40,5 @@ export class ProximityEffect {
         this._minRange = reader.GetFloat();
         this._maxRange = reader.GetFloat();
         this._wetDry = reader.GetFloat();
-    }
-    Reset() {
-        //Nothing to reset.
     }
 }

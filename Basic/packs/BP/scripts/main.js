@@ -1,4 +1,4 @@
-import { system, world } from "@minecraft/server";
+import { Player, system, world } from "@minecraft/server";
 import { VoiceCraft } from "./API/VoiceCraft";
 import { CommandManager } from "./Managers/CommandManager";
 import { McApiSetEntityPositionRequestPacket } from "./API/Network/McApiPackets/Request/McApiSetEntityPositionRequestPacket";
@@ -6,12 +6,11 @@ import { Vector3 } from "./API/Data/Vector3";
 import { McApiSetEntityRotationRequestPacket } from "./API/Network/McApiPackets/Request/McApiSetEntityRotationRequestPacket";
 import { Vector2 } from "./API/Data/Vector2";
 import { McApiSetEntityWorldIdRequestPacket } from "./API/Network/McApiPackets/Request/McApiSetEntityWorldIdRequestPacket";
-import { FormManager } from "./Managers/FormManager";
 import { BindingSystem } from "./API/Systems/BindingSystem";
 import { AudioEffectSystem } from "./API/Systems/AudioEffectSystem";
-import { McApiSetEntityCaveFactorRequestPacket } from "./API/Network/McApiPackets/Request/McApiSetEntityCaveFactorRequestPacket";
-import { McApiSetEntityMuffleFactorRequestPacket } from "./API/Network/McApiPackets/Request/McApiSetEntityMuffleFactorRequestPacket";
 import { Locales } from "./API/Locales";
+import { McApiSetEntityPropertyRequestPacket } from "./API/Network/McApiPackets/Request/McApiSetEntityPropertyRequestPacket";
+import { EventType, PropertyType } from "./API/Data/Enums";
 const cv = [
     "minecraft:stone",
     "minecraft:diorite",
@@ -22,22 +21,21 @@ const cv = [
 const vc = new VoiceCraft();
 const bs = new BindingSystem(vc);
 const aes = new AudioEffectSystem(vc);
-const fm = new FormManager(vc, bs, aes);
 let connectionAttempted = false;
-new CommandManager(vc, bs, fm);
+new CommandManager(vc, bs, aes);
+system.beforeEvents.startup.subscribe(() => {
+    system.run(() => {
+        system.sendScriptEvent(`${VoiceCraft.Namespace}:eventSubscribe`, EventType[EventType.OnEffectUpdated]);
+        system.sendScriptEvent(`${VoiceCraft.Namespace}:eventSubscribe`, EventType[EventType.OnEntityAudioReceived]);
+        system.sendScriptEvent(`${VoiceCraft.Namespace}:eventSubscribe`, EventType[EventType.OnNetworkEntityCreated]);
+    });
+});
 world.afterEvents.worldLoad.subscribe(_ => {
     if (!world.getDynamicProperty("autoConnect:startup"))
         return;
     InitiateConnection();
 });
-vc.OnEntityCreatedPacket.Subscribe(ev => {
-    console.log(`Received Entity Created: ${ev.Id}`);
-});
-vc.OnNetworkEntityCreatedPacket.Subscribe(ev => {
-    console.log(`Received Network Entity Created: ${ev.Id}`);
-});
 vc.OnConnected.Subscribe(_ => {
-    console.log("Connected Event");
     connectionAttempted = false;
     if (world.getDynamicProperty("general:broadcastConnectedEvent")) {
         world.sendMessage({ translate: Locales.VcMcApi.Status.Broadcast.Connected });
@@ -53,29 +51,44 @@ vc.OnDisconnected.Subscribe(_ => {
     InitiateConnection();
 });
 vc.OnPlayerBind.Subscribe(player => {
-    if (world.getDynamicProperty("general:broadcastPlayerConnectedEvent")) {
-        const playerObj = world.getAllPlayers().find(x => x.id === player.playerId);
-        if (playerObj === undefined)
-            return;
-        world.sendMessage({ translate: Locales.VcMcApi.Status.Broadcast.PlayerConnected, with: [playerObj.name] });
+    try {
+        if (world.getDynamicProperty("general:broadcastPlayerConnectedEvent")) {
+            const playerObj = world.getEntity(player.playerId);
+            if (playerObj === undefined || !(playerObj instanceof Player))
+                return;
+            world.sendMessage({ translate: Locales.VcMcApi.Status.Broadcast.PlayerConnected, with: [playerObj.name] });
+        }
+    }
+    catch {
+        //Do Nothing
     }
 });
 vc.OnPlayerUnbind.Subscribe(player => {
-    if (world.getDynamicProperty("general:broadcastPlayerDisconnectedEvent")) {
-        const playerObj = world.getAllPlayers().find(x => x.id === player.playerId);
-        if (playerObj === undefined)
-            return;
-        world.sendMessage({ translate: Locales.VcMcApi.Status.Broadcast.PlayerDisconnected, with: [playerObj.name] });
+    try {
+        if (world.getDynamicProperty("general:broadcastPlayerDisconnectedEvent")) {
+            const playerObj = world.getEntity(player.playerId);
+            if (playerObj === undefined || !(playerObj instanceof Player))
+                return;
+            world.sendMessage({ translate: Locales.VcMcApi.Status.Broadcast.PlayerDisconnected, with: [playerObj.name] });
+        }
+    }
+    catch {
+        //Do Nothing
     }
 });
 vc.OnEntityAudioReceivedPacket.Subscribe(ev => {
-    const playerId = bs.GetBoundPlayer(ev.Id);
-    if (playerId === undefined)
-        return;
-    const playerObj = world.getAllPlayers().find(x => x.id === playerId);
-    if (playerObj === undefined)
-        return;
-    playerObj.setDynamicProperty("data:lastSpoke", Date.now());
+    try {
+        const playerId = bs.GetBoundPlayer(ev.Id);
+        if (playerId === undefined)
+            return;
+        const playerObj = world.getEntity(playerId);
+        if (playerObj === undefined || !(playerObj instanceof Player))
+            return;
+        playerObj.setDynamicProperty("data:lastSpoke", Date.now());
+    }
+    catch {
+        //Do Nothing
+    }
 });
 system.runInterval(() => IntervalLogic(), 0);
 function IntervalLogic() {
@@ -118,16 +131,16 @@ function IntervalLogic() {
         const caveEchoEnabled = world.getDynamicProperty("general:enableCaveEcho");
         const underwaterMuffleEnabled = world.getDynamicProperty("general:enableUnderwaterMuffle");
         if (caveEchoEnabled) {
-            vc.SendPacket(new McApiSetEntityCaveFactorRequestPacket(entityId, GetCaveDensity(player)));
+            vc.SendPacket(new McApiSetEntityPropertyRequestPacket(entityId, "ProximityEchoEffect:Factor", PropertyType.Float, GetCaveDensity(player)));
         }
         else {
-            vc.SendPacket(new McApiSetEntityCaveFactorRequestPacket(entityId, 0.0));
+            vc.SendPacket(new McApiSetEntityPropertyRequestPacket(entityId, "ProximityEchoEffect:Factor", PropertyType.Null, undefined));
         }
         if (underwaterMuffleEnabled) {
-            vc.SendPacket(new McApiSetEntityMuffleFactorRequestPacket(entityId, IsUnderwater(player) ? 1.0 : 0));
+            vc.SendPacket(new McApiSetEntityPropertyRequestPacket(entityId, "ProximityMuffleEffect:Factor", PropertyType.Float, IsUnderwater(player) ? 1.0 : 0));
         }
         else {
-            vc.SendPacket(new McApiSetEntityMuffleFactorRequestPacket(entityId, 0));
+            vc.SendPacket(new McApiSetEntityPropertyRequestPacket(entityId, "ProximityMuffleEffect:Factor", PropertyType.Null, undefined));
         }
     }
 }

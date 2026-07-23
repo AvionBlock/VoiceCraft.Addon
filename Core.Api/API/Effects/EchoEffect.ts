@@ -8,18 +8,25 @@ export class EchoEffect implements IAudioEffect {
         return EffectType.Echo;
     }
 
+    get Bitmask(): number {
+        return this._bitmask;
+    }
+    set Bitmask(value: number) {
+        this._bitmask = value;
+    }
+
     get Delay(): number {
         return this._delay;
     }
     set Delay(value: number) {
-        this._delay = value;
+        this._delay = Math.min(10, Math.max(value, 0));
     }
 
     get Feedback(): number {
         return this._feedback;
     }
     set Feedback(value: number) {
-        this._feedback = value;
+        this._wetDry = Math.min(1, Math.max(value, 0));
     }
 
     get WetDry(): number {
@@ -29,6 +36,7 @@ export class EchoEffect implements IAudioEffect {
         this._wetDry = Math.min(1, Math.max(value, 0));
     }
 
+    private _bitmask: number = 65535;
     private _delay: number = 0.5;
     private _feedback: number = 0.5;
     private _wetDry: number = 1;
@@ -43,9 +51,5 @@ export class EchoEffect implements IAudioEffect {
         this._delay = reader.GetFloat();
         this._feedback = reader.GetFloat();
         this._wetDry = reader.GetFloat();
-    }
-
-    Reset(): void {
-        //Nothing to reset.
     }
 }

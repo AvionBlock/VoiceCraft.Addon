@@ -9,12 +9,12 @@ import {
     system,
 } from "@minecraft/server";
 import {VoiceCraft} from "../API/VoiceCraft";
-import {FormManager} from "./FormManager";
 import {BindingSystem} from "../API/Systems/BindingSystem";
-import {UTF8} from "../API/Encoders/UTF8";
+import {SettingsForm} from "../Forms/SettingsForm";
+import {AudioEffectSystem} from "../API/Systems/AudioEffectSystem";
 
 export class CommandManager {
-    constructor(private _vc: VoiceCraft, private _bs: BindingSystem, private _fm: FormManager) {
+    constructor(private _vc: VoiceCraft, private _bs: BindingSystem, private _aes: AudioEffectSystem) {
         system.beforeEvents.startup.subscribe((ev) => {
             this.RegisterCommands(ev.customCommandRegistry);
         });
@@ -40,15 +40,6 @@ export class CommandManager {
                 permissionLevel: CommandPermissionLevel.GameDirectors
             },
             (origin) => this.SettingsCommand(origin)
-        )
-
-        registry.registerCommand(
-            {
-                name: `${VoiceCraft.Namespace}:vctest`,
-                description: "Test Command.",
-                permissionLevel: CommandPermissionLevel.GameDirectors
-            },
-            (origin) => this.TestCommand(origin)
         )
     }
 
@@ -87,18 +78,8 @@ export class CommandManager {
         const player = origin.sourceEntity;
 
         system.run(async () => {
-            await this._fm.ShowMainMenuSettingsFormAsync(player);
+            await new SettingsForm(this._vc, this._bs, this._aes).Show(player);
         })
         return undefined;
-    }
-
-    private TestCommand(_: CustomCommandOrigin): CustomCommandResult | undefined {
-        let encoded = UTF8.GetBytes("Testing 123");
-        if(encoded === undefined) return undefined;
-        let decoded = UTF8.GetString(encoded, 0, encoded.length);
-        return {
-            status: CustomCommandStatus.Success,
-            message: decoded
-        };
     }
 }

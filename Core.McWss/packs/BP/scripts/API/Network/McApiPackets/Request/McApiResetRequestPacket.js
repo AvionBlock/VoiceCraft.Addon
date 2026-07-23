@@ -19,6 +19,5 @@ export class McApiResetRequestPacket {
     }
     Set(requestId = "") {
         this._requestId = requestId;
-        return this;
     }
 }

@@ -17,8 +17,8 @@ export class McApiResetResponsePacket {
     _requestId;
     _responseCode;
     Serialize(writer) {
-        writer.PutString(this.RequestId, MaxStringLength);
-        writer.PutSbyte(this.ResponseCode);
+        writer.PutString(this._requestId, MaxStringLength);
+        writer.PutSbyte(this._responseCode);
     }
     Deserialize(reader) {
         this._requestId = reader.GetString(MaxStringLength);
@@ -27,7 +27,6 @@ export class McApiResetResponsePacket {
     Set(requestId = "", responseCode = ResponseCodes.Ok) {
         this._requestId = requestId;
         this._responseCode = responseCode;
-        return this;
     }
 }
 export var ResponseCodes;

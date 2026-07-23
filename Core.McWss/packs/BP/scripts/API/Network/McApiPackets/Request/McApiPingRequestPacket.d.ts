@@ -7,5 +7,4 @@ export declare class McApiPingRequestPacket implements IMcApiPacket {
     get PacketType(): McApiPacketType;
     Serialize(writer: NetDataWriter): void;
     Deserialize(reader: NetDataReader): void;
-    Set(): McApiPingRequestPacket;
 }

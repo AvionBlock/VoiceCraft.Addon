@@ -9,7 +9,4 @@ export class McApiClearEffectsRequestPacket {
     }
     Deserialize(reader) {
     }
-    Set() {
-        return this;
-    }
 }

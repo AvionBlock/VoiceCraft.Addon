@@ -17,5 +17,5 @@ export declare class McApiEntityAudioRequestPacket implements IMcApiPacket {
     private _data;
     Serialize(writer: NetDataWriter): void;
     Deserialize(reader: NetDataReader): void;
-    Set(id?: number, timestamp?: number, loudness?: number, length?: number, data?: Uint8Array): McApiEntityAudioRequestPacket;
+    Set(id?: number, timestamp?: number, loudness?: number, length?: number, data?: Uint8Array): void;
 }
