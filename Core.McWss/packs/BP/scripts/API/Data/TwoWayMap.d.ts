@@ -17,4 +17,6 @@ export declare class TwoWayMap<K, V> implements Map<K, V> {
     valueHas(value: V): boolean;
     valueSet(value: V, key: K): this;
     valueDelete(value: V): boolean;
+    getOrInsert(key: K, defaultValue: V): V;
+    getOrInsertComputed(key: K, callback: (key: K) => V): V;
 }

@@ -13,9 +13,9 @@
 		"profiles": {
 			"default": {
 				"export": {
-					"build": "standard",
-					"readOnly": false,
-					"target": "development"
+					"target": "local",
+					"rpName": "project.name+'.RP'",
+					"bpName": "project.name+'.BP'"
 				},
 				"filters": []
 			}
