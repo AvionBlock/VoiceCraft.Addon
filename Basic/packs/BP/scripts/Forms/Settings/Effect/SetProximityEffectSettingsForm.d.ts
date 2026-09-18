@@ -1,10 +1,17 @@
 import { Player } from "@minecraft/server";
-import { ProximityEffect } from "../../../API/Effects/ProximityEffect";
 import { AudioEffectSystem } from "../../../API/Systems/AudioEffectSystem";
+import { ProximityEffect } from "../../../API/Effects/ProximityEffect";
 export declare class SetProximityEffectSettingsForm {
+    private _player;
     private _aes;
-    constructor(_aes: AudioEffectSystem);
-    private _form;
-    Show(player: Player, effect?: ProximityEffect): Promise<void>;
-    private Validate;
+    private readonly _form;
+    private readonly _effect;
+    private readonly _bitmask;
+    private readonly _minRange;
+    private readonly _maxRange;
+    private readonly _wetDry;
+    constructor(_player: Player, _aes: AudioEffectSystem, editEffect?: ProximityEffect);
+    ShowAsync(): Promise<void>;
+    private Save;
+    private GetData;
 }

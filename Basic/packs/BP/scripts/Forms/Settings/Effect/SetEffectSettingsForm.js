@@ -1,51 +1,64 @@
-import { ActionFormData } from "@minecraft/server-ui";
+import { CustomForm } from "@minecraft/server-ui";
+import { system } from "@minecraft/server";
 import { SetVisibilityEffectSettingsForm } from "./SetVisibilityEffectSettingsForm";
+import { SetProximityMuffleEffectSettingsForm } from "./SetProximityMuffleEffectSettingsForm";
 import { SetProximityEffectSettingsForm } from "./SetProximityEffectSettingsForm";
 import { SetDirectionalEffectSettingsForm } from "./SetDirectionalEffectSettingsForm";
 import { SetProximityEchoEffectSettingsForm } from "./SetProximityEchoEffectSettingsForm";
 import { SetEchoEffectSettingsForm } from "./SetEchoEffectSettingsForm";
-import { SetProximityMuffleEffectSettingsForm } from "./SetProximityMuffleEffectSettingsForm";
 import { SetMuffleEffectSettingsForm } from "./SetMuffleEffectSettingsForm";
 export class SetEffectSettingsForm {
+    _player;
     _aes;
-    constructor(_aes) {
+    _form;
+    constructor(_player, _aes) {
+        this._player = _player;
         this._aes = _aes;
+        this._form = new CustomForm(this._player, "Select Effect")
+            .spacer()
+            .button("Visibility Effect", () => this.ShowSetVisibilityEffectSettings())
+            .button("Proximity Effect", () => this.ShowSetProximityEffectSettings())
+            .button("Directional Effect", () => this.ShowSetDirectionalEffectSettings())
+            .button("Proximity Echo Effect", () => this.ShowSetProximityEchoEffectSettings())
+            .button("Echo Effect", () => this.ShowSetEchoEffectSettings())
+            .button("Proximity Muffle Effect", () => this.ShowSetProximityMuffleEffectSettings())
+            .button("Muffle Effect", () => this.ShowSetMuffleEffectSettings());
     }
-    _form = () => new ActionFormData()
-        .title("Select Effect")
-        .button("Visibility")
-        .button("Proximity")
-        .button("Directional")
-        .button("Proximity Echo")
-        .button("Echo")
-        .button("Proximity Muffle")
-        .button("Muffle");
-    async Show(player) {
-        const { canceled, selection } = await this._form().show(player);
-        if (canceled || selection === undefined)
-            return;
-        switch (selection) {
-            case 0:
-                await new SetVisibilityEffectSettingsForm(this._aes).Show(player);
-                break;
-            case 1:
-                await new SetProximityEffectSettingsForm(this._aes).Show(player);
-                break;
-            case 2:
-                await new SetDirectionalEffectSettingsForm(this._aes).Show(player);
-                break;
-            case 3:
-                await new SetProximityEchoEffectSettingsForm(this._aes).Show(player);
-                break;
-            case 4:
-                await new SetEchoEffectSettingsForm(this._aes).Show(player);
-                break;
-            case 5:
-                await new SetProximityMuffleEffectSettingsForm(this._aes).Show(player);
-                break;
-            case 6:
-                await new SetMuffleEffectSettingsForm(this._aes).Show(player);
-                break;
+    async ShowAsync() {
+        try {
+            await this._form.show();
         }
+        catch (error) {
+            if (this._player.isValid)
+                this._player.sendMessage(`§c${error}`);
+        }
+    }
+    ShowSetVisibilityEffectSettings() {
+        this._form.close();
+        system.run(async () => await new SetVisibilityEffectSettingsForm(this._player, this._aes).ShowAsync());
+    }
+    ShowSetProximityEffectSettings() {
+        this._form.close();
+        system.run(async () => await new SetProximityEffectSettingsForm(this._player, this._aes).ShowAsync());
+    }
+    ShowSetDirectionalEffectSettings() {
+        this._form.close();
+        system.run(async () => await new SetDirectionalEffectSettingsForm(this._player, this._aes).ShowAsync());
+    }
+    ShowSetProximityEchoEffectSettings() {
+        this._form.close();
+        system.run(async () => await new SetProximityEchoEffectSettingsForm(this._player, this._aes).ShowAsync());
+    }
+    ShowSetEchoEffectSettings() {
+        this._form.close();
+        system.run(async () => await new SetEchoEffectSettingsForm(this._player, this._aes).ShowAsync());
+    }
+    ShowSetProximityMuffleEffectSettings() {
+        this._form.close();
+        system.run(async () => await new SetProximityMuffleEffectSettingsForm(this._player, this._aes).ShowAsync());
+    }
+    ShowSetMuffleEffectSettings() {
+        this._form.close();
+        system.run(async () => await new SetMuffleEffectSettingsForm(this._player, this._aes).ShowAsync());
     }
 }

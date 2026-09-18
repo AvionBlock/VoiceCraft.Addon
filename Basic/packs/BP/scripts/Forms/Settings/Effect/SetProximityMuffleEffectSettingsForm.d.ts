@@ -1,10 +1,16 @@
 import { Player } from "@minecraft/server";
-import { ProximityMuffleEffect } from "../../../API/Effects/ProximityMuffleEffect";
 import { AudioEffectSystem } from "../../../API/Systems/AudioEffectSystem";
+import { ProximityMuffleEffect } from "../../../API/Effects/ProximityMuffleEffect";
 export declare class SetProximityMuffleEffectSettingsForm {
+    private _player;
     private _aes;
-    constructor(_aes: AudioEffectSystem);
-    private _form;
-    Show(player: Player, effect?: ProximityMuffleEffect): Promise<void>;
-    private Validate;
+    private readonly _form;
+    private readonly _effect;
+    private readonly _bitmask;
+    private readonly _factor;
+    private readonly _wetDry;
+    constructor(_player: Player, _aes: AudioEffectSystem, editEffect?: ProximityMuffleEffect);
+    ShowAsync(): Promise<void>;
+    private Save;
+    private GetData;
 }

@@ -1,9 +1,14 @@
 import { Player } from "@minecraft/server";
 import { VoiceCraft } from "../../../API/VoiceCraft";
 export declare class PlayerSetPropertySettingsForm {
+    private _player;
     private _vc;
-    constructor(_vc: VoiceCraft);
-    private _form;
-    Show(player: Player, entityId: number): Promise<void>;
-    private Validate;
+    private readonly _form;
+    private _propertyType;
+    private _property;
+    private _value;
+    constructor(_player: Player, _vc: VoiceCraft, entityId: number);
+    ShowAsync(): Promise<void>;
+    private Save;
+    private GetData;
 }

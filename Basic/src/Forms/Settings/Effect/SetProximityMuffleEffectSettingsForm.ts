@@ -1,48 +1,69 @@
-import {ModalFormData} from "@minecraft/server-ui";
+import {CustomForm, ObservableNumber, ObservableString} from "@minecraft/server-ui";
 import {Player} from "@minecraft/server";
-import {ProximityMuffleEffect} from "../../../API/Effects/ProximityMuffleEffect";
 import {AudioEffectSystem} from "../../../API/Systems/AudioEffectSystem";
+import {ProximityMuffleEffect} from "../../../API/Effects/ProximityMuffleEffect";
 
 export class SetProximityMuffleEffectSettingsForm {
-    constructor(private _aes: AudioEffectSystem) {
+    private readonly _form;
+    private readonly _effect;
+    private readonly _bitmask;
+    private readonly _factor;
+    private readonly _wetDry;
+
+    constructor(private _player: Player, private _aes: AudioEffectSystem, editEffect?: ProximityMuffleEffect) {
+        const editMode = editEffect !== undefined;
+        this._effect = editMode? editEffect : new ProximityMuffleEffect();
+
+        this._bitmask = new ObservableString(this._effect.Bitmask.toString(), {clientWritable: true});
+        this._factor = new ObservableNumber(this._effect.Factor, {clientWritable: true});
+        this._wetDry = new ObservableNumber(this._effect.WetDry, {clientWritable: true});
+
+        this._form = new CustomForm(this._player, `${editMode? "Edit" : "Set"} Proximity Muffle Effect`)
+            .textField("Bitmask", this._bitmask, { disabled: editMode })
+            .slider("Factor", this._factor, 0, 1, { step: 0.05 })
+            .slider("WetDry", this._wetDry, 0, 1, { step: 0.05 })
+            .spacer()
+            .button("Save", () => this.Save())
+            .closeButton();
     }
 
-    private _form = (effect: ProximityMuffleEffect) => new ModalFormData()
-        .title("Set Proximity Muffle Effect")
-        .textField("Bitmask", "0", {defaultValue: effect.Bitmask.toString()})
-        .textField("Factor", "1", {defaultValue: effect.Factor.toString()})
-        .textField("WetDry", "1", {defaultValue: effect.WetDry.toString()});
-
-    public async Show(player: Player, effect: ProximityMuffleEffect = new ProximityMuffleEffect()) {
-        const {cancelationReason, formValues} = await this._form(effect).show(player);
-        if (cancelationReason !== undefined || formValues === undefined) return;
-        const [bitmask, factor, wetDry] = this.Validate(formValues);
-
-        effect.Bitmask = bitmask;
-        effect.Factor = factor;
-        effect.WetDry = wetDry;
-        this._aes.SetEffect(effect.Bitmask, effect);
+    public async ShowAsync() {
+        try {
+            await this._form.show();
+        } catch (error) {
+            if (this._player.isValid)
+                this._player.sendMessage(`§c${error}`);
+        }
     }
 
-    private Validate(formValues: (string | number | boolean | undefined)[]): [number, number, number] {
-        //Extract Values
-        const [bitmaskValue, factorValue, wetDryValue] = formValues;
+    private Save() {
+        try {
+            const [bitmask, factor, wetDry] = this.GetData();
 
-        //Validate Values
-        if (typeof bitmaskValue !== "string" ||
-            typeof factorValue !== "string" ||
-            typeof wetDryValue !== "string")
-            throw new Error("Invalid Form Values!");
+            this._effect.Bitmask = bitmask;
+            this._effect.Factor = factor;
+            this._effect.WetDry = wetDry;
+            this._aes.SetEffect(this._effect.Bitmask, this._effect);
+        } catch (error) {
+            if (this._player.isValid)
+                this._player.sendMessage(`§c${error}`);
+        }
+        finally {
+            if(this._form.isShowing())
+                this._form.close();
+        }
+    }
 
-        const bitmask = Number.parseInt(bitmaskValue);
+    private GetData(): [number, number, number] {
+        const bitmask = Number.parseInt(this._bitmask.getData());
         if (bitmask < 1 || bitmask > 65535)
             throw new Error("Invalid Bitmask! Bitmask must be greater than 0 or lower than 65535!");
 
-        const factor = Number.parseFloat(factorValue);
+        const factor = this._factor.getData();
         if (factor < 0.0 || factor > 1.0)
             throw new Error("Invalid Factor! Factor must be at or between 0.0 and 1.0!");
 
-        const wetDry = Number.parseFloat(wetDryValue);
+        const wetDry = this._wetDry.getData();
         if (wetDry < 0.0 || wetDry > 1.0)
             throw new Error("Invalid WetDry! WetDry must be at or between 0.0 and 1.0!");
 

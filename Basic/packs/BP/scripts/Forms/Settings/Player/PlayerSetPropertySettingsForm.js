@@ -1,90 +1,112 @@
-import { ModalFormData } from "@minecraft/server-ui";
+import { CustomForm, ObservableNumber, ObservableString } from "@minecraft/server-ui";
 import { PropertyType } from "../../../API/Data/Enums";
 import { McApiSetEntityPropertyRequestPacket } from "../../../API/Network/McApiPackets/Request/McApiSetEntityPropertyRequestPacket";
 export class PlayerSetPropertySettingsForm {
+    _player;
     _vc;
-    constructor(_vc) {
+    _form;
+    //Broadcasts
+    _propertyType = new ObservableNumber(0, { clientWritable: true });
+    _property = new ObservableString("", { clientWritable: true });
+    _value = new ObservableString("", { clientWritable: true });
+    constructor(_player, _vc, entityId) {
+        this._player = _player;
         this._vc = _vc;
+        const propertyTypes = [];
+        for (const propertyType of Object.keys(PropertyType).filter(x => isNaN(Number(x))).entries()) {
+            propertyTypes.push({ label: propertyType[1], value: propertyType[0] });
+        }
+        this._form = new CustomForm(this._player, "Set Property")
+            .spacer()
+            .dropdown("Property Type", this._propertyType, propertyTypes)
+            .textField("Property", this._property)
+            .textField("Value", this._value)
+            .spacer()
+            .button("Save", () => this.Save(entityId))
+            .closeButton();
     }
-    _form = (player) => new ModalFormData()
-        .title(`Set Property: ${player.name}`)
-        .textField("Property", "ProximityEffect:MaxRange")
-        .dropdown("Property Type", Object.keys(PropertyType).filter((item) => {
-        return isNaN(Number(item));
-    }))
-        .textField("Value", "0.0");
-    async Show(player, entityId) {
-        const form = this._form(player);
-        const { cancelationReason, formValues } = await form.show(player);
-        if (cancelationReason !== undefined || formValues === undefined)
-            return;
-        const [property, propertyType, value] = this.Validate(formValues);
-        this._vc.SendPacket(new McApiSetEntityPropertyRequestPacket(entityId, property, propertyType, value));
+    async ShowAsync() {
+        try {
+            await this._form.show();
+        }
+        catch (error) {
+            if (this._player.isValid)
+                this._player.sendMessage(`§c${error}`);
+        }
     }
-    Validate(formValues) {
-        //Extract Values
-        const [propertyValue, propertyTypeValue, valueValue] = formValues;
-        //Validate Values
-        if (typeof propertyValue !== "string" ||
-            typeof propertyTypeValue !== "number" ||
-            typeof valueValue !== "string")
-            throw new Error("Invalid Form Values!");
+    Save(entityId) {
+        try {
+            const [propertyType, property, value] = this.GetData();
+            this._vc.SendPacket(new McApiSetEntityPropertyRequestPacket(entityId, property, propertyType, value));
+        }
+        catch (error) {
+            if (this._player.isValid)
+                this._player.sendMessage(`§c${error}`);
+        }
+        finally {
+            if (this._form.isShowing())
+                this._form.close();
+        }
+    }
+    GetData() {
+        const propertyType = this._propertyType.getData();
+        const property = this._property.getData();
         let value;
-        switch (propertyTypeValue) {
+        switch (propertyType) {
             case PropertyType.Boolean:
-                value = Boolean(valueValue);
+                value = Boolean(this._value.getData());
                 break;
             case PropertyType.SByte:
-                value = Number.parseInt(valueValue);
+                value = Number.parseInt(this._value.getData());
                 if (value > 127 || value < -128)
                     throw new Error("Invalid SByte Value!");
                 break;
             case PropertyType.Byte:
-                value = Number.parseInt(valueValue);
+                value = Number.parseInt(this._value.getData());
                 if (value > 255 || value < 0)
                     throw new Error("Invalid Byte Value!");
                 break;
             case PropertyType.Short:
-                value = Number.parseInt(valueValue);
+                value = Number.parseInt(this._value.getData());
                 if (value > 32767 || value < -32768)
                     throw new Error("Invalid Short Value!");
                 break;
             case PropertyType.UShort:
-                value = Number.parseInt(valueValue);
+                value = Number.parseInt(this._value.getData());
                 if (value > 65535 || value < 0)
                     throw new Error("Invalid UShort Value!");
                 break;
             case PropertyType.Int:
-                value = Number.parseInt(valueValue);
+                value = Number.parseInt(this._value.getData());
                 if (value > 2147483647 || value < -2147483648)
                     throw new Error("Invalid Int Value!");
                 break;
             case PropertyType.UInt:
-                value = Number.parseInt(valueValue);
+                value = Number.parseInt(this._value.getData());
                 if (value > 4294967295 || value < 0)
                     throw new Error("Invalid UInt Value!");
                 break;
             case PropertyType.Long:
-                value = Number.parseInt(valueValue);
+                value = Number.parseInt(this._value.getData());
                 if (value > 9223372036854775807n || value < -9223372036854775808n)
                     throw new Error("Invalid Long Value!");
                 break;
             case PropertyType.ULong:
-                value = Number.parseInt(valueValue);
+                value = Number.parseInt(this._value.getData());
                 if (value > 18446744073709551615n || value < 0)
                     throw new Error("Invalid Long Value!");
                 break;
             case PropertyType.Float:
-                value = Number.parseFloat(valueValue);
+                value = Number.parseFloat(this._value.getData());
                 break;
             case PropertyType.Double:
-                value = BigInt(valueValue);
+                value = BigInt(this._value.getData());
                 break;
             case PropertyType.Null:
             default:
-                return [propertyValue, PropertyType.Null, undefined];
+                return [PropertyType.Null, property, undefined];
         }
         //Return Values
-        return [propertyValue, propertyTypeValue, value];
+        return [propertyType, property, value];
     }
 }

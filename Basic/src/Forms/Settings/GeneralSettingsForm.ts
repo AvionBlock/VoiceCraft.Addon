@@ -1,81 +1,58 @@
-import {ModalFormData} from "@minecraft/server-ui";
+import {CustomForm, ObservableBoolean} from "@minecraft/server-ui";
 import {Player, world} from "@minecraft/server";
 
 export class GeneralSettingsForm {
-    private _form = (
-        broadcastConnected: boolean,
-        broadcastDisconnected: boolean,
-        broadcastPlayerConnected: boolean,
-        broadcastPlayerDisconnected: boolean,
-        showVoiceIcons: boolean,
-        caveEcho: boolean,
-        underwaterMuffle: boolean) => new ModalFormData()
-        .title("General Settings")
-        .toggle("Broadcast Connected Event", {defaultValue: broadcastConnected})
-        .toggle("Broadcast Disconnected Event", {defaultValue: broadcastDisconnected})
-        .toggle("Broadcast Player Connected Event", {defaultValue: broadcastPlayerConnected})
-        .toggle("Broadcast Player Disconnected Event", {defaultValue: broadcastPlayerDisconnected})
-        .toggle("Show Voice Icons", {defaultValue: showVoiceIcons})
-        .toggle("Enable Cave Echo", {defaultValue: caveEcho})
-        .toggle("Enable Underwater Muffle", {defaultValue: underwaterMuffle});
+    private readonly _form;
 
+    //Broadcasts
+    private broadcastConnectedEvent = new ObservableBoolean(world.getDynamicProperty("general:broadcastConnectedEvent") as boolean ?? false, {clientWritable: true});
+    private broadcastDisconnectedEvent = new ObservableBoolean(world.getDynamicProperty("general:broadcastDisconnectedEvent") as boolean ?? false, {clientWritable: true});
+    private broadcastPlayerConnectedEvent = new ObservableBoolean(world.getDynamicProperty("general:broadcastPlayerConnectedEvent") as boolean ?? false, {clientWritable: true});
+    private broadcastPlayerDisconnectedEvent = new ObservableBoolean(world.getDynamicProperty("general:broadcastPlayerDisconnectedEvent") as boolean ?? false, {clientWritable: true});
 
-    public async Show(player: Player) {
-        const {cancelationReason, formValues} = await this._form(
-            world.getDynamicProperty("general:broadcastConnectedEvent") as boolean ?? false,
-            world.getDynamicProperty("general:broadcastDisconnectedEvent") as boolean ?? false,
-            world.getDynamicProperty("general:broadcastPlayerConnectedEvent") as boolean ?? false,
-            world.getDynamicProperty("general:broadcastPlayerDisconnectedEvent") as boolean ?? false,
-            world.getDynamicProperty("general:showVoiceIcons") as boolean ?? false,
-            world.getDynamicProperty("general:enableCaveEcho") as boolean ?? false,
-            world.getDynamicProperty("general:enableUnderwaterMuffle") as boolean ?? false).show(player);
-        if (cancelationReason !== undefined || formValues === undefined) return;
-        const [
-            broadcastConnectedEvent,
-            broadcastDisconnectedEvent,
-            broadcastPlayerConnectedEvent,
-            broadcastPlayerDisconnectedEvent,
-            showVoiceIcons,
-            caveEcho,
-            underwaterMuffle] = this.Validate(formValues);
+    //Effects
+    private enableCaveEcho = new ObservableBoolean(world.getDynamicProperty("general:enableCaveEcho") as boolean ?? false, {clientWritable: true});
+    private enableUnderwaterMuffle = new ObservableBoolean(world.getDynamicProperty("general:enableUnderwaterMuffle") as boolean ?? false, {clientWritable: true});
 
-        world.setDynamicProperty("general:broadcastConnectedEvent", broadcastConnectedEvent);
-        world.setDynamicProperty("general:broadcastDisconnectedEvent", broadcastDisconnectedEvent);
-        world.setDynamicProperty("general:broadcastPlayerConnectedEvent", broadcastPlayerConnectedEvent);
-        world.setDynamicProperty("general:broadcastPlayerDisconnectedEvent", broadcastPlayerDisconnectedEvent);
-        world.setDynamicProperty("general:showVoiceIcons", showVoiceIcons);
-        world.setDynamicProperty("general:enableCaveEcho", caveEcho);
-        world.setDynamicProperty("general:enableUnderwaterMuffle", underwaterMuffle);
+    //Visual
+    private showVoiceIcons = new ObservableBoolean(world.getDynamicProperty("general:showVoiceIcons") as boolean ?? false, {clientWritable: true});
+
+    constructor(private _player: Player) {
+        this._form = new CustomForm(this._player, "General Settings")
+            .spacer()
+            .label("Broadcast Events")
+            .spacer()
+            .toggle("Server Connected", this.broadcastConnectedEvent)
+            .toggle("Server Disconnected", this.broadcastDisconnectedEvent)
+            .toggle("Player Connected", this.broadcastPlayerConnectedEvent)
+            .toggle("Player Disconnected", this.broadcastPlayerDisconnectedEvent)
+            .divider()
+            .label("Voice Effects")
+            .spacer()
+            .toggle("Enable Cave Echo", this.enableCaveEcho)
+            .toggle("Enable Underwater Muffle", this.enableUnderwaterMuffle)
+            .divider()
+            .label("Visual")
+            .spacer()
+            .toggle("Show Voice Icons", this.showVoiceIcons)
+            .closeButton();
+
+        this.broadcastConnectedEvent.subscribe(newVal => world.setDynamicProperty("general:broadcastConnectedEvent", newVal));
+        this.broadcastDisconnectedEvent.subscribe(newVal => world.setDynamicProperty("general:broadcastDisconnectedEvent", newVal));
+        this.broadcastPlayerConnectedEvent.subscribe(newVal => world.setDynamicProperty("general:broadcastPlayerConnectedEvent", newVal));
+        this.broadcastPlayerDisconnectedEvent.subscribe(newVal => world.setDynamicProperty("general:broadcastPlayerDisconnectedEvent", newVal));
+        this.enableCaveEcho.subscribe(newVal => world.setDynamicProperty("general:enableCaveEcho", newVal));
+        this.enableUnderwaterMuffle.subscribe(newVal => world.setDynamicProperty("general:enableUnderwaterMuffle", newVal));
+        this.showVoiceIcons.subscribe(newVal => world.setDynamicProperty("general:showVoiceIcons", newVal));
     }
 
-    private Validate(formValues: (string | number | boolean | undefined)[]): [boolean, boolean, boolean, boolean, boolean, boolean, boolean] {
-        //Extract Values
-        const [
-            broadcastConnectedEventValue,
-            broadcastDisconnectedEventValue,
-            broadcastPlayerConnectedEventValue,
-            broadcastPlayerDisconnectedEventValue,
-            showVoiceIconsValue,
-            caveEchoValue,
-            underwaterMuffleValue] = formValues;
-
-        //Validate Values
-        if (typeof broadcastConnectedEventValue !== "boolean" ||
-            typeof broadcastDisconnectedEventValue !== "boolean" ||
-            typeof broadcastPlayerConnectedEventValue !== "boolean" ||
-            typeof broadcastPlayerDisconnectedEventValue !== "boolean" ||
-            typeof showVoiceIconsValue !== "boolean" ||
-            typeof caveEchoValue !== "boolean" ||
-            typeof underwaterMuffleValue !== "boolean")
-            throw new Error("Invalid Form Values!");
-
-        //Return Values
-        return [broadcastConnectedEventValue,
-            broadcastDisconnectedEventValue,
-            broadcastPlayerConnectedEventValue,
-            broadcastPlayerDisconnectedEventValue,
-            showVoiceIconsValue,
-            caveEchoValue,
-            underwaterMuffleValue];
+    public async ShowAsync() {
+        try {
+            await this._form.show();
+        }
+        catch (error) {
+            if(this._player.isValid)
+                this._player.sendMessage(`§c${error}`);
+        }
     }
 }

@@ -28,6 +28,7 @@ system.beforeEvents.startup.subscribe(() => {
         system.sendScriptEvent(`${VoiceCraft.Namespace}:eventSubscribe`, EventType[EventType.OnEffectUpdated]);
         system.sendScriptEvent(`${VoiceCraft.Namespace}:eventSubscribe`, EventType[EventType.OnEntityAudioReceived]);
         system.sendScriptEvent(`${VoiceCraft.Namespace}:eventSubscribe`, EventType[EventType.OnNetworkEntityCreated]);
+        system.sendScriptEvent(`${VoiceCraft.Namespace}:eventSubscribe`, EventType[EventType.OnEntityDestroyed]);
     });
 });
 world.afterEvents.worldLoad.subscribe(_ => {

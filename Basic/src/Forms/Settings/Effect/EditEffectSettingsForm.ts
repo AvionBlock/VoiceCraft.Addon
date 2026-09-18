@@ -1,67 +1,88 @@
-import {Player} from "@minecraft/server";
-import {ActionFormData} from "@minecraft/server-ui";
-import {EffectType} from "../../../API/Data/Enums";
+import {Player, system} from "@minecraft/server";
+import {CustomForm} from "@minecraft/server-ui";
 import {AudioEffectSystem} from "../../../API/Systems/AudioEffectSystem";
+import {IAudioEffect} from "../../../API/Interfaces/IAudioEffect";
+import {EffectType} from "../../../API/Data/Enums";
 import {SetVisibilityEffectSettingsForm} from "./SetVisibilityEffectSettingsForm";
-import {VisibilityEffect} from "../../../API/Effects/VisibilityEffect";
-import {ProximityEffect} from "../../../API/Effects/ProximityEffect";
-import {DirectionalEffect} from "../../../API/Effects/DirectionalEffect";
-import {ProximityEchoEffect} from "../../../API/Effects/ProximityEchoEffect";
-import {EchoEffect} from "../../../API/Effects/EchoEffect";
-import {ProximityMuffleEffect} from "../../../API/Effects/ProximityMuffleEffect";
-import {MuffleEffect} from "../../../API/Effects/MuffleEffect";
 import {SetProximityEffectSettingsForm} from "./SetProximityEffectSettingsForm";
 import {SetDirectionalEffectSettingsForm} from "./SetDirectionalEffectSettingsForm";
 import {SetProximityEchoEffectSettingsForm} from "./SetProximityEchoEffectSettingsForm";
 import {SetEchoEffectSettingsForm} from "./SetEchoEffectSettingsForm";
 import {SetProximityMuffleEffectSettingsForm} from "./SetProximityMuffleEffectSettingsForm";
 import {SetMuffleEffectSettingsForm} from "./SetMuffleEffectSettingsForm";
+import {DirectionalEffect} from "../../../API/Effects/DirectionalEffect";
+import {VisibilityEffect} from "../../../API/Effects/VisibilityEffect";
+import {ProximityEffect} from "../../../API/Effects/ProximityEffect";
+import {ProximityEchoEffect} from "../../../API/Effects/ProximityEchoEffect";
+import {EchoEffect} from "../../../API/Effects/EchoEffect";
+import {ProximityMuffleEffect} from "../../../API/Effects/ProximityMuffleEffect";
+import {MuffleEffect} from "../../../API/Effects/MuffleEffect";
 
 export class EditEffectSettingsForm {
-    constructor(private _aes: AudioEffectSystem) {
-    }
+    private _form: CustomForm;
 
-    private _form = () => {
-        const form = new ActionFormData()
-            .title("Edit Effect")
-        const effects = [];
+    constructor(private _player: Player, private _aes: AudioEffectSystem) {
+        this._form = new CustomForm(this._player, "Edit Effect")
+            .spacer();
+
         for (const effect of this._aes.Effects.entries()) {
             const selectedEffect = effect[1];
             selectedEffect.Bitmask = effect[0];
-            effects.push(selectedEffect);
-            form.button(`${EffectType[selectedEffect.EffectType]}: ${selectedEffect.Bitmask}`);
+            this._form.button(`${selectedEffect.Bitmask}: ${EffectType[selectedEffect.EffectType]}`,
+                () => this.ShowEditEffectSettings(selectedEffect));
         }
-        return {effects: effects, form: form};
+        this._form.closeButton();
     }
 
-    public async Show(player: Player) {
-        const form = this._form();
-        const {canceled, selection} = await form.form.show(player);
-        if (canceled || selection === undefined) return;
-        const selectedEffect = form.effects[selection];
-        if (selectedEffect === undefined) return;
+    public async ShowAsync() {
+        try {
+            await this._form.show();
+        } catch (error) {
+            if (this._player.isValid)
+                this._player.sendMessage(`§c${error}`);
+        }
+    }
 
-        switch (selectedEffect.constructor) {
-            case VisibilityEffect:
-                await new SetVisibilityEffectSettingsForm(this._aes).Show(player, selectedEffect as VisibilityEffect);
+    public ShowEditEffectSettings(effect: IAudioEffect) {
+        this._form.close();
+        switch (effect.EffectType) {
+            case EffectType.Visibility:
+                system.run(async () =>
+                    await new SetVisibilityEffectSettingsForm(this._player, this._aes, effect as VisibilityEffect)
+                        .ShowAsync());
                 break;
-            case ProximityEffect:
-                await new SetProximityEffectSettingsForm(this._aes).Show(player, selectedEffect as ProximityEffect);
+            case EffectType.Proximity:
+                system.run(async () =>
+                    await new SetProximityEffectSettingsForm(this._player, this._aes, effect as ProximityEffect)
+                        .ShowAsync());
                 break;
-            case DirectionalEffect:
-                await new SetDirectionalEffectSettingsForm(this._aes).Show(player, selectedEffect as DirectionalEffect);
+            case EffectType.Directional:
+                system.run(async () =>
+                    await new SetDirectionalEffectSettingsForm(this._player, this._aes, effect as DirectionalEffect)
+                        .ShowAsync());
                 break;
-            case ProximityEchoEffect:
-                await new SetProximityEchoEffectSettingsForm(this._aes).Show(player, selectedEffect as ProximityEchoEffect);
+            case EffectType.ProximityEcho:
+                system.run(async () =>
+                    await new SetProximityEchoEffectSettingsForm(this._player, this._aes, effect as ProximityEchoEffect)
+                        .ShowAsync());
                 break;
-            case EchoEffect:
-                await new SetEchoEffectSettingsForm(this._aes).Show(player, selectedEffect as EchoEffect);
+            case EffectType.Echo:
+                system.run(async () =>
+                    await new SetEchoEffectSettingsForm(this._player, this._aes, effect as EchoEffect)
+                        .ShowAsync());
                 break;
-            case ProximityMuffleEffect:
-                await new SetProximityMuffleEffectSettingsForm(this._aes).Show(player, selectedEffect as ProximityMuffleEffect);
+            case EffectType.ProximityMuffle:
+                system.run(async () =>
+                    await new SetProximityMuffleEffectSettingsForm(this._player, this._aes, effect as ProximityMuffleEffect)
+                        .ShowAsync());
                 break;
-            case MuffleEffect:
-                await new SetMuffleEffectSettingsForm(this._aes).Show(player, selectedEffect as MuffleEffect);
+            case EffectType.Muffle:
+                system.run(async () =>
+                    await new SetMuffleEffectSettingsForm(this._player, this._aes, effect as MuffleEffect)
+                        .ShowAsync());
+                break;
+            case EffectType.None:
+            default:
                 break;
         }
     }

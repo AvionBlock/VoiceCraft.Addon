@@ -57,7 +57,7 @@ export class CommandManager {
             };
         const player = origin.sourceEntity;
         system.run(async () => {
-            await new SettingsForm(this._vc, this._bs, this._aes).Show(player);
+            await new SettingsForm(player, this._vc, this._bs, this._aes).ShowAsync();
         });
         return undefined;
     }
