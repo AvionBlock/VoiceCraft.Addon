@@ -1,5 +1,7 @@
+#!/bin/bash
+
 # Typescript
-cd ./Basic && tsc -watch --preserveWatchOutput &
-cd ../Core.McHttp && tsc -watch --preserveWatchOutput &
-cd ../Core.McWss && tsc -watch --preserveWatchOutput
+tsc --watch ./Basic/tsconfig.json --preserveWatchOutput &
+tsc --watch ./Core.McHttp/tsconfig.json --preserveWatchOutput &
+tsc --watch ./Core.McWss/tsconfig.json --preserveWatchOutput
 wait
